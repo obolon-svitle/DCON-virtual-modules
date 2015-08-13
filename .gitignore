@@ -1,0 +1,10 @@
+!src/stellaris/driverlib/gcc-cm3/libdriver-cm3.a
+!src/stellaris/driverlib/gcc/libdriver.a
+bin/
+tags
+.#*
+SDCARD.img
+GRTAGS
+GSYMS
+GTAGS
+GPATH
