@@ -20,7 +20,7 @@ INCLUDE = \
 	  -I . -I $(RTOS_SOURCE_DIR)/include -I $(RTOS_SOURCE_DIR)/portable/GCC/ARM_CM3
 
 CFLAGS = \
-		$(DEBUG) $(OPTIM) $(INCLUDE) -std=c99 -pedantic -Wall -Wfatal-errors -mthumb -mcpu=cortex-m3 \
+		$(DEBUG) $(OPTIM) $(INCLUDE) -std=c99 -pedantic -Wall -Wfatal-errors -Werror -mthumb -mcpu=cortex-m3 \
 		-ffunction-sections -fdata-sections -T$(LDSCRIPT) \
 		-D GCC_ARMCM3_LM3S102 -D printf=uipprintf -D UART_BUFFERED -D RTOS_FREERTOS \
 		-D sprintf=usprintf -D snprintf=usnprintf -fno-asynchronous-unwind-tables\

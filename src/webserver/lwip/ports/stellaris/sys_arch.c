@@ -49,8 +49,8 @@
 #include "lwip/stats.h"
 
 /* Very crude mechanism used to determine if the critical section handling
-functions are being called from an interrupt context or not.  This relies on
-the interrupt handler setting this variable manually. */
+   functions are being called from an interrupt context or not.  This relies on
+   the interrupt handler setting this variable manually. */
 portBASE_TYPE xInsideISR = pdFALSE;
 
 /*---------------------------------------------------------------------------*
@@ -63,14 +63,12 @@ portBASE_TYPE xInsideISR = pdFALSE;
  * Outputs:
  *      sys_mbox_t              -- Handle to new mailbox
  *---------------------------------------------------------------------------*/
-err_t sys_mbox_new( sys_mbox_t *pxMailBox, int iSize )
-{
-err_t xReturn = ERR_MEM;
+err_t sys_mbox_new( sys_mbox_t *pxMailBox, int iSize ) {
+	err_t xReturn = ERR_MEM;
 
 	*pxMailBox = xQueueCreate( iSize, sizeof( void * ) );
 
-	if( *pxMailBox != NULL )
-	{
+	if ( *pxMailBox != NULL ) {
 		xReturn = ERR_OK;
 		SYS_STATS_INC_USED( mbox );
 	}
@@ -91,23 +89,24 @@ err_t xReturn = ERR_MEM;
  * Outputs:
  *      sys_mbox_t              -- Handle to new mailbox
  *---------------------------------------------------------------------------*/
-void sys_mbox_free( sys_mbox_t *pxMailBox )
-{
-unsigned long ulMessagesWaiting;
-
+void sys_mbox_free(sys_mbox_t *pxMailBox) {
+	#if SYS_STATS
+	unsigned long ulMessagesWaiting;
+	
 	ulMessagesWaiting = uxQueueMessagesWaiting( *pxMailBox );
 	configASSERT( ( ulMessagesWaiting == 0 ) );
 
-	#if SYS_STATS
-	{
-		if( ulMessagesWaiting != 0UL )
-		{
-			SYS_STATS_INC( mbox.err );
-		}
-
-		SYS_STATS_DEC( mbox.used );
+	if (ulMessagesWaiting != 0UL) {	
+		SYS_STATS_INC( mbox.err );
 	}
-	#endif /* SYS_STATS */
+	
+	SYS_STATS_DEC( mbox.used );
+	
+	#else
+	
+	uxQueueMessagesWaiting( *pxMailBox);
+	
+	#endif
 
 	vQueueDelete( *pxMailBox );
 }
@@ -141,8 +140,8 @@ void sys_mbox_post( sys_mbox_t *pxMailBox, void *pxMessageToPost )
  *---------------------------------------------------------------------------*/
 err_t sys_mbox_trypost( sys_mbox_t *pxMailBox, void *pxMessageToPost )
 {
-err_t xReturn;
-portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+	err_t xReturn;
+	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 
 	if( xInsideISR != pdFALSE )
 	{
@@ -194,9 +193,9 @@ portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
  *---------------------------------------------------------------------------*/
 u32_t sys_arch_mbox_fetch( sys_mbox_t *pxMailBox, void **ppvBuffer, u32_t ulTimeOut )
 {
-void *pvDummy;
-TickType_t xStartTime, xEndTime, xElapsed;
-unsigned long ulReturn;
+	void *pvDummy;
+	TickType_t xStartTime, xEndTime, xElapsed;
+	unsigned long ulReturn;
 
 	xStartTime = xTaskGetTickCount();
 
@@ -256,10 +255,10 @@ unsigned long ulReturn;
  *---------------------------------------------------------------------------*/
 u32_t sys_arch_mbox_tryfetch( sys_mbox_t *pxMailBox, void **ppvBuffer )
 {
-void *pvDummy;
-unsigned long ulReturn;
-long lResult;
-portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+	void *pvDummy;
+	unsigned long ulReturn;
+	long lResult;
+	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 
 	if( ppvBuffer== NULL )
 	{
@@ -302,7 +301,7 @@ portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
  *---------------------------------------------------------------------------*/
 err_t sys_sem_new( sys_sem_t *pxSemaphore, u8_t ucCount )
 {
-err_t xReturn = ERR_MEM;
+	err_t xReturn = ERR_MEM;
 
 	vSemaphoreCreateBinary( ( *pxSemaphore ) );
 
@@ -349,8 +348,8 @@ err_t xReturn = ERR_MEM;
  *---------------------------------------------------------------------------*/
 u32_t sys_arch_sem_wait( sys_sem_t *pxSemaphore, u32_t ulTimeout )
 {
-TickType_t xStartTime, xEndTime, xElapsed;
-unsigned long ulReturn;
+	TickType_t xStartTime, xEndTime, xElapsed;
+	unsigned long ulReturn;
 
 	xStartTime = xTaskGetTickCount();
 
@@ -389,7 +388,7 @@ unsigned long ulReturn;
  * @return a new mutex */
 err_t sys_mutex_new( sys_mutex_t *pxMutex )
 {
-err_t xReturn = ERR_MEM;
+	err_t xReturn = ERR_MEM;
 
 	*pxMutex = xSemaphoreCreateMutex();
 
@@ -440,7 +439,7 @@ void sys_mutex_free( sys_mutex_t *pxMutex )
  *---------------------------------------------------------------------------*/
 void sys_sem_signal( sys_sem_t *pxSemaphore )
 {
-portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 
 	if( xInsideISR != pdFALSE )
 	{
@@ -501,9 +500,9 @@ u32_t sys_now(void)
  *---------------------------------------------------------------------------*/
 sys_thread_t sys_thread_new( const char *pcName, void( *pxThread )( void *pvParameters ), void *pvArg, int iStackSize, int iPriority )
 {
-TaskHandle_t xCreatedTask;
-portBASE_TYPE xResult;
-sys_thread_t xReturn;
+	TaskHandle_t xCreatedTask;
+	portBASE_TYPE xResult;
+	sys_thread_t xReturn;
 
 	xResult = xTaskCreate( pxThread, pcName, iStackSize, pvArg, iPriority, &xCreatedTask );
 
