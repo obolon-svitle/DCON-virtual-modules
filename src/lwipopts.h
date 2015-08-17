@@ -14,16 +14,22 @@
 
 #define MEMP_MEM_MALLOC 1
 #define MEM_LIBC_MALLOC 1
+
+#if 0
 #define MEMP_NUM_PBUF                     48
 #define MEMP_NUM_TCP_PCB                  16
 #define MEMP_NUM_SYS_TIMEOUT              8
 #define PBUF_POOL_SIZE                    48
+#endif
+
 
 #define SYS_LIGHTWEIGHT_PROT 1
 #define LWIP_DHCP                       1
 #define IP_REASSEMBLY 0
 #define IP_FRAG 0
 
+#define LWIP_SOCKET 0
+#define TCPIP_MBOX_SIZE sizeof(void *)
 
 #define ETH_PAD_SIZE 2
 

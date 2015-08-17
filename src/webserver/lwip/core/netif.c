@@ -199,11 +199,11 @@ netif_add(struct netif *netif, ip_addr_t *ipaddr, ip_addr_t *netmask,
 
   LWIP_DEBUGF(NETIF_DEBUG, ("netif: added interface %c%c IP addr ",
     netif->name[0], netif->name[1]));
-  ip_addr_debug_print(NETIF_DEBUG, ipaddr);
+  ip_addr_debug_print(NETIF_DEBUG, (ip_addr_p_t *) ipaddr);
   LWIP_DEBUGF(NETIF_DEBUG, (" netmask "));
-  ip_addr_debug_print(NETIF_DEBUG, netmask);
+  ip_addr_debug_print(NETIF_DEBUG, (ip_addr_p_t *) netmask);
   LWIP_DEBUGF(NETIF_DEBUG, (" gw "));
-  ip_addr_debug_print(NETIF_DEBUG, gw);
+  ip_addr_debug_print(NETIF_DEBUG, (ip_addr_p_t *) gw);
   LWIP_DEBUGF(NETIF_DEBUG, ("\n"));
   return netif;
 }
