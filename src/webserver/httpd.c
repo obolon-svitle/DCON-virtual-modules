@@ -146,7 +146,7 @@ enum tag_check_state {
 
 struct http_state {
   struct fs_file *handle;
-  char *file;       /* Pointer to first unsent byte in buf. */
+  const char *file;       /* Pointer to first unsent byte in buf. */
   char *buf;        /* File read buffer. */
 #ifdef INCLUDE_HTTPD_SSI
   char *parsed;     /* Pointer to the first unparsed byte in buf. */

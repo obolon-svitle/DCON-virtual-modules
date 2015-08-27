@@ -5,12 +5,11 @@
 #include "driverlib/flash.h"
 #include "utils/uartstdio.h"
 
-unsigned char pucMACArray[6];
+static unsigned char pucMACArray[8];
 
 void TaskLWIPFunction(void *pvParameters) {
 
 	unsigned long ulUser0, ulUser1;
-    unsigned char pucMACArray[8];
 
     FlashUserGet(&ulUser0, &ulUser1);
        

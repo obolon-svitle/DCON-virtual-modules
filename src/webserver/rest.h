@@ -4,15 +4,17 @@
 #include <FreeRTOS.h>
 #include <semphr.h>
 
+typedef int (*const params_handler_t)(const char *param,
+									  const char** data); 
+
 struct rest_dev {
-	xSemaphoreHandle semphr;
 	struct rest_dev *next;
 	struct rest_dev *prev;
+	xSemaphoreHandle semphr;
 	const char* name;
-	int (*param_func)(const char *param,
-					  char **data);
-	const char **dev_params;
+	params_handler_t handler;
 	const int param_count;
+	const char **dev_params;
 };
 
 int rest_dev_register(struct rest_dev *dev);

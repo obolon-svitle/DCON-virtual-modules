@@ -56,7 +56,7 @@ extern void SysTickIntHandler(void);
 //
 //*****************************************************************************
 #ifndef STACK_SIZE
-#define STACK_SIZE                              0xc00
+#define STACK_SIZE                              0xf00
 #endif
 static unsigned long pulStack[STACK_SIZE];
 

@@ -36,7 +36,7 @@
 #include <semphr.h>
 
 struct fs_file {
-	char *data;
+	const char *data;
 	int len;
 	int index;
 	void *pextension;

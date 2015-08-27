@@ -33,27 +33,9 @@
 #include "fs.h"
 #include <string.h>
 #include "rest.h"
-#include "restfsdata.h"
+#include "restfsdata.c"
 
-static struct rest_dev dev_not_found_htm;
-static struct rest_dev dev_index_htm;
-
-static struct rest_dev dev_index_htm = {
-	.next = &dev_not_found_htm,
-	.prev = NULL,
-	.name = "index",
-	.param_count = 0,
-};
-
-static struct rest_dev dev_not_found_htm = {
-	.next = NULL,
-	.prev = &dev_index_htm,
-	.name = "404",
-	.param_count = 0,
-};
-
-struct rest_dev *rest_root = &dev_index_htm;
-
+ 
 /*-----------------------------------------------------------------------------------*/
 /* Define the number of open files that we can support. */
 #ifndef LWIP_MAX_OPEN_FILES
@@ -90,6 +72,10 @@ static void fs_free(struct fs_file *file) {
 			break;
 		}
 	}
+	#if !NO_SYS
+	xSemaphoreGive(file->semphr);
+	#endif
+	
 	return;
 }
 
@@ -112,8 +98,8 @@ struct fs_file *fs_open(const char *name) {
 		xSemaphoreTake(f->semphr, portMAX_DELAY);
 		#endif
 		namelen = strlen(f->name);
-		if (!strncmp(name, (char *)f->name, namelen)) {
-			file->len = f->param_func(name + namelen, &file->data);
+		if (!strncmp(name + 1, (char *)(f->name), namelen)) {
+			file->len = f->handler(name + 2 + namelen, &file->data);
 			file->index = file->len;
 			file->pextension = NULL;
 			file->semphr = f->semphr;
@@ -136,9 +122,6 @@ struct fs_file *fs_open(const char *name) {
 
 /*-----------------------------------------------------------------------------------*/
 void fs_close(struct fs_file *file) {
-	#if !NO_SYS
-	xSemaphoreGive(file->semphr);
-	#endif
 	
 	fs_free(file);
 }

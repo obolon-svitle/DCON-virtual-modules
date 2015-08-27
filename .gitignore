@@ -10,3 +10,7 @@ tags
 .#*
 SDCARD.img
 qemu.sh
+GRTAGS
+GSYMS
+GTAGS
+GPATH

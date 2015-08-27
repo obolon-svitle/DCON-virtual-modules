@@ -71,6 +71,7 @@
 /* Scheduler includes. */
 
 #include "FreeRTOS.h"
+#include "FreeRTOSConfig.h"
 
 /* Library includes. */
 #include "inc/hw_ints.h"
@@ -85,7 +86,7 @@ the jitter. */
 #define timerINTERRUPT_FREQUENCY		( 20000UL )
 
 /* The highest available interrupt priority. */
-#define timerHIGHEST_PRIORITY			( 0 )
+#define timerHIGHEST_PRIORITY			0
 
 /*-----------------------------------------------------------*/
 
@@ -99,8 +100,7 @@ volatile unsigned long ulHighFrequencyTimerTicks = 0UL;
 
 /*-----------------------------------------------------------*/
 
-void setup_timers(void)
-{
+void setup_timers(void) {
 	unsigned long ulFrequency;
 
 	/* Timer zero is used to generate the interrupts, and timer 1 is used
@@ -124,13 +124,11 @@ void setup_timers(void)
 
 /*-----------------------------------------------------------*/
 
-void Timer0IntHandler(void)
-{
+void Timer0IntHandler(void) {
 	TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
 	
 	/* Keep a count of the total number of 20KHz ticks.  This is used by the
 	   run time stats functionality to calculate how much CPU time is used by
 	   each task. */
 	ulHighFrequencyTimerTicks++;
-
 }

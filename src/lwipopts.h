@@ -6,22 +6,25 @@
 
 /*Stellaris*/
 #define BYTE_ORDER LITTLE_ENDIAN
-#define LWIP_PREFIX_BYTEORDER_FUNCS
+#define LWIP_PREFIX_BYTEORDER_FUNCS 1
 #define LWIP_PLATFORM_BYTESWAP 1
-
 #define LWIP_PLATFORM_HTONS(x) htons(x)
 #define LWIP_PLATFORM_HTONL(x) htonl(x)
 
 #define MEMP_MEM_MALLOC 1
 #define MEM_LIBC_MALLOC 1
+#define free vPortFree
+#define malloc pvPortMalloc
+#define mem_free free
+#define mem_malloc malloc
+#define mem_realloc(mem, size) mem
 
-#if 0
+#define PBUF_LINK_HLEN 16
+
 #define MEMP_NUM_PBUF                     48
 #define MEMP_NUM_TCP_PCB                  16
 #define MEMP_NUM_SYS_TIMEOUT              8
 #define PBUF_POOL_SIZE                    48
-#endif
-
 
 #define SYS_LIGHTWEIGHT_PROT 1
 #define LWIP_DHCP                       1
@@ -37,15 +40,14 @@
 #define TCPIP_THREAD_STACKSIZE          300
 #define TCPIP_THREAD_PRIO               1
 
+#define TCP_SND_BUF (2 * TCP_MSS)
+
 #define DEFAULT_THREAD_NAME            "lwIP"
 #define DEFAULT_THREAD_STACKSIZE        300
 #define DEFAULT_THREAD_PRIO             1
 
 #define LWIP_STATS                      0
 #define LWIP_DEBUG
-#define ICMP_DEBUG LWIP_DBG_ON
-#define DHCP_DEBUG                      LWIP_DBG_ON
-#define ICMP_DEBUG                      LWIP_DBG_ON
-#define INET_DEBUG                      LWIP_DBG_ON
-#define PBUF_DEBUG                      LWIP_DBG_ON
+#define HTTPD_DEBUG LWIP_DBG_ON
+
 

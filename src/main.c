@@ -117,6 +117,7 @@
 /* Hardware library includes. */
 #include <inc/hw_memmap.h>
 #include <inc/hw_types.h>
+#include <inc/hw_ints.h>
 #include <inc/hw_sysctl.h>
 #include <driverlib/sysctl.h>
 #include <driverlib/gpio.h>
@@ -124,9 +125,9 @@
 #include <driverlib/interrupt.h>
 #include <utils/uartstdio.h>
 #include <utils/lwiplib.h>
+#include <stdio.h>
 
 /*-----------------------------------------------------------*/
-
 #define SYSTICKHZ 100
 #define SYSTICKMS (1000 / SYSTICKHZ)
 
@@ -140,20 +141,23 @@ extern void setup_timers(void);
 
 extern void TaskLWIPFunction(void *pvParameters);
 
+extern void TaskSensorFunction(void* r);
+
 int main( void ) {
 	prvSetupHardware();
 
 	UARTprintf("ALLO YOBA ETO TI\n");
 
-	if( SysCtlPeripheralPresent( SYSCTL_PERIPH_ETH ) ) {
-		xTaskCreate(TaskLWIPFunction, "lwip", TASK_STACK_SIZE, NULL, 1, NULL );
-	}  
-
 	setup_timers();
+
+	if( SysCtlPeripheralPresent( SYSCTL_PERIPH_ETH ) ) {
+		xTaskCreate(TaskLWIPFunction, "lwip", TASK_STACK_SIZE, NULL, 1, NULL);
+	}
+	xTaskCreate(TaskSensorFunction, "sensor", TASK_STACK_SIZE, NULL, 1, NULL);
 
 	vTaskStartScheduler();
 	
-	for (; ; )
+	for (; ;)
 		;
 	
 	return 0;
@@ -171,21 +175,25 @@ void prvSetupHardware( void ) {
 	
 	SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_OSC_MAIN | SYSCTL_USE_PLL |
                    SYSCTL_XTAL_16MHZ);
-
-//	PinoutSet();
+#include "set_pinout.h"
+	PinoutSet();
 	
 	GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
 	
-	SysCtlPeripheralEnable(SYSCTL_PERIPH_ETH);
-	SysCtlPeripheralReset(SYSCTL_PERIPH_ETH);
-
 	GPIOPinTypeEthernetLED(GPIO_PORTF_BASE, GPIO_PIN_2 | GPIO_PIN_3);
+	
+	IntPrioritySet(INT_ETH, configKERNEL_INTERRUPT_PRIORITY);
+	IntPrioritySet(INT_SYSCTL, configKERNEL_INTERRUPT_PRIORITY);
+	IntPrioritySet(INT_UART0, configKERNEL_INTERRUPT_PRIORITY);
+
+	#if 0
 	SysTickPeriodSet(SysCtlClockGet() / 1000);
 	SysTickEnable();
 	SysTickIntEnable();
 
 	IntMasterEnable();
-	
+	#endif
+
 	UARTStdioInit(0);
 }
 /*-----------------------------------------------------------*/
@@ -193,6 +201,7 @@ void prvSetupHardware( void ) {
 void vApplicationStackOverflowHook( TaskHandle_t *pxTask, signed char *pcTaskName ) {
 	( void ) pxTask;
 	( void ) pcTaskName;
+	UARTprintf("Stack Overflow\n");
 
 	for( ;; );
 }
@@ -202,7 +211,7 @@ void vAssertCalled( const char *pcFile, unsigned long ulLine ) {
 volatile unsigned long ulSetTo1InDebuggerToExit = 0;
 
 	taskENTER_CRITICAL();
-{
+	{
 		while( ulSetTo1InDebuggerToExit == 0 )
 		{
 			/* Nothing do do here.  Set the loop variable to a non zero value in
