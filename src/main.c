@@ -134,32 +134,26 @@
 #define TASK_STACK_SIZE 300
 
 static void prvSetupHardware( void );
-
 extern void setup_timers(void);
 
 /*-----------------------------------------------------------*/
 
 extern void TaskLWIPFunction(void *pvParameters);
 
-extern void TaskSensorFunction(void* r);
-
 int main( void ) {
 	prvSetupHardware();
-
-	UARTprintf("ALLO YOBA ETO TI\n");
-
 	setup_timers();
+	
+	UARTprintf("ALLO YOBA ETO TI\n");
 
 	if( SysCtlPeripheralPresent( SYSCTL_PERIPH_ETH ) ) {
 		xTaskCreate(TaskLWIPFunction, "lwip", TASK_STACK_SIZE, NULL, 1, NULL);
 	}
-	xTaskCreate(TaskSensorFunction, "sensor", TASK_STACK_SIZE, NULL, 1, NULL);
 
 	vTaskStartScheduler();
 	
 	for (; ;)
 		;
-	
 	return 0;
 }
 /*-----------------------------------------------------------*/
@@ -175,9 +169,6 @@ void prvSetupHardware( void ) {
 	
 	SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_OSC_MAIN | SYSCTL_USE_PLL |
                    SYSCTL_XTAL_16MHZ);
-#include "set_pinout.h"
-	PinoutSet();
-	
 	GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
 	
 	GPIOPinTypeEthernetLED(GPIO_PORTF_BASE, GPIO_PIN_2 | GPIO_PIN_3);

@@ -81,7 +81,7 @@
  *
  * See http://www.freertos.org/a00110.html.
  *----------------------------------------------------------*/
-
+#define configASSERT( x ) if( (x) == 0 ) { taskDISABLE_INTERRUPTS(); for(;;); }
 #define configUSE_PREEMPTION			1
 #define configUSE_IDLE_HOOK				0
 #define configUSE_TICK_HOOK				0

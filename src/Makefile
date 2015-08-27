@@ -23,20 +23,18 @@ CFLAGS = \
 		$(DEBUG) $(OPTIM) $(INCLUDE) -std=c99 -pedantic -Wall -Wfatal-errors -Werror -mthumb -mcpu=cortex-m3 \
 		-ffunction-sections -fdata-sections -T$(LDSCRIPT) \
 		-D GCC_ARMCM3_LM3S102 -D printf=uipprintf -D UART_BUFFERED -D RTOS_FREERTOS \
-		-D sprintf=usprintf -D snprintf=usnprintf -fno-asynchronous-unwind-tables\
-		-D gcc -fno-exceptions
+		-D sprintf=usprintf -D snprintf=usnprintf \
+		-D gcc
 #-D PACK_STRUCT_END=__attribute\(\(packed\)\) -D ALIGN_STRUCT_END=__attribute\(\(aligned\(4\)\)\)
 
 SOURCE = \
 		main.c \
 		webserver/lwip_task.c \
-		sensor_task.c \
 		timers.c \
 		$(STELLARIS_DRIVER_DIR)/utils/uartstdio.c \
 		$(STELLARIS_DRIVER_DIR)/driverlib/ethernet.c \
 		$(STELLARIS_DRIVER_DIR)/utils/ustdlib.c \
 		$(STELLARIS_DRIVER_DIR)/utils/lwiplib.c \
-		$(STELLARIS_DRIVER_DIR)/set_pinout.c \
 		$(RTOS_SOURCE_DIR)/list.c \
 		$(RTOS_SOURCE_DIR)/queue.c \
 		$(RTOS_SOURCE_DIR)/tasks.c \
