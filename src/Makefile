@@ -71,6 +71,7 @@ SOURCE = \
 		$(LWIP_SOURCE_DIR)/ports/stellaris/netif/stellarisif.c \
 		$(HTTPD_SOURCE_DIR)/fs.c \
 		$(HTTPD_SOURCE_DIR)/rest.c \
+		$(HTTPD_SOURCE_DIR)/restfs.c \
 		$(HTTPD_SOURCE_DIR)/httpd.c
 
 LIBS = $(STELLARIS_DRIVER_DIR)/driverlib/gcc-cm3/libdriver-cm3.a

@@ -32,9 +32,7 @@
 #include "lwip/def.h"
 #include "fs.h"
 #include <string.h>
-#include "rest.h"
-#include "restfsdata.c"
-
+#include "restfs.h"
  
 /*-----------------------------------------------------------------------------------*/
 /* Define the number of open files that we can support. */
@@ -72,9 +70,6 @@ static void fs_free(struct fs_file *file) {
 			break;
 		}
 	}
-	#if !NO_SYS
-	xSemaphoreGive(file->semphr);
-	#endif
 	
 	return;
 }
@@ -89,40 +84,24 @@ struct fs_file *fs_open(const char *name) {
 	file = fs_malloc();
 	if (file == NULL) {
 		return NULL;
-}
-	#if !NO_SYS
-	xSemaphoreTake(rest_root_mutex, portMAX_DELAY);
-	#endif
+	}
 	for (f = rest_root; f != NULL; f = f->next) {
-		#if !NO_SYS
-		xSemaphoreTake(f->semphr, portMAX_DELAY);
-		#endif
+
 		namelen = strlen(f->name);
 		if (!strncmp(name + 1, (char *)(f->name), namelen)) {
-			file->len = f->handler(name + 2 + namelen, &file->data);
+			file->len = f->handler(name + 1, &file->data);
 			file->index = file->len;
 			file->pextension = NULL;
 			file->semphr = f->semphr;
-			#if !NO_SYS
-			xSemaphoreGive(rest_root_mutex);
-			#endif
 			return file;
 		}
-		#if !NO_SYS
-		xSemaphoreGive(f->semphr);
-		#endif
 	}
-	#if !NO_SYS
-	xSemaphoreGive(rest_root_mutex);
-	#endif
-  
 	fs_free(file);
 	return NULL;
 }
 
 /*-----------------------------------------------------------------------------------*/
 void fs_close(struct fs_file *file) {
-	
 	fs_free(file);
 }
 /*-----------------------------------------------------------------------------------*/
@@ -143,4 +122,3 @@ int fs_read(struct fs_file *file, char *buffer, int count) {
 
 	return(read);
 }
-

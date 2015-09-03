@@ -177,13 +177,11 @@ void prvSetupHardware( void ) {
 	IntPrioritySet(INT_SYSCTL, configKERNEL_INTERRUPT_PRIORITY);
 	IntPrioritySet(INT_UART0, configKERNEL_INTERRUPT_PRIORITY);
 
-	#if 0
 	SysTickPeriodSet(SysCtlClockGet() / 1000);
 	SysTickEnable();
 	SysTickIntEnable();
 
 	IntMasterEnable();
-	#endif
 
 	UARTStdioInit(0);
 }

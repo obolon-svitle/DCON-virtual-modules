@@ -1423,6 +1423,8 @@ http_accept(void *arg, struct tcp_pcb *pcb, err_t err)
   return ERR_OK;
 }
 /*-----------------------------------------------------------------------------------*/
+
+extern void restfs_init();
 void
 httpd_init(void)
 {
