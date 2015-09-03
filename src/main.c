@@ -54,7 +54,7 @@
 
     http://www.OpenRTOS.com - Real Time Engineers ltd license FreeRTOS to High
     Integrity Systems to sell under the OpenRTOS brand.  Low cost OpenRTOS
-    licenses offer ticketed support, indemnification and middleware.
+     licenses offer ticketed support, indemnification and middleware.
 
     http://www.SafeRTOS.com - High Integrity Systems also provide a safety
     engineered and independently SIL3 certified version for use in safety and
@@ -63,58 +63,13 @@
     1 tab == 4 spaces!
 */
 
-
-/*
- * Creates all the demo application tasks, then starts the scheduler.  The WEB
- * documentation provides more details of the standard demo application tasks.
- * In addition to the standard demo tasks, the following tasks and tests are
- * defined and/or created within this file:
- *
- * "Fast Interrupt Test" - A high frequency periodic interrupt is generated
- * using a free running timer to demonstrate the use of the
- * configKERNEL_INTERRUPT_PRIORITY configuration constant.  The interrupt
- * service routine measures the number of processor clocks that occur between
- * each interrupt - and in so doing measures the jitter in the interrupt timing.
- * The maximum measured jitter time is latched in the ulMaxJitter variable, and
- * displayed on the OLED display by the 'OLED' task as described below.  The
- * fast interrupt is configured and handled in the timertest.c source file.
- *
- * "OLED" task - the OLED task is a 'gatekeeper' task.  It is the only task that
- * is permitted to access the display directly.  Other tasks wishing to write a
- * message to the OLED send the message on a queue to the OLED task instead of
- * accessing the OLED themselves.  The OLED task just blocks on the queue waiting
- * for messages - waking and displaying the messages as they arrive.
- *
- * "Check" hook -  This only executes every five seconds from the tick hook.
- * Its main function is to check that all the standard demo tasks are still
- * operational.  Should any unexpected behaviour within a demo task be discovered
- * the tick hook will write an error to the OLED (via the OLED task).  If all the
- * demo tasks are executing with their expected behaviour then the check task
- * writes PASS to the OLED (again via the OLED task), as described above.
- *
- * "uIP" task -  This is the task that handles the uIP stack.  All TCP/IP
- * processing is performed in this task.
- */
-
-
-
-
-/*************************************************************************
- * Please ensure to read http://www.freertos.org/portLM3Sxxxx_Eclipse.html
- * which provides information on configuring and running this demo for the
- * various Luminary Micro EKs.
- *************************************************************************/
-
-/* Standard includes. */
 #include <stdio.h>
 
-/* Scheduler includes. */
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
 
-/* Hardware library includes. */
 #include <inc/hw_memmap.h>
 #include <inc/hw_types.h>
 #include <inc/hw_ints.h>
@@ -127,13 +82,9 @@
 #include <utils/lwiplib.h>
 #include <stdio.h>
 
-/*-----------------------------------------------------------*/
-#define SYSTICKHZ 100
-#define SYSTICKMS (1000 / SYSTICKHZ)
+#define LWIP_STACK_SIZE 300
 
-#define TASK_STACK_SIZE 300
-
-static void prvSetupHardware( void );
+static void prvSetupHardware(void);
 extern void setup_timers(void);
 
 /*-----------------------------------------------------------*/
@@ -144,16 +95,15 @@ int main( void ) {
 	prvSetupHardware();
 	setup_timers();
 	
-	UARTprintf("ALLO YOBA ETO TI\n");
-
-	if( SysCtlPeripheralPresent( SYSCTL_PERIPH_ETH ) ) {
-		xTaskCreate(TaskLWIPFunction, "lwip", TASK_STACK_SIZE, NULL, 1, NULL);
+	if (SysCtlPeripheralPresent(SYSCTL_PERIPH_ETH)) {
+		xTaskCreate(TaskLWIPFunction, "lwip", LWIP_STACK_SIZE, NULL, 1, NULL);
 	}
 
 	vTaskStartScheduler();
 	
 	for (; ;)
 		;
+	
 	return 0;
 }
 /*-----------------------------------------------------------*/
@@ -165,8 +115,8 @@ void prvSetupHardware( void ) {
 	if( DEVICE_IS_REVA2 ) {
 		SysCtlLDOSet( SYSCTL_LDO_2_75V );
 	}
-	/* Set the clocking to run from the PLL at 50 MHz */
 	
+	/* Set the clocking to run from the PLL at 50 MHz */
 	SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_OSC_MAIN | SYSCTL_USE_PLL |
                    SYSCTL_XTAL_16MHZ);
 	GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
@@ -174,10 +124,9 @@ void prvSetupHardware( void ) {
 	GPIOPinTypeEthernetLED(GPIO_PORTF_BASE, GPIO_PIN_2 | GPIO_PIN_3);
 	
 	IntPrioritySet(INT_ETH, configKERNEL_INTERRUPT_PRIORITY);
-	IntPrioritySet(INT_SYSCTL, configKERNEL_INTERRUPT_PRIORITY);
 	IntPrioritySet(INT_UART0, configKERNEL_INTERRUPT_PRIORITY);
 
-	SysTickPeriodSet(SysCtlClockGet() / 1000);
+	SysTickPeriodSet(SysCtlClockGet() / configTICK_RATE_HZ);
 	SysTickEnable();
 	SysTickIntEnable();
 
@@ -187,20 +136,19 @@ void prvSetupHardware( void ) {
 }
 /*-----------------------------------------------------------*/
 
-void vApplicationStackOverflowHook( TaskHandle_t *pxTask, signed char *pcTaskName ) {
-	( void ) pxTask;
-	( void ) pcTaskName;
-	UARTprintf("Stack Overflow\n");
+void vApplicationStackOverflowHook(TaskHandle_t *pxTask, signed char *pcTaskName) {
+	(void) pxTask;
+	UARTprintf("Stack overflow in %s task", pcTaskName);
 
-	for( ;; );
+	for( ;; )
+		;
 }
 /*-----------------------------------------------------------*/
 
 void vAssertCalled( const char *pcFile, unsigned long ulLine ) {
 volatile unsigned long ulSetTo1InDebuggerToExit = 0;
 
-	taskENTER_CRITICAL();
-	{
+	taskENTER_CRITICAL(); {
 		while( ulSetTo1InDebuggerToExit == 0 )
 		{
 			/* Nothing do do here.  Set the loop variable to a non zero value in

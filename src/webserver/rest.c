@@ -7,7 +7,9 @@
  */
 
 int rest_dev_register(struct rest_dev *dev, const char* name,
-					  params_handler_t handler,
+					  int (*handler) (
+						  const char *param,
+						  const char** data),
 					  const char **dev_params,
 					  int param_count) {
     dev->next = rest_root;

@@ -52,20 +52,23 @@ struct fs_table fs_memory[LWIP_MAX_OPEN_FILES];
 /*-----------------------------------------------------------------------------------*/
 static struct fs_file *fs_malloc(void) {
 	int i;
-	for(i = 0; i < LWIP_MAX_OPEN_FILES; i++) {
-		if(fs_memory[i].inuse == 0) {
+	
+	for (i = 0; i < LWIP_MAX_OPEN_FILES; i++) {
+		if (fs_memory[i].inuse == 0) {
 			fs_memory[i].inuse = 1;
 			return(&fs_memory[i].file);
 		}
 	}
+	
 	return(NULL);
 }
 
 /*-----------------------------------------------------------------------------------*/
 static void fs_free(struct fs_file *file) {
 	int i;
-	for(i = 0; i < LWIP_MAX_OPEN_FILES; i++) {
-		if(&fs_memory[i].file == file) {
+	
+	for (i = 0; i < LWIP_MAX_OPEN_FILES; i++) {
+		if (&fs_memory[i].file == file) {
 			fs_memory[i].inuse = 0;
 			break;
 		}
@@ -85,8 +88,8 @@ struct fs_file *fs_open(const char *name) {
 	if (file == NULL) {
 		return NULL;
 	}
+	
 	for (f = rest_root; f != NULL; f = f->next) {
-
 		namelen = strlen(f->name);
 		if (!strncmp(name + 1, (char *)(f->name), namelen)) {
 			file->len = f->handler(name + 1, &file->data);
@@ -96,7 +99,9 @@ struct fs_file *fs_open(const char *name) {
 			return file;
 		}
 	}
+	
 	fs_free(file);
+	
 	return NULL;
 }
 

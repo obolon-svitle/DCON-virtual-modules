@@ -64,10 +64,6 @@
     mission critical applications that require provable dependability.
 */
 
-/*
-  The FreeRTOS Demo source was used for implementing the FreeRTOS task management
-*/
-
 /* Scheduler includes. */
 
 #include "FreeRTOS.h"
@@ -85,12 +81,10 @@
 the jitter. */
 #define timerINTERRUPT_FREQUENCY		( 20000UL )
 
-/* The highest available interrupt priority. */
 #define timerHIGHEST_PRIORITY			0
 
 /*-----------------------------------------------------------*/
 
-/* Interrupt handler in which the jitter is measured. */
 void Timer0IntHandler(void);
 
 /* Counts the total number of times that the high frequency timer has 'ticked'.
@@ -103,23 +97,20 @@ volatile unsigned long ulHighFrequencyTimerTicks = 0UL;
 void setup_timers(void) {
 	unsigned long ulFrequency;
 
-	/* Timer zero is used to generate the interrupts, and timer 1 is used
-	   to measure the jitter. */
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);
 	TimerConfigure(TIMER0_BASE, TIMER_CFG_32_BIT_PER);
 
-	/* Set the timer interrupt to be above the kernel - highest. */
-	IntPrioritySet(INT_TIMER0A, timerHIGHEST_PRIORITY);
+	IntPrioritySet(INT_TIMER0A, configKERNEL_INTERRUPT_PRIORITY);
 
-	/* Ensure interrupts do not start until the scheduler is running. */
 	portDISABLE_INTERRUPTS();
 
-	/* The rate at which the timer will interrupt. */
 	ulFrequency = configCPU_CLOCK_HZ / timerINTERRUPT_FREQUENCY;
 	TimerLoadSet(TIMER0_BASE, TIMER_A, ulFrequency);
 	IntEnable(INT_TIMER0A);
 	TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
 	TimerEnable(TIMER0_BASE, TIMER_A);
+
+	portENABLE_INTERRUPTS();
 }
 
 /*-----------------------------------------------------------*/

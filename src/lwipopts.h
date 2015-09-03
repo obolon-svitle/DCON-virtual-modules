@@ -37,13 +37,13 @@
 #define ETH_PAD_SIZE 2
 
 #define TCPIP_THREAD_NAME              "tcpip_thread"
-#define TCPIP_THREAD_STACKSIZE          300
+#define TCPIP_THREAD_STACKSIZE          200
 #define TCPIP_THREAD_PRIO               1
 
 #define TCP_SND_BUF (2 * TCP_MSS)
 
 #define DEFAULT_THREAD_NAME            "lwIP"
-#define DEFAULT_THREAD_STACKSIZE        300
+#define DEFAULT_THREAD_STACKSIZE        100
 #define DEFAULT_THREAD_PRIO             1
 
 #define LWIP_STATS                      0

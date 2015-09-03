@@ -16,16 +16,21 @@ DEBUG = -g3
 OPTIM = -O0 -pipe
 
 INCLUDE = \
-		-I $(STELLARIS_DRIVER_DIR) -I $(LWIP_SOURCE_DIR)/include -I$(HTTPD_SOURCE_DIR) -I$(LWIP_SOURCE_DIR)/ports/stellaris/include -I$(LWIP_SOURCE_DIR)/include/ipv4 \
-	  -I . -I $(RTOS_SOURCE_DIR)/include -I $(RTOS_SOURCE_DIR)/portable/GCC/ARM_CM3
+		-I . \
+		-I $(STELLARIS_DRIVER_DIR) \
+		-I $(LWIP_SOURCE_DIR)/include \
+		-I $(HTTPD_SOURCE_DIR) \
+		-I $(LWIP_SOURCE_DIR)/ports/stellaris/include \
+		-I $(LWIP_SOURCE_DIR)/include/ipv4 \
+		-I $(RTOS_SOURCE_DIR)/include \
+		-I $(RTOS_SOURCE_DIR)/portable/GCC/ARM_CM3
 
 CFLAGS = \
-		$(DEBUG) $(OPTIM) $(INCLUDE) -std=c99 -pedantic -Wall -Wfatal-errors -Werror -mthumb -mcpu=cortex-m3 \
-		-ffunction-sections -fdata-sections -T$(LDSCRIPT) \
-		-D GCC_ARMCM3_LM3S102 -D printf=uipprintf -D UART_BUFFERED -D RTOS_FREERTOS \
-		-D sprintf=usprintf -D snprintf=usnprintf \
-		-D gcc
-#-D PACK_STRUCT_END=__attribute\(\(packed\)\) -D ALIGN_STRUCT_END=__attribute\(\(aligned\(4\)\)\)
+		$(DEBUG) $(OPTIM) $(INCLUDE) -T$(LDSCRIPT) -std=c99 -pedantic -Wall -Wfatal-errors -Werror \
+		-mthumb -mcpu=cortex-m3 \
+		-ffunction-sections -fdata-sections \
+		-D GCC_ARMCM3_LM3S102 -D gcc -D RTOS_FREERTOS -D UART_BUFFERED \
+		-D printf=uipprintf -D sprintf=usprintf -D snprintf=usnprintf  \
 
 SOURCE = \
 		main.c \
@@ -88,7 +93,7 @@ $(PROJ_NAME).bin : $(PROJ_NAME).axf
 $(PROJ_NAME).axf : $(OBJS) startup.o Makefile standalone.ld
 	$(CC) $(CFLAGS) $(OBJS) startup.o $(LIBS) $(LINKER_FLAGS)
 
-$(OBJS) : %.o : %.c Makefile FreeRTOSConfig.h
+$(OBJS) : %.o : %.c Makefile FreeRTOSConfig.h lwipopts.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 startup.o : startup.c Makefile
