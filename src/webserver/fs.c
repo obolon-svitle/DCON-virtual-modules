@@ -81,28 +81,22 @@ static void fs_free(struct fs_file *file) {
 
 struct fs_file *fs_open(const char *name) {
 	struct fs_file *file;
-	struct rest_dev *f;
-	int namelen = 0;
 
 	file = fs_malloc();
 	if (file == NULL) {
 		return NULL;
 	}
-	
-	for (f = rest_root; f != NULL; f = f->next) {
-		namelen = strlen(f->name);
-		if (!strncmp(name + 1, (char *)(f->name), namelen)) {
-			file->len = f->handler(name + 1, &file->data);
-			file->index = file->len;
-			file->pextension = NULL;
-			file->semphr = f->semphr;
-			return file;
-		}
+
+	file->len = rest_lookup(name, &file->data, &file->mutex);
+	if (file->len == -1) {
+		fs_free(file);
+		return NULL;
 	}
 	
-	fs_free(file);
-	
-	return NULL;
+	file->index = file->len;
+	file->pextension = NULL;
+
+	return file;
 }
 
 /*-----------------------------------------------------------------------------------*/

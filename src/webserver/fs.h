@@ -36,11 +36,11 @@
 #include <semphr.h>
 
 struct fs_file {
-	const char *data;
+	char *data;
 	int len;
 	int index;
 	void *pextension;
-	xSemaphoreHandle semphr;
+	xSemaphoreHandle mutex;
 };
 
 /* file will be allocated and filled in by the fs_open function. file will

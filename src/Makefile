@@ -34,6 +34,7 @@ CFLAGS = \
 
 SOURCE = \
 		main.c \
+		task_mlx90614.c \
 		webserver/lwip_task.c \
 		timers.c \
 		$(STELLARIS_DRIVER_DIR)/utils/uartstdio.c \
@@ -75,7 +76,6 @@ SOURCE = \
 		$(LWIP_SOURCE_DIR)/ports/stellaris/sys_arch.c \
 		$(LWIP_SOURCE_DIR)/ports/stellaris/netif/stellarisif.c \
 		$(HTTPD_SOURCE_DIR)/fs.c \
-		$(HTTPD_SOURCE_DIR)/rest.c \
 		$(HTTPD_SOURCE_DIR)/restfs.c \
 		$(HTTPD_SOURCE_DIR)/httpd.c
 

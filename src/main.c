@@ -90,6 +90,7 @@ extern void setup_timers(void);
 /*-----------------------------------------------------------*/
 
 extern void TaskLWIPFunction(void *pvParameters);
+extern void TaskMLX90614Function(void *pvParameters);
 
 int main( void ) {
 	prvSetupHardware();
@@ -98,6 +99,8 @@ int main( void ) {
 	if (SysCtlPeripheralPresent(SYSCTL_PERIPH_ETH)) {
 		xTaskCreate(TaskLWIPFunction, "lwip", LWIP_STACK_SIZE, NULL, 1, NULL);
 	}
+
+	xTaskCreate(TaskMLX90614Function, "mlx90614", 100, NULL, 1, NULL);
 
 	vTaskStartScheduler();
 	
