@@ -2,38 +2,23 @@
 //
 // ssi.h - Prototypes for the Synchronous Serial Interface Driver.
 //
-// Copyright (c) 2005-2013 Texas Instruments Incorporated.  All rights reserved.
+// Copyright (c) 2005-2010 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
 // 
-//   Redistribution and use in source and binary forms, with or without
-//   modification, are permitted provided that the following conditions
-//   are met:
+// Texas Instruments (TI) is supplying this software for use solely and
+// exclusively on TI's microcontroller products. The software is owned by
+// TI and/or its suppliers, and is protected under applicable copyright
+// laws. You may not combine this software with "viral" open-source
+// software in order to form a larger program.
 // 
-//   Redistributions of source code must retain the above copyright
-//   notice, this list of conditions and the following disclaimer.
+// THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
+// NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
+// NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
+// CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+// DAMAGES, FOR ANY REASON WHATSOEVER.
 // 
-//   Redistributions in binary form must reproduce the above copyright
-//   notice, this list of conditions and the following disclaimer in the
-//   documentation and/or other materials provided with the  
-//   distribution.
-// 
-//   Neither the name of Texas Instruments Incorporated nor the names of
-//   its contributors may be used to endorse or promote products derived
-//   from this software without specific prior written permission.
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
-// This is part of revision 10636 of the Stellaris Peripheral Driver Library.
+// This is part of revision 5727 of the Stellaris Peripheral Driver Library.
 //
 //*****************************************************************************
 
@@ -57,8 +42,8 @@ extern "C"
 // as the ulIntFlags parameter, and returned by SSIIntStatus.
 //
 //*****************************************************************************
-#define SSI_TXFF                0x00000008  // TX FIFO half full or less
-#define SSI_RXFF                0x00000004  // RX FIFO half full or more
+#define SSI_TXFF                0x00000008  // TX FIFO half empty or less
+#define SSI_RXFF                0x00000004  // RX FIFO half full or less
 #define SSI_RXTO                0x00000002  // RX timeout
 #define SSI_RXOR                0x00000001  // RX overrun
 
@@ -88,15 +73,6 @@ extern "C"
 
 //*****************************************************************************
 //
-// Values that can be passed to SSIClockSourceSet() or returned from
-// SSIClockSourceGet().
-//
-//*****************************************************************************
-#define SSI_CLOCK_SYSTEM        0x00000000
-#define SSI_CLOCK_PIOSC         0x00000005
-
-//*****************************************************************************
-//
 // Prototypes for the APIs.
 //
 //*****************************************************************************
@@ -120,8 +96,6 @@ extern void SSIIntUnregister(unsigned long ulBase);
 extern void SSIDMAEnable(unsigned long ulBase, unsigned long ulDMAFlags);
 extern void SSIDMADisable(unsigned long ulBase, unsigned long ulDMAFlags);
 extern tBoolean SSIBusy(unsigned long ulBase);
-extern void SSIClockSourceSet(unsigned long ulBase, unsigned long ulSource);
-extern unsigned long SSIClockSourceGet(unsigned long ulBase);
 
 //*****************************************************************************
 //

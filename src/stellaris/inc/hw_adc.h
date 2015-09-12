@@ -2,38 +2,23 @@
 //
 // hw_adc.h - Macros used when accessing the ADC hardware.
 //
-// Copyright (c) 2005-2013 Texas Instruments Incorporated.  All rights reserved.
+// Copyright (c) 2005-2010 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
 // 
-//   Redistribution and use in source and binary forms, with or without
-//   modification, are permitted provided that the following conditions
-//   are met:
+// Texas Instruments (TI) is supplying this software for use solely and
+// exclusively on TI's microcontroller products. The software is owned by
+// TI and/or its suppliers, and is protected under applicable copyright
+// laws. You may not combine this software with "viral" open-source
+// software in order to form a larger program.
 // 
-//   Redistributions of source code must retain the above copyright
-//   notice, this list of conditions and the following disclaimer.
+// THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
+// NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
+// NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
+// CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+// DAMAGES, FOR ANY REASON WHATSOEVER.
 // 
-//   Redistributions in binary form must reproduce the above copyright
-//   notice, this list of conditions and the following disclaimer in the
-//   documentation and/or other materials provided with the  
-//   distribution.
-// 
-//   Neither the name of Texas Instruments Incorporated nor the names of
-//   its contributors may be used to endorse or promote products derived
-//   from this software without specific prior written permission.
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
-// This is part of revision 10636 of the Stellaris Firmware Development Package.
+// This is part of revision 5727 of the Stellaris Firmware Development Package.
 //
 //*****************************************************************************
 
@@ -52,9 +37,7 @@
 #define ADC_O_OSTAT             0x00000010  // ADC Overflow Status
 #define ADC_O_EMUX              0x00000014  // ADC Event Multiplexer Select
 #define ADC_O_USTAT             0x00000018  // ADC Underflow Status
-#define ADC_O_TSSEL             0x0000001C  // ADC Trigger Source Select
 #define ADC_O_SSPRI             0x00000020  // ADC Sample Sequencer Priority
-#define ADC_O_SPC               0x00000024  // ADC Sample Phase Control
 #define ADC_O_PSSI              0x00000028  // ADC Processor Sample Sequence
                                             // Initiate
 #define ADC_O_SAC               0x00000030  // ADC Sample Averaging Control
@@ -71,8 +54,6 @@
 #define ADC_O_SSOP0             0x00000050  // ADC Sample Sequence 0 Operation
 #define ADC_O_SSDC0             0x00000054  // ADC Sample Sequence 0 Digital
                                             // Comparator Select
-#define ADC_O_SSEMUX0           0x00000058  // ADC Sample Sequence Extended
-                                            // Input Multiplexer Select 0
 #define ADC_O_SSMUX1            0x00000060  // ADC Sample Sequence Input
                                             // Multiplexer Select 1
 #define ADC_O_SSCTL1            0x00000064  // ADC Sample Sequence Control 1
@@ -83,8 +64,6 @@
 #define ADC_O_SSOP1             0x00000070  // ADC Sample Sequence 1 Operation
 #define ADC_O_SSDC1             0x00000074  // ADC Sample Sequence 1 Digital
                                             // Comparator Select
-#define ADC_O_SSEMUX1           0x00000078  // ADC Sample Sequence Extended
-                                            // Input Multiplexer Select 1
 #define ADC_O_SSMUX2            0x00000080  // ADC Sample Sequence Input
                                             // Multiplexer Select 2
 #define ADC_O_SSCTL2            0x00000084  // ADC Sample Sequence Control 2
@@ -95,8 +74,6 @@
 #define ADC_O_SSOP2             0x00000090  // ADC Sample Sequence 2 Operation
 #define ADC_O_SSDC2             0x00000094  // ADC Sample Sequence 2 Digital
                                             // Comparator Select
-#define ADC_O_SSEMUX2           0x00000098  // ADC Sample Sequence Extended
-                                            // Input Multiplexer Select 2
 #define ADC_O_SSMUX3            0x000000A0  // ADC Sample Sequence Input
                                             // Multiplexer Select 3
 #define ADC_O_SSCTL3            0x000000A4  // ADC Sample Sequence Control 3
@@ -107,8 +84,6 @@
 #define ADC_O_SSOP3             0x000000B0  // ADC Sample Sequence 3 Operation
 #define ADC_O_SSDC3             0x000000B4  // ADC Sample Sequence 3 Digital
                                             // Comparator Select
-#define ADC_O_SSEMUX3           0x000000B8  // ADC Sample Sequence Extended
-                                            // Input Multiplexer Select 3
 #define ADC_O_TMLB              0x00000100  // ADC Test Mode Loopback
 #define ADC_O_DCRIC             0x00000D00  // ADC Digital Comparator Reset
                                             // Initial Conditions
@@ -128,9 +103,6 @@
 #define ADC_O_DCCMP5            0x00000E54  // ADC Digital Comparator Range 5
 #define ADC_O_DCCMP6            0x00000E58  // ADC Digital Comparator Range 6
 #define ADC_O_DCCMP7            0x00000E5C  // ADC Digital Comparator Range 7
-#define ADC_O_PP                0x00000FC0  // ADC Peripheral Properties
-#define ADC_O_PC                0x00000FC4  // ADC Peripheral Configuration
-#define ADC_O_CC                0x00000FC8  // ADC Clock Configuration
 
 //*****************************************************************************
 //
@@ -266,24 +238,6 @@
 
 //*****************************************************************************
 //
-// The following are defines for the bit fields in the ADC_O_TSSEL register.
-//
-//*****************************************************************************
-#define ADC_TSSEL_PS3_M         0x30000000  // PWM Unit Select
-#define ADC_TSSEL_PS3_0         0x00000000  // PWM Unit 0
-#define ADC_TSSEL_PS3_1         0x10000000  // PWM Unit 1
-#define ADC_TSSEL_PS2_M         0x00300000  // PWM Unit Select
-#define ADC_TSSEL_PS2_0         0x00000000  // PWM Unit 0
-#define ADC_TSSEL_PS2_1         0x00100000  // PWM Unit 1
-#define ADC_TSSEL_PS1_M         0x00003000  // PWM Unit Select
-#define ADC_TSSEL_PS1_0         0x00000000  // PWM Unit 0
-#define ADC_TSSEL_PS1_1         0x00001000  // PWM Unit 1
-#define ADC_TSSEL_PS0_M         0x00000030  // PWM Unit Select
-#define ADC_TSSEL_PS0_0         0x00000000  // PWM Unit 0
-#define ADC_TSSEL_PS0_1         0x00000010  // PWM Unit 1
-
-//*****************************************************************************
-//
 // The following are defines for the bit fields in the ADC_O_SSPRI register.
 //
 //*****************************************************************************
@@ -307,29 +261,6 @@
 #define ADC_SSPRI_SS0_2ND       0x00000001  // Second priority
 #define ADC_SSPRI_SS0_3RD       0x00000002  // Third priority
 #define ADC_SSPRI_SS0_4TH       0x00000003  // Fourth priority
-
-//*****************************************************************************
-//
-// The following are defines for the bit fields in the ADC_O_SPC register.
-//
-//*****************************************************************************
-#define ADC_SPC_PHASE_M         0x0000000F  // Phase Difference
-#define ADC_SPC_PHASE_0         0x00000000  // ADC sample lags by 0.0
-#define ADC_SPC_PHASE_22_5      0x00000001  // ADC sample lags by 22.5
-#define ADC_SPC_PHASE_45        0x00000002  // ADC sample lags by 45.0
-#define ADC_SPC_PHASE_67_5      0x00000003  // ADC sample lags by 67.5
-#define ADC_SPC_PHASE_90        0x00000004  // ADC sample lags by 90.0
-#define ADC_SPC_PHASE_112_5     0x00000005  // ADC sample lags by 112.5
-#define ADC_SPC_PHASE_135       0x00000006  // ADC sample lags by 135.0
-#define ADC_SPC_PHASE_157_5     0x00000007  // ADC sample lags by 157.5
-#define ADC_SPC_PHASE_180       0x00000008  // ADC sample lags by 180.0
-#define ADC_SPC_PHASE_202_5     0x00000009  // ADC sample lags by 202.5
-#define ADC_SPC_PHASE_225       0x0000000A  // ADC sample lags by 225.0
-#define ADC_SPC_PHASE_247_5     0x0000000B  // ADC sample lags by 247.5
-#define ADC_SPC_PHASE_270       0x0000000C  // ADC sample lags by 270.0
-#define ADC_SPC_PHASE_292_5     0x0000000D  // ADC sample lags by 292.5
-#define ADC_SPC_PHASE_315       0x0000000E  // ADC sample lags by 315.0
-#define ADC_SPC_PHASE_337_5     0x0000000F  // ADC sample lags by 337.5
 
 //*****************************************************************************
 //
@@ -384,19 +315,6 @@
 // The following are defines for the bit fields in the ADC_O_CTL register.
 //
 //*****************************************************************************
-#define ADC_CTL_RES             0x00000010  // Sample Resolution
-#define ADC_CTL_VREF_M          0x00000003  // Voltage Reference Select
-#define ADC_CTL_VREF_INTERNAL   0x00000000  // The internal reference as the
-                                            // voltage reference
-#define ADC_CTL_VREF_EXT_3V     0x00000001  // A 3.0 V external VREFA input is
-                                            // the voltage reference. The ADC
-                                            // conversion range is 0.0 V to the
-                                            // external reference value
-#define ADC_CTL_VREF_EXT_1V     0x00000003  // A 1.0 V external VREFA input is
-                                            // the voltage reference. The ADC
-                                            // conversion range is 0.0 V to
-                                            // three times the external
-                                            // reference value
 #define ADC_CTL_VREF            0x00000001  // Voltage Reference Select
 
 //*****************************************************************************
@@ -464,7 +382,7 @@
 // The following are defines for the bit fields in the ADC_O_SSFIFO0 register.
 //
 //*****************************************************************************
-#define ADC_SSFIFO0_DATA_M      0x00000FFF  // Conversion Result Data
+#define ADC_SSFIFO0_DATA_M      0x000003FF  // Conversion Result Data
 #define ADC_SSFIFO0_DATA_S      0
 
 //*****************************************************************************
@@ -532,28 +450,6 @@
 
 //*****************************************************************************
 //
-// The following are defines for the bit fields in the ADC_O_SSEMUX0 register.
-//
-//*****************************************************************************
-#define ADC_SSEMUX0_EMUX7       0x10000000  // 8th Sample Input Select (Upper
-                                            // Bit)
-#define ADC_SSEMUX0_EMUX6       0x01000000  // 7th Sample Input Select (Upper
-                                            // Bit)
-#define ADC_SSEMUX0_EMUX5       0x00100000  // 6th Sample Input Select (Upper
-                                            // Bit)
-#define ADC_SSEMUX0_EMUX4       0x00010000  // 5th Sample Input Select (Upper
-                                            // Bit)
-#define ADC_SSEMUX0_EMUX3       0x00001000  // 4th Sample Input Select (Upper
-                                            // Bit)
-#define ADC_SSEMUX0_EMUX2       0x00000100  // 3rd Sample Input Select (Upper
-                                            // Bit)
-#define ADC_SSEMUX0_EMUX1       0x00000010  // 2th Sample Input Select (Upper
-                                            // Bit)
-#define ADC_SSEMUX0_EMUX0       0x00000001  // 1st Sample Input Select (Upper
-                                            // Bit)
-
-//*****************************************************************************
-//
 // The following are defines for the bit fields in the ADC_O_SSMUX1 register.
 //
 //*****************************************************************************
@@ -593,7 +489,7 @@
 // The following are defines for the bit fields in the ADC_O_SSFIFO1 register.
 //
 //*****************************************************************************
-#define ADC_SSFIFO1_DATA_M      0x00000FFF  // Conversion Result Data
+#define ADC_SSFIFO1_DATA_M      0x000003FF  // Conversion Result Data
 #define ADC_SSFIFO1_DATA_S      0
 
 //*****************************************************************************
@@ -641,20 +537,6 @@
 
 //*****************************************************************************
 //
-// The following are defines for the bit fields in the ADC_O_SSEMUX1 register.
-//
-//*****************************************************************************
-#define ADC_SSEMUX1_EMUX3       0x00001000  // 4th Sample Input Select (Upper
-                                            // Bit)
-#define ADC_SSEMUX1_EMUX2       0x00000100  // 3rd Sample Input Select (Upper
-                                            // Bit)
-#define ADC_SSEMUX1_EMUX1       0x00000010  // 2th Sample Input Select (Upper
-                                            // Bit)
-#define ADC_SSEMUX1_EMUX0       0x00000001  // 1st Sample Input Select (Upper
-                                            // Bit)
-
-//*****************************************************************************
-//
 // The following are defines for the bit fields in the ADC_O_SSMUX2 register.
 //
 //*****************************************************************************
@@ -694,7 +576,7 @@
 // The following are defines for the bit fields in the ADC_O_SSFIFO2 register.
 //
 //*****************************************************************************
-#define ADC_SSFIFO2_DATA_M      0x00000FFF  // Conversion Result Data
+#define ADC_SSFIFO2_DATA_M      0x000003FF  // Conversion Result Data
 #define ADC_SSFIFO2_DATA_S      0
 
 //*****************************************************************************
@@ -742,20 +624,6 @@
 
 //*****************************************************************************
 //
-// The following are defines for the bit fields in the ADC_O_SSEMUX2 register.
-//
-//*****************************************************************************
-#define ADC_SSEMUX2_EMUX3       0x00001000  // 4th Sample Input Select (Upper
-                                            // Bit)
-#define ADC_SSEMUX2_EMUX2       0x00000100  // 3rd Sample Input Select (Upper
-                                            // Bit)
-#define ADC_SSEMUX2_EMUX1       0x00000010  // 2th Sample Input Select (Upper
-                                            // Bit)
-#define ADC_SSEMUX2_EMUX0       0x00000001  // 1st Sample Input Select (Upper
-                                            // Bit)
-
-//*****************************************************************************
-//
 // The following are defines for the bit fields in the ADC_O_SSMUX3 register.
 //
 //*****************************************************************************
@@ -777,7 +645,7 @@
 // The following are defines for the bit fields in the ADC_O_SSFIFO3 register.
 //
 //*****************************************************************************
-#define ADC_SSFIFO3_DATA_M      0x00000FFF  // Conversion Result Data
+#define ADC_SSFIFO3_DATA_M      0x000003FF  // Conversion Result Data
 #define ADC_SSFIFO3_DATA_S      0
 
 //*****************************************************************************
@@ -807,14 +675,6 @@
 //*****************************************************************************
 #define ADC_SSDC3_S0DCSEL_M     0x0000000F  // Sample 0 Digital Comparator
                                             // Select
-
-//*****************************************************************************
-//
-// The following are defines for the bit fields in the ADC_O_SSEMUX3 register.
-//
-//*****************************************************************************
-#define ADC_SSEMUX3_EMUX0       0x00000001  // 1st Sample Input Select (Upper
-                                            // Bit)
 
 //*****************************************************************************
 //
@@ -1058,8 +918,8 @@
 // The following are defines for the bit fields in the ADC_O_DCCMP0 register.
 //
 //*****************************************************************************
-#define ADC_DCCMP0_COMP1_M      0x0FFF0000  // Compare 1
-#define ADC_DCCMP0_COMP0_M      0x00000FFF  // Compare 0
+#define ADC_DCCMP0_COMP1_M      0x03FF0000  // Compare 1
+#define ADC_DCCMP0_COMP0_M      0x000003FF  // Compare 0
 #define ADC_DCCMP0_COMP1_S      16
 #define ADC_DCCMP0_COMP0_S      0
 
@@ -1068,8 +928,8 @@
 // The following are defines for the bit fields in the ADC_O_DCCMP1 register.
 //
 //*****************************************************************************
-#define ADC_DCCMP1_COMP1_M      0x0FFF0000  // Compare 1
-#define ADC_DCCMP1_COMP0_M      0x00000FFF  // Compare 0
+#define ADC_DCCMP1_COMP1_M      0x03FF0000  // Compare 1
+#define ADC_DCCMP1_COMP0_M      0x000003FF  // Compare 0
 #define ADC_DCCMP1_COMP1_S      16
 #define ADC_DCCMP1_COMP0_S      0
 
@@ -1078,8 +938,8 @@
 // The following are defines for the bit fields in the ADC_O_DCCMP2 register.
 //
 //*****************************************************************************
-#define ADC_DCCMP2_COMP1_M      0x0FFF0000  // Compare 1
-#define ADC_DCCMP2_COMP0_M      0x00000FFF  // Compare 0
+#define ADC_DCCMP2_COMP1_M      0x03FF0000  // Compare 1
+#define ADC_DCCMP2_COMP0_M      0x000003FF  // Compare 0
 #define ADC_DCCMP2_COMP1_S      16
 #define ADC_DCCMP2_COMP0_S      0
 
@@ -1088,8 +948,8 @@
 // The following are defines for the bit fields in the ADC_O_DCCMP3 register.
 //
 //*****************************************************************************
-#define ADC_DCCMP3_COMP1_M      0x0FFF0000  // Compare 1
-#define ADC_DCCMP3_COMP0_M      0x00000FFF  // Compare 0
+#define ADC_DCCMP3_COMP1_M      0x03FF0000  // Compare 1
+#define ADC_DCCMP3_COMP0_M      0x000003FF  // Compare 0
 #define ADC_DCCMP3_COMP1_S      16
 #define ADC_DCCMP3_COMP0_S      0
 
@@ -1098,8 +958,8 @@
 // The following are defines for the bit fields in the ADC_O_DCCMP4 register.
 //
 //*****************************************************************************
-#define ADC_DCCMP4_COMP1_M      0x0FFF0000  // Compare 1
-#define ADC_DCCMP4_COMP0_M      0x00000FFF  // Compare 0
+#define ADC_DCCMP4_COMP1_M      0x03FF0000  // Compare 1
+#define ADC_DCCMP4_COMP0_M      0x000003FF  // Compare 0
 #define ADC_DCCMP4_COMP1_S      16
 #define ADC_DCCMP4_COMP0_S      0
 
@@ -1108,8 +968,8 @@
 // The following are defines for the bit fields in the ADC_O_DCCMP5 register.
 //
 //*****************************************************************************
-#define ADC_DCCMP5_COMP1_M      0x0FFF0000  // Compare 1
-#define ADC_DCCMP5_COMP0_M      0x00000FFF  // Compare 0
+#define ADC_DCCMP5_COMP1_M      0x03FF0000  // Compare 1
+#define ADC_DCCMP5_COMP0_M      0x000003FF  // Compare 0
 #define ADC_DCCMP5_COMP1_S      16
 #define ADC_DCCMP5_COMP0_S      0
 
@@ -1118,8 +978,8 @@
 // The following are defines for the bit fields in the ADC_O_DCCMP6 register.
 //
 //*****************************************************************************
-#define ADC_DCCMP6_COMP1_M      0x0FFF0000  // Compare 1
-#define ADC_DCCMP6_COMP0_M      0x00000FFF  // Compare 0
+#define ADC_DCCMP6_COMP1_M      0x03FF0000  // Compare 1
+#define ADC_DCCMP6_COMP0_M      0x000003FF  // Compare 0
 #define ADC_DCCMP6_COMP1_S      16
 #define ADC_DCCMP6_COMP0_S      0
 
@@ -1128,53 +988,10 @@
 // The following are defines for the bit fields in the ADC_O_DCCMP7 register.
 //
 //*****************************************************************************
-#define ADC_DCCMP7_COMP1_M      0x0FFF0000  // Compare 1
-#define ADC_DCCMP7_COMP0_M      0x00000FFF  // Compare 0
+#define ADC_DCCMP7_COMP1_M      0x03FF0000  // Compare 1
+#define ADC_DCCMP7_COMP0_M      0x000003FF  // Compare 0
 #define ADC_DCCMP7_COMP1_S      16
 #define ADC_DCCMP7_COMP0_S      0
-
-//*****************************************************************************
-//
-// The following are defines for the bit fields in the ADC_O_PP register.
-//
-//*****************************************************************************
-#define ADC_PP_TS               0x00800000  // Temperature Sensor
-#define ADC_PP_RSL_M            0x007C0000  // Resolution
-#define ADC_PP_TYPE_M           0x00030000  // ADC Architecture
-#define ADC_PP_TYPE_SAR         0x00000000  // SAR
-#define ADC_PP_DC_M             0x0000FC00  // Digital Comparator Count
-#define ADC_PP_CH_M             0x000003F0  // ADC Channel Count
-#define ADC_PP_MSR_M            0x0000000F  // Maximum ADC Sample Rate
-#define ADC_PP_MSR_125K         0x00000001  // 125 ksps
-#define ADC_PP_MSR_250K         0x00000003  // 250 ksps
-#define ADC_PP_MSR_500K         0x00000005  // 500 ksps
-#define ADC_PP_MSR_1M           0x00000007  // 1 Msps
-#define ADC_PP_RSL_S            18
-#define ADC_PP_DC_S             10
-#define ADC_PP_CH_S             4
-
-//*****************************************************************************
-//
-// The following are defines for the bit fields in the ADC_O_PC register.
-//
-//*****************************************************************************
-#define ADC_PC_SR_M             0x0000000F  // ADC Sample Rate
-#define ADC_PC_SR_125K          0x00000001  // 125 ksps
-#define ADC_PC_SR_250K          0x00000003  // 250 ksps
-#define ADC_PC_SR_500K          0x00000005  // 500 ksps
-#define ADC_PC_SR_1M            0x00000007  // 1 Msps
-
-//*****************************************************************************
-//
-// The following are defines for the bit fields in the ADC_O_CC register.
-//
-//*****************************************************************************
-#define ADC_CC_CS_M             0x0000000F  // ADC Clock Source
-#define ADC_CC_CS_SYSPLL        0x00000000  // Either the system clock (if the
-                                            // PLL bypass is in effect) or the
-                                            // 16 MHz clock derived from PLL /
-                                            // 25 (default)
-#define ADC_CC_CS_PIOSC         0x00000001  // PIOSC
 
 //*****************************************************************************
 //

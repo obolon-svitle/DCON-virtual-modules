@@ -2,38 +2,23 @@
 //
 // hw_can.h - Defines and macros used when accessing the CAN controllers.
 //
-// Copyright (c) 2006-2013 Texas Instruments Incorporated.  All rights reserved.
+// Copyright (c) 2006-2010 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
 // 
-//   Redistribution and use in source and binary forms, with or without
-//   modification, are permitted provided that the following conditions
-//   are met:
+// Texas Instruments (TI) is supplying this software for use solely and
+// exclusively on TI's microcontroller products. The software is owned by
+// TI and/or its suppliers, and is protected under applicable copyright
+// laws. You may not combine this software with "viral" open-source
+// software in order to form a larger program.
 // 
-//   Redistributions of source code must retain the above copyright
-//   notice, this list of conditions and the following disclaimer.
+// THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
+// NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
+// NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
+// CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+// DAMAGES, FOR ANY REASON WHATSOEVER.
 // 
-//   Redistributions in binary form must reproduce the above copyright
-//   notice, this list of conditions and the following disclaimer in the
-//   documentation and/or other materials provided with the  
-//   distribution.
-// 
-//   Neither the name of Texas Instruments Incorporated nor the names of
-//   its contributors may be used to endorse or promote products derived
-//   from this software without specific prior written permission.
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
-// This is part of revision 10636 of the Stellaris Firmware Development Package.
+// This is part of revision 5727 of the Stellaris Firmware Development Package.
 //
 //*****************************************************************************
 
@@ -116,7 +101,7 @@
 #define CAN_STS_LEC_BIT1        0x00000004  // Bit 1 Error
 #define CAN_STS_LEC_BIT0        0x00000005  // Bit 0 Error
 #define CAN_STS_LEC_CRC         0x00000006  // CRC Error
-#define CAN_STS_LEC_NOEVENT     0x00000007  // No Event
+#define CAN_STS_LEC_NOEVENT     0x00000007  // Unused
 
 //*****************************************************************************
 //
@@ -159,10 +144,17 @@
 //*****************************************************************************
 #define CAN_TST_RX              0x00000080  // Receive Observation
 #define CAN_TST_TX_M            0x00000060  // Transmit Control
-#define CAN_TST_TX_CANCTL       0x00000000  // CAN Module Control
-#define CAN_TST_TX_SAMPLE       0x00000020  // Sample Point
-#define CAN_TST_TX_DOMINANT     0x00000040  // Driven Low
-#define CAN_TST_TX_RECESSIVE    0x00000060  // Driven High
+#define CAN_TST_TX_CANCTL       0x00000000  // CANnTx is controlled by the CAN
+                                            // module; default operation
+#define CAN_TST_TX_SAMPLE       0x00000020  // The sample point is driven on
+                                            // the CANnTx signal. This mode is
+                                            // useful to monitor bit timing
+#define CAN_TST_TX_DOMINANT     0x00000040  // CANnTx drives a low value. This
+                                            // mode is useful for checking the
+                                            // physical layer of the CAN bus
+#define CAN_TST_TX_RECESSIVE    0x00000060  // CANnTx drives a high value. This
+                                            // mode is useful for checking the
+                                            // physical layer of the CAN bus
 #define CAN_TST_LBACK           0x00000010  // Loopback Mode
 #define CAN_TST_SILENT          0x00000008  // Silent Mode
 #define CAN_TST_BASIC           0x00000004  // Basic Mode
@@ -185,7 +177,6 @@
 #define CAN_IF1CRQ_MNUM_RSVD    0x00000000  // 0 is not a valid message number;
                                             // it is interpreted as 0x20, or
                                             // object 32
-#define CAN_IF1CRQ_MNUM_S       0
 
 //*****************************************************************************
 //
@@ -298,7 +289,6 @@
 #define CAN_IF2CRQ_MNUM_RSVD    0x00000000  // 0 is not a valid message number;
                                             // it is interpreted as 0x20, or
                                             // object 32
-#define CAN_IF2CRQ_MNUM_S       0
 
 //*****************************************************************************
 //

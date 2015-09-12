@@ -2,38 +2,23 @@
 //
 // epi.h - Prototypes and macros for the EPI module.
 //
-// Copyright (c) 2008-2013 Texas Instruments Incorporated.  All rights reserved.
+// Copyright (c) 2008-2010 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
 // 
-//   Redistribution and use in source and binary forms, with or without
-//   modification, are permitted provided that the following conditions
-//   are met:
+// Texas Instruments (TI) is supplying this software for use solely and
+// exclusively on TI's microcontroller products. The software is owned by
+// TI and/or its suppliers, and is protected under applicable copyright
+// laws. You may not combine this software with "viral" open-source
+// software in order to form a larger program.
 // 
-//   Redistributions of source code must retain the above copyright
-//   notice, this list of conditions and the following disclaimer.
+// THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
+// NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
+// NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
+// CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+// DAMAGES, FOR ANY REASON WHATSOEVER.
 // 
-//   Redistributions in binary form must reproduce the above copyright
-//   notice, this list of conditions and the following disclaimer in the
-//   documentation and/or other materials provided with the  
-//   distribution.
-// 
-//   Neither the name of Texas Instruments Incorporated nor the names of
-//   its contributors may be used to endorse or promote products derived
-//   from this software without specific prior written permission.
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
-// This is part of revision 10636 of the Stellaris Peripheral Driver Library.
+// This is part of revision 5727 of the Stellaris Peripheral Driver Library.
 //
 //*****************************************************************************
 
@@ -59,7 +44,6 @@ extern "C"
 #define EPI_MODE_GENERAL                0x00000010
 #define EPI_MODE_SDRAM                  0x00000011
 #define EPI_MODE_HB8                    0x00000012
-#define EPI_MODE_HB16                   0x00000013
 #define EPI_MODE_DISABLE                0x00000000
 
 //*****************************************************************************
@@ -130,37 +114,6 @@ extern "C"
 #define EPI_HB8_CSBAUD_DUAL             0x00000800
 
 #define EPI_HB8_CSCFG_MASK              0x00000600
-
-//*****************************************************************************
-//
-// Values that can be passed to EPIConfigHB16ModeSet()
-//
-//*****************************************************************************
-#define EPI_HB16_USE_TXEMPTY            0x00800000
-#define EPI_HB16_USE_RXFULL             0x00400000
-#define EPI_HB16_WRHIGH                 0x00200000
-#define EPI_HB16_RDHIGH                 0x00100000
-#define EPI_HB16_WRWAIT_0               0x00000000
-#define EPI_HB16_WRWAIT_1               0x00000040
-#define EPI_HB16_WRWAIT_2               0x00000080
-#define EPI_HB16_WRWAIT_3               0x000000C0
-#define EPI_HB16_RDWAIT_0               0x00000000
-#define EPI_HB16_RDWAIT_1               0x00000010
-#define EPI_HB16_RDWAIT_2               0x00000020
-#define EPI_HB16_RDWAIT_3               0x00000030
-#define EPI_HB16_MODE_ADMUX             0x00000000
-#define EPI_HB16_MODE_ADDEMUX           0x00000001
-#define EPI_HB16_MODE_SRAM              0x00000002
-#define EPI_HB16_MODE_FIFO              0x00000003
-#define EPI_HB16_BSEL                   0x00000004
-#define EPI_HB16_WORD_ACCESS            0x00000100
-#define EPI_HB16_CSCFG_ALE              0x00000000
-#define EPI_HB16_CSCFG_CS               0x00000200
-#define EPI_HB16_CSCFG_DUAL_CS          0x00000400
-#define EPI_HB16_CSCFG_ALE_DUAL_CS      0x00000600
-#define EPI_HB16_CSBAUD_DUAL            0x00000800
-
-#define EPI_HB16_CSCFG_MASK             0x00000600
 
 //*****************************************************************************
 //
@@ -243,8 +196,6 @@ extern void EPIConfigGPModeSet(unsigned long ulBase, unsigned long ulConfig,
                                unsigned long ulMaxWait);
 extern void EPIConfigHB8Set(unsigned long ulBase, unsigned long ulConfig,
                             unsigned long ulMaxWait);
-extern void EPIConfigHB16Set(unsigned long ulBase, unsigned long ulConfig,
-                             unsigned long ulMaxWait);
 extern void EPIAddressMapSet(unsigned long ulBase, unsigned long ulMap);
 extern void EPINonBlockingReadConfigure(unsigned long ulBase,
                                         unsigned long ulChannel,

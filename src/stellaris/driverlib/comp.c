@@ -2,38 +2,23 @@
 //
 // comp.c - Driver for the analog comparator.
 //
-// Copyright (c) 2005-2013 Texas Instruments Incorporated.  All rights reserved.
+// Copyright (c) 2005-2010 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
 // 
-//   Redistribution and use in source and binary forms, with or without
-//   modification, are permitted provided that the following conditions
-//   are met:
+// Texas Instruments (TI) is supplying this software for use solely and
+// exclusively on TI's microcontroller products. The software is owned by
+// TI and/or its suppliers, and is protected under applicable copyright
+// laws. You may not combine this software with "viral" open-source
+// software in order to form a larger program.
 // 
-//   Redistributions of source code must retain the above copyright
-//   notice, this list of conditions and the following disclaimer.
+// THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
+// NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
+// NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
+// CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+// DAMAGES, FOR ANY REASON WHATSOEVER.
 // 
-//   Redistributions in binary form must reproduce the above copyright
-//   notice, this list of conditions and the following disclaimer in the
-//   documentation and/or other materials provided with the  
-//   distribution.
-// 
-//   Neither the name of Texas Instruments Incorporated nor the names of
-//   its contributors may be used to endorse or promote products derived
-//   from this software without specific prior written permission.
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
-// This is part of revision 10636 of the Stellaris Peripheral Driver Library.
+// This is part of revision 5727 of the Stellaris Peripheral Driver Library.
 //
 //*****************************************************************************
 
@@ -60,8 +45,8 @@
 //! \param ulComp is the index of the comparator to configure.
 //! \param ulConfig is the configuration of the comparator.
 //!
-//! This function configures a comparator.  The \e ulConfig parameter is the
-//! result of a logical OR operation between the \b COMP_TRIG_xxx,
+//! This function will configure a comparator.  The \e ulConfig parameter is
+//! the result of a logical OR operation between the \b COMP_TRIG_xxx,
 //! \b COMP_INT_xxx, \b COMP_ASRCP_xxx, and \b COMP_OUTPUT_xxx values.
 //!
 //! The \b COMP_TRIG_xxx term can take on the following values:
@@ -132,8 +117,8 @@ ComparatorConfigure(unsigned long ulBase, unsigned long ulComp,
 //! \param ulBase is the base address of the comparator module.
 //! \param ulRef is the desired reference voltage.
 //!
-//! This function sets the internal reference voltage value.  The voltage is
-//! specified as one of the following values:
+//! This function will set the internal reference voltage value.  The voltage
+//! is specified as one of the following values:
 //!
 //! - \b COMP_REF_OFF to turn off the reference voltage
 //! - \b COMP_REF_0V to set the reference voltage to 0 V
@@ -227,9 +212,9 @@ ComparatorValueGet(unsigned long ulBase, unsigned long ulComp)
 //! \param pfnHandler is a pointer to the function to be called when the
 //! comparator interrupt occurs.
 //!
-//! This function sets the handler to be called when the comparator interrupt occurs
-//! and enables the interrupt in the interrupt controller.  It is the interrupt
-//! handler's responsibility to clear the interrupt source via
+//! This sets the handler to be called when the comparator interrupt occurs.
+//! This will enable the interrupt in the interrupt controller; it is the
+//! interrupt-handler's responsibility to clear the interrupt source via
 //! ComparatorIntClear().
 //!
 //! \sa IntRegister() for important information about registering interrupt
@@ -271,9 +256,9 @@ ComparatorIntRegister(unsigned long ulBase, unsigned long ulComp,
 //! \param ulBase is the base address of the comparator module.
 //! \param ulComp is the index of the comparator.
 //!
-//! This function clears the handler to be called when a comparator interrupt
-//! occurs.  This function also masks off the interrupt in the interrupt controller
-//! so that the interrupt handler no longer is called.
+//! This function will clear the handler to be called when a comparator
+//! interrupt occurs.  This will also mask off the interrupt in the interrupt
+//! controller so that the interrupt handler no longer is called.
 //!
 //! \sa IntRegister() for important information about registering interrupt
 //! handlers.
@@ -314,7 +299,7 @@ ComparatorIntUnregister(unsigned long ulBase, unsigned long ulComp)
 //! \param ulComp is the index of the comparator.
 //!
 //! This function enables generation of an interrupt from the specified
-//! comparator.  Only enabled comparator interrupts can be reflected
+//! comparator.  Only comparators whose interrupts are enabled can be reflected
 //! to the processor.
 //!
 //! \return None.
@@ -343,7 +328,7 @@ ComparatorIntEnable(unsigned long ulBase, unsigned long ulComp)
 //! \param ulComp is the index of the comparator.
 //!
 //! This function disables generation of an interrupt from the specified
-//! comparator.  Only enabled comparator interrupts can be reflected
+//! comparator.  Only comparators whose interrupts are enabled can be reflected
 //! to the processor.
 //!
 //! \return None.
@@ -373,7 +358,7 @@ ComparatorIntDisable(unsigned long ulBase, unsigned long ulComp)
 //! \param bMasked is \b false if the raw interrupt status is required and
 //! \b true if the masked interrupt status is required.
 //!
-//! This function returns the interrupt status for the comparator.  Either the raw or
+//! This returns the interrupt status for the comparator.  Either the raw or
 //! the masked interrupt status can be returned.
 //!
 //! \return \b true if the interrupt is asserted and \b false if it is not
@@ -412,18 +397,18 @@ ComparatorIntStatus(unsigned long ulBase, unsigned long ulComp,
 //! \param ulComp is the index of the comparator.
 //!
 //! The comparator interrupt is cleared, so that it no longer asserts.  This
-//! fucntion must be called in the interrupt handler to keep the handler from
-//! being called again immediately upon exit.  Note that for a level-triggered
-//! interrupt, the interrupt cannot be cleared until it stops asserting.
+//! must be done in the interrupt handler to keep it from being called again
+//! immediately upon exit.  Note that for a level triggered interrupt, the
+//! interrupt cannot be cleared until it stops asserting.
 //!
-//! \note Because there is a write buffer in the Cortex-M processor, it may
-//! take several clock cycles before the interrupt source is actually cleared.
+//! \note Since there is a write buffer in the Cortex-M3 processor, it may take
+//! several clock cycles before the interrupt source is actually cleared.
 //! Therefore, it is recommended that the interrupt source be cleared early in
 //! the interrupt handler (as opposed to the very last action) to avoid
 //! returning from the interrupt handler before the interrupt source is
 //! actually cleared.  Failure to do so may result in the interrupt handler
-//! being immediately reentered (because the interrupt controller still sees
-//! the interrupt source asserted).
+//! being immediately reentered (since NVIC still sees the interrupt source
+//! asserted).
 //!
 //! \return None.
 //

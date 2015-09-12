@@ -2,38 +2,23 @@
 //
 // adc.c - Driver for the ADC.
 //
-// Copyright (c) 2005-2013 Texas Instruments Incorporated.  All rights reserved.
+// Copyright (c) 2005-2010 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
 // 
-//   Redistribution and use in source and binary forms, with or without
-//   modification, are permitted provided that the following conditions
-//   are met:
+// Texas Instruments (TI) is supplying this software for use solely and
+// exclusively on TI's microcontroller products. The software is owned by
+// TI and/or its suppliers, and is protected under applicable copyright
+// laws. You may not combine this software with "viral" open-source
+// software in order to form a larger program.
 // 
-//   Redistributions of source code must retain the above copyright
-//   notice, this list of conditions and the following disclaimer.
+// THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
+// NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
+// NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
+// CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+// DAMAGES, FOR ANY REASON WHATSOEVER.
 // 
-//   Redistributions in binary form must reproduce the above copyright
-//   notice, this list of conditions and the following disclaimer in the
-//   documentation and/or other materials provided with the  
-//   distribution.
-// 
-//   Neither the name of Texas Instruments Incorporated nor the names of
-//   its contributors may be used to endorse or promote products derived
-//   from this software without specific prior written permission.
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
-// This is part of revision 10636 of the Stellaris Peripheral Driver Library.
+// This is part of revision 5727 of the Stellaris Peripheral Driver Library.
 //
 //*****************************************************************************
 
@@ -48,7 +33,6 @@
 #include "inc/hw_ints.h"
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
-#include "inc/hw_sysctl.h"
 #include "driverlib/adc.h"
 #include "driverlib/debug.h"
 #include "driverlib/interrupt.h"
@@ -62,7 +46,6 @@
 #define ADC_SEQ                 (ADC_O_SSMUX0)
 #define ADC_SEQ_STEP            (ADC_O_SSMUX1 - ADC_O_SSMUX0)
 #define ADC_SSMUX               (ADC_O_SSMUX0 - ADC_O_SSMUX0)
-#define ADC_SSEMUX              (ADC_O_SSEMUX0 - ADC_O_SSMUX0)
 #define ADC_SSCTL               (ADC_O_SSCTL0 - ADC_O_SSMUX0)
 #define ADC_SSFIFO              (ADC_O_SSFIFO0 - ADC_O_SSMUX0)
 #define ADC_SSFSTAT             (ADC_O_SSFSTAT0 - ADC_O_SSMUX0)
@@ -87,10 +70,10 @@ static unsigned char g_pucOversampleFactor[3];
 //! ADC sample sequence interrupt occurs.
 //!
 //! This function sets the handler to be called when a sample sequence
-//! interrupt occurs.  This function enables the global interrupt in the
-//! interrupt controller; the sequence interrupt must be enabled with
-//! ADCIntEnable().  It is the interrupt handler's responsibility to clear the
-//! interrupt source via ADCIntClear().
+//! interrupt occurs.  This will enable the global interrupt in the interrupt
+//! controller; the sequence interrupt must be enabled with ADCIntEnable().  It
+//! is the interrupt handler's responsibility to clear the interrupt source via
+//! ADCIntClear().
 //!
 //! \sa IntRegister() for important information about registering interrupt
 //! handlers.
@@ -113,8 +96,7 @@ ADCIntRegister(unsigned long ulBase, unsigned long ulSequenceNum,
     //
     // Determine the interrupt to register based on the sequence number.
     //
-    ulInt = ((ulBase == ADC0_BASE) ? (INT_ADC0SS0 + ulSequenceNum) :
-             (INT_ADC1SS0 + ulSequenceNum));
+    ulInt = INT_ADC0 + ulSequenceNum;
 
     //
     // Register the interrupt handler.
@@ -134,9 +116,9 @@ ADCIntRegister(unsigned long ulBase, unsigned long ulSequenceNum,
 //! \param ulBase is the base address of the ADC module.
 //! \param ulSequenceNum is the sample sequence number.
 //!
-//! This function unregisters the interrupt handler.  This function disables
-//! the global interrupt in the interrupt controller; the sequence interrupt
-//! must be disabled via ADCIntDisable().
+//! This function unregisters the interrupt handler.  This will disable the
+//! global interrupt in the interrupt controller; the sequence interrupt must
+//! be disabled via ADCIntDisable().
 //!
 //! \sa IntRegister() for important information about registering interrupt
 //! handlers.
@@ -158,8 +140,7 @@ ADCIntUnregister(unsigned long ulBase, unsigned long ulSequenceNum)
     //
     // Determine the interrupt to unregister based on the sequence number.
     //
-    ulInt = ((ulBase == ADC0_BASE) ? (INT_ADC0SS0 + ulSequenceNum) :
-             (INT_ADC1SS0 + ulSequenceNum));
+    ulInt = INT_ADC0 + ulSequenceNum;
 
     //
     // Disable the interrupt.
@@ -242,9 +223,9 @@ ADCIntEnable(unsigned long ulBase, unsigned long ulSequenceNum)
 //! \param bMasked is false if the raw interrupt status is required and true if
 //! the masked interrupt status is required.
 //!
-//! This function returns the interrupt status for the specified sample
-//! sequence. Either the raw interrupt status or the status of interrupts that
-//! are allowed to reflect to the processor can be returned.
+//! This returns the interrupt status for the specified sample sequence.
+//! Either the raw interrupt status or the status of interrupts that are
+//! allowed to reflect to the processor can be returned.
 //!
 //! \return The current raw or masked interrupt status.
 //
@@ -274,7 +255,7 @@ ADCIntStatus(unsigned long ulBase, unsigned long ulSequenceNum,
         ulTemp = HWREG(ulBase + ADC_O_RIS) & (0x10000 | (1 << ulSequenceNum));
 
         //
-        // If the digital comparator status bit is set, reflect it to the
+        // If the digital comparator status bit is set, reflect it to the 
         // appropriate sequence bit.
         //
         if(ulTemp & 0x10000)
@@ -298,17 +279,17 @@ ADCIntStatus(unsigned long ulBase, unsigned long ulSequenceNum,
 //! \param ulSequenceNum is the sample sequence number.
 //!
 //! The specified sample sequence interrupt is cleared, so that it no longer
-//! asserts.  This function must be called in the interrupt handler to keep
-//! the interrupt from being triggered again immediately upon exit.
+//! asserts.  This must be done in the interrupt handler to keep it from being
+//! called again immediately upon exit.
 //!
-//! \note Because there is a write buffer in the Cortex-M processor, it may
-//! take several clock cycles before the interrupt source is actually cleared.
+//! \note Since there is a write buffer in the Cortex-M3 processor, it may take
+//! several clock cycles before the interrupt source is actually cleared.
 //! Therefore, it is recommended that the interrupt source be cleared early in
 //! the interrupt handler (as opposed to the very last action) to avoid
 //! returning from the interrupt handler before the interrupt source is
 //! actually cleared.  Failure to do so may result in the interrupt handler
-//! being immediately reentered (because the interrupt controller still sees
-//! the interrupt source asserted).
+//! being immediately reentered (since NVIC still sees the interrupt source
+//! asserted).
 //!
 //! \return None.
 //
@@ -317,7 +298,7 @@ void
 ADCIntClear(unsigned long ulBase, unsigned long ulSequenceNum)
 {
     //
-    // Check the arguments.
+    // Check the arugments.
     //
     ASSERT((ulBase == ADC0_BASE) || (ulBase == ADC1_BASE));
     ASSERT(ulSequenceNum < 4);
@@ -345,7 +326,7 @@ void
 ADCSequenceEnable(unsigned long ulBase, unsigned long ulSequenceNum)
 {
     //
-    // Check the arguments.
+    // Check the arugments.
     //
     ASSERT((ulBase == ADC0_BASE) || (ulBase == ADC1_BASE));
     ASSERT(ulSequenceNum < 4);
@@ -373,7 +354,7 @@ void
 ADCSequenceDisable(unsigned long ulBase, unsigned long ulSequenceNum)
 {
     //
-    // Check the arguments.
+    // Check the arugments.
     //
     ASSERT((ulBase == ADC0_BASE) || (ulBase == ADC1_BASE));
     ASSERT(ulSequenceNum < 4);
@@ -396,10 +377,10 @@ ADCSequenceDisable(unsigned long ulBase, unsigned long ulSequenceNum)
 //! respect to the other sample sequences.
 //!
 //! This function configures the initiation criteria for a sample sequence.
-//! Valid sample sequencers range from zero to three; sequencer zero captures
-//! up to eight samples, sequencers one and two capture up to four samples,
-//! and sequencer three captures a single sample.  The trigger condition and
-//! priority (with respect to other sample sequencer execution) are set.
+//! Valid sample sequences range from zero to three; sequence zero will capture
+//! up to eight samples, sequences one and two will capture up to four samples,
+//! and sequence three will capture a single sample.  The trigger condition and
+//! priority (with respect to other sample sequence execution) is set.
 //!
 //! The \e ulTrigger parameter can take on the following values:
 //!
@@ -412,9 +393,7 @@ ADCSequenceDisable(unsigned long ulBase, unsigned long ulSequenceNum)
 //! - \b ADC_TRIGGER_COMP2 - A trigger generated by the third analog
 //!                          comparator; configured with ComparatorConfigure().
 //! - \b ADC_TRIGGER_EXTERNAL - A trigger generated by an input from the Port
-//!                             B4 pin. Note that some microcontrollers can
-//!                             select from any GPIO using the
-//!                             GPIOADCTriggerEnable() function.
+//!                             B4 pin.
 //! - \b ADC_TRIGGER_TIMER - A trigger generated by a timer; configured with
 //!                          TimerControlTrigger().
 //! - \b ADC_TRIGGER_PWM0 - A trigger generated by the first PWM generator;
@@ -491,40 +470,42 @@ ADCSequenceConfigure(unsigned long ulBase, unsigned long ulSequenceNum,
 //! \param ulSequenceNum is the sample sequence number.
 //! \param ulStep is the step to be configured.
 //! \param ulConfig is the configuration of this step; must be a logical OR of
-//! \b ADC_CTL_TS, \b ADC_CTL_IE, \b ADC_CTL_END, \b ADC_CTL_D, one of the
-//! input channel selects (\b ADC_CTL_CH0 through \b ADC_CTL_CH23), and one of
-//! the digital comparator selects (\b ADC_CTL_CMP0 through \b ADC_CTL_CMP7).
+//! \b ADC_CTL_TS, \b ADC_CTL_IE, \b ADC_CTL_END, \b ADC_CTL_D, and one of the
+//! input channel selects (\b ADC_CTL_CH0 through \b ADC_CTL_CH15).  For parts
+//! with the digital comparator feature, the follow values may also be OR'd
+//! into the \e ulConfig value to enable the digital comparater feature:
+//! \b ADC_CTL_CE and one of the comparater selects (\b ADC_CTL_CMP0 through
+//! \b ADC_CTL_CMP7).
 //!
-//! This function configures the ADC for one step of a sample sequence.  The
-//! ADC can be configured for single-ended or differential operation
-//! (the \b ADC_CTL_D bit selects differential operation when set), the
-//! channel to be sampled can be chosen (the \b ADC_CTL_CH0 through
-//! \b ADC_CTL_CH23 values), and the internal temperature sensor can be
-//! selected (the \b ADC_CTL_TS bit).  Additionally, this step can be defined
-//! as the last in the sequence (the \b ADC_CTL_END bit) and it can be
-//! configured to cause an interrupt when the step is complete (the
-//! \b ADC_CTL_IE bit).  If the digital comparators are present on the device,
-//! this step may also be configured to send the ADC sample to the selected
-//! comparator using \b ADC_CTL_CMP0 through \b ADC_CTL_CMP7. The configuration
-//! is used by the ADC at the appropriate time when the trigger for
-//! this sequence occurs.
+//! This function will set the configuration of the ADC for one step of a
+//! sample sequence.  The ADC can be configured for single-ended or
+//! differential operation (the \b ADC_CTL_D bit selects differential
+//! operation when set), the channel to be sampled can be chosen (the
+//! \b ADC_CTL_CH0 through \b ADC_CTL_CH15 values), and the internal
+//! temperature sensor can be selected (the \b ADC_CTL_TS bit).  Additionally,
+//! this step can be defined as the last in the sequence (the \b ADC_CTL_END
+//! bit) and it can be configured to cause an interrupt when the step is
+//! complete (the \b ADC_CTL_IE bit).  If the digital comparators are present
+//! on the device, this step may also be configured send the ADC sample to
+//! the selected comparator (the \b ADC_CTL_CMP0 through \b ADC_CTL_CMP7
+//! values) by using the \b ADC_CTL_CE bit.  The configuration is used by the
+//! ADC at the appropriate time when the trigger for this sequence occurs.
 //!
-//! \note If the Digital Comparator is present and enabled using the
-//! \b ADC_CTL_CMP0 through \b ADC_CTL_CMP7 selects, the ADC sample is NOT
-//! written into the ADC sequence data FIFO.
+//! \note If the Digitial Comparator is present and enabled using the
+//! \b ADC_CTL_CE bit, the ADC sample will NOT be written into the ADC
+//! sequence data FIFO.
 //!
 //! The \e ulStep parameter determines the order in which the samples are
 //! captured by the ADC when the trigger occurs.  It can range from zero to
-//! seven for the first sample sequencer, from zero to three for the second and
-//! third sample sequencer, and can only be zero for the fourth sample
-//! sequencer.
+//! seven for the first sample sequence, from zero to three for the second and
+//! third sample sequence, and can only be zero for the fourth sample sequence.
 //!
 //! Differential mode only works with adjacent channel pairs (for example, 0
 //! and 1).  The channel select must be the number of the channel pair to
 //! sample (for example, \b ADC_CTL_CH0 for 0 and 1, or \b ADC_CTL_CH1 for 2
-//! and 3) or undefined results are returned by the ADC.  Additionally, if
+//! and 3) or undefined results will be returned by the ADC.  Additionally, if
 //! differential mode is selected when the temperature sensor is being sampled,
-//! undefined results are returned by the ADC.
+//! undefined results will be returned by the ADC.
 //!
 //! It is the responsibility of the caller to ensure that a valid configuration
 //! is specified; this function does not check the validity of the specified
@@ -540,7 +521,7 @@ ADCSequenceStepConfigure(unsigned long ulBase, unsigned long ulSequenceNum,
     unsigned long ulTemp;
 
     //
-    // Check the arguments.
+    // Check the arugments.
     //
     ASSERT((ulBase == ADC0_BASE) || (ulBase == ADC1_BASE));
     ASSERT(ulSequenceNum < 4);
@@ -565,13 +546,6 @@ ADCSequenceStepConfigure(unsigned long ulBase, unsigned long ulSequenceNum,
     HWREG(ulBase + ADC_SSMUX) = ((HWREG(ulBase + ADC_SSMUX) &
                                   ~(0x0000000f << ulStep)) |
                                  ((ulConfig & 0x0f) << ulStep));
-
-    //
-    // Set the upper bits of the analog mux value for this step.
-    //
-    HWREG(ulBase + ADC_SSEMUX) = ((HWREG(ulBase + ADC_SSEMUX) &
-                                  ~(0x0000000f << ulStep)) |
-                                  (((ulConfig & 0xf00) >> 8) << ulStep));
 
     //
     // Set the control value for this step.
@@ -619,9 +593,9 @@ ADCSequenceStepConfigure(unsigned long ulBase, unsigned long ulSequenceNum,
 //! \param ulBase is the base address of the ADC module.
 //! \param ulSequenceNum is the sample sequence number.
 //!
-//! This function determines if a sample sequence overflow has occurred.
-//! Overflow happens if the captured samples are not read from the FIFO before
-//! the next trigger occurs.
+//! This determines if a sample sequence overflow has occurred.  This will
+//! happen if the captured samples are not read from the FIFO before the next
+//! trigger occurs.
 //!
 //! \return Returns zero if there was not an overflow, and non-zero if there
 //! was.
@@ -649,9 +623,9 @@ ADCSequenceOverflow(unsigned long ulBase, unsigned long ulSequenceNum)
 //! \param ulBase is the base address of the ADC module.
 //! \param ulSequenceNum is the sample sequence number.
 //!
-//! This function clears an overflow condition on one of the sample sequences.
-//! The overflow condition must be cleared in order to detect a subsequent
-//! overflow condition (it otherwise causes no harm).
+//! This will clear an overflow condition on one of the sample sequences.  The
+//! overflow condition must be cleared in order to detect a subsequent overflow
+//! condition (it otherwise causes no harm).
 //!
 //! \return None.
 //
@@ -678,8 +652,8 @@ ADCSequenceOverflowClear(unsigned long ulBase, unsigned long ulSequenceNum)
 //! \param ulBase is the base address of the ADC module.
 //! \param ulSequenceNum is the sample sequence number.
 //!
-//! This function determines if a sample sequence underflow has occurred.
-//! Underflow happens if too many samples are read from the FIFO.
+//! This determines if a sample sequence underflow has occurred.  This will
+//! happen if too many samples are read from the FIFO.
 //!
 //! \return Returns zero if there was not an underflow, and non-zero if there
 //! was.
@@ -707,8 +681,8 @@ ADCSequenceUnderflow(unsigned long ulBase, unsigned long ulSequenceNum)
 //! \param ulBase is the base address of the ADC module.
 //! \param ulSequenceNum is the sample sequence number.
 //!
-//! This function clears an underflow condition on one of the sample sequencers.
-//! The underflow condition must be cleared in order to detect a subsequent
+//! This will clear an underflow condition on one of the sample sequences.  The
+//! underflow condition must be cleared in order to detect a subsequent
 //! underflow condition (it otherwise causes no harm).
 //!
 //! \return None.
@@ -737,12 +711,12 @@ ADCSequenceUnderflowClear(unsigned long ulBase, unsigned long ulSequenceNum)
 //! \param ulSequenceNum is the sample sequence number.
 //! \param pulBuffer is the address where the data is stored.
 //!
-//! This function copies data from the specified sample sequencer output FIFO
-//! to a memory resident buffer.  The number of samples available in the
-//! hardware FIFO are copied into the buffer, which is assumed to be large
-//! enough to hold that many samples.  This function only returns the samples
-//! that are presently available, which may not be the entire sample sequence
-//! if it is in the process of being executed.
+//! This function copies data from the specified sample sequence output FIFO to
+//! a memory resident buffer.  The number of samples available in the hardware
+//! FIFO are copied into the buffer, which is assumed to be large enough to
+//! hold that many samples.  This will only return the samples that are
+//! presently available, which may not be the entire sample sequence if it is
+//! in the process of being executed.
 //!
 //! \return Returns the number of samples copied to the buffer.
 //
@@ -792,16 +766,10 @@ ADCSequenceDataGet(unsigned long ulBase, unsigned long ulSequenceNum,
 //! Causes a processor trigger for a sample sequence.
 //!
 //! \param ulBase is the base address of the ADC module.
-//! \param ulSequenceNum is the sample sequence number, with
-//! \b ADC_TRIGGER_WAIT or \b ADC_TRIGGER_SIGNAL optionally ORed into it.
+//! \param ulSequenceNum is the sample sequence number.
 //!
 //! This function triggers a processor-initiated sample sequence if the sample
-//! sequence trigger is configured to \b ADC_TRIGGER_PROCESSOR.  If
-//! \b ADC_TRIGGER_WAIT is ORed into the sequence number, the
-//! processor-initiated trigger is delayed until a later processor-initiated
-//! trigger to a different ADC module that specifies \b ADC_TRIGGER_SIGNAL,
-//! allowing multiple ADCs to start from a processor-initiated trigger in a
-//! synchronous manner.
+//! sequence trigger is configured to \b ADC_TRIGGER_PROCESSOR.
 //!
 //! \return None.
 //
@@ -813,13 +781,12 @@ ADCProcessorTrigger(unsigned long ulBase, unsigned long ulSequenceNum)
     // Check the arguments.
     //
     ASSERT((ulBase == ADC0_BASE) || (ulBase == ADC1_BASE));
-    ASSERT((ulSequenceNum & 0xf) < 4);
+    ASSERT(ulSequenceNum < 4);
 
     //
     // Generate a processor trigger for this sample sequence.
     //
-    HWREG(ulBase + ADC_O_PSSI) |= ((ulSequenceNum & 0xffff0000) |
-                                   (1 << (ulSequenceNum & 0xf)));
+    HWREG(ulBase + ADC_O_PSSI) = 1 << ulSequenceNum;
 }
 
 //*****************************************************************************
@@ -868,7 +835,7 @@ ADCSoftwareOversampleConfigure(unsigned long ulBase,
     }
 
     //
-    // Save the shift factor.
+    // Save the sfiht factor.
     //
     g_pucOversampleFactor[ulSequenceNum] = ulValue;
 }
@@ -930,13 +897,6 @@ ADCSoftwareOversampleStepConfigure(unsigned long ulBase,
                                      ((ulConfig & 0x0f) << ulStep));
 
         //
-        // Set the upper bits of the analog mux value for this step.
-        //
-        HWREG(ulBase + ADC_SSEMUX) = ((HWREG(ulBase + ADC_SSEMUX) &
-                                      ~(0x0000000f << ulStep)) |
-                                      (((ulConfig & 0xf00) >> 8) << ulStep));
-
-        //
         // Set the control value for this step.
         //
         HWREG(ulBase + ADC_SSCTL) = ((HWREG(ulBase + ADC_SSCTL) &
@@ -967,9 +927,9 @@ ADCSoftwareOversampleStepConfigure(unsigned long ulBase,
 //! This function copies data from the specified sample sequence output FIFO to
 //! a memory resident buffer with software oversampling applied.  The requested
 //! number of samples are copied into the data buffer; if there are not enough
-//! samples in the hardware FIFO to satisfy this many oversampled data items,
-//! then incorrect results are returned.  It is the caller's responsibility to
-//! read only the samples that are available and wait until enough data is
+//! samples in the hardware FIFO to satisfy this many oversampled data items
+//! then incorrect results will be returned.  It is the caller's responsibility
+//! to read only the samples that are available and wait until enough data is
 //! available, for example as a result of receiving an interrupt.
 //!
 //! \return None.
@@ -1030,17 +990,20 @@ ADCSoftwareOversampleDataGet(unsigned long ulBase, unsigned long ulSequenceNum,
 //! be used to provide better resolution on the sampled data.  Oversampling is
 //! accomplished by averaging multiple samples from the same analog input.  Six
 //! different oversampling rates are supported; 2x, 4x, 8x, 16x, 32x, and 64x.
-//! Specifying an oversampling factor of zero disables hardware
+//! Specifying an oversampling factor of zero will disable hardware
 //! oversampling.
 //!
 //! Hardware oversampling applies uniformly to all sample sequencers.  It does
 //! not reduce the depth of the sample sequencers like the software
-//! oversampling APIs; each sample written into the sample sequencer FIFO is a
+//! oversampling APIs; each sample written into the sample sequence FIFO is a
 //! fully oversampled analog input reading.
 //!
 //! Enabling hardware averaging increases the precision of the ADC at the cost
 //! of throughput.  For example, enabling 4x oversampling reduces the
-//! throughput of a 250 K samples/second ADC to 62.5 K samples/second.
+//! throughput of a 250 Ksps ADC to 62.5 Ksps.
+//!
+//! \note Hardware oversampling is available beginning with Rev C0 of the
+//! Stellaris microcontroller.
 //!
 //! \return None.
 //
@@ -1079,7 +1042,7 @@ ADCHardwareOversampleConfigure(unsigned long ulBase, unsigned long ulFactor)
 //! \param ulComp is the index of the comparator to configure.
 //! \param ulConfig is the configuration of the comparator.
 //!
-//! This function configures a comparator.  The \e ulConfig parameter is
+//! This function will configure a comparator.  The \e ulConfig parameter is
 //! the result of a logical OR operation between the \b ADC_COMP_TRIG_xxx, and
 //! \b ADC_COMP_INT_xxx values.
 //!
@@ -1118,7 +1081,7 @@ ADCHardwareOversampleConfigure(unsigned long ulBase, unsigned long ulFactor)
 //! output is in the low-band.
 //! - \b ADC_COMP_INT_LOW_ONCE to generate ADC interrupt once when ADC output
 //! transitions into the low-band.
-//! - \b ADC_COMP_INT_LOW_HALWAYS to always generate ADC interrupt when ADC
+//! - \b ADC_COMP__INT_LOW_HALWAYS to always generate ADC interrupt when ADC
 //! output is in the low-band only if ADC output has been in the high-band
 //! since the last trigger output.
 //! - \b ADC_COMP_INT_LOW_HONCE to generate ADC interrupt once when ADC output
@@ -1206,7 +1169,7 @@ ADCComparatorRegionSet(unsigned long ulBase, unsigned long ulComp,
 //! \param bInterrupt is the flag to indicate reset of Interrupt conditions.
 //!
 //! Because the digital comparator uses current and previous ADC values, this
-//! function allows the comparator to be reset to its initial
+//! function is provide to allow the comparator to be reset to its initial
 //! value to prevent stale data from being used when a sequence is enabled.
 //!
 //! \return None.
@@ -1300,8 +1263,8 @@ ADCComparatorIntEnable(unsigned long ulBase, unsigned long ulSequenceNum)
 //!
 //! \param ulBase is the base address of the ADC module.
 //!
-//! This function returns the digital comparator interrupt status bits.  This
-//! status is sequence agnostic.
+//! This returns the digitial comparator interrupt status bits.  This status
+//! is sequence agnostic.
 //!
 //! \return The current comparator interrupt status.
 //
@@ -1315,7 +1278,7 @@ ADCComparatorIntStatus(unsigned long ulBase)
     ASSERT((ulBase == ADC0_BASE) || (ulBase == ADC1_BASE));
 
     //
-    // Return the digital comparator interrupt status.
+    // Return the digitial comparator interrupt status.
     //
     return(HWREG(ulBase + ADC_O_DCISC));
 }
@@ -1354,12 +1317,10 @@ ADCComparatorIntClear(unsigned long ulBase, unsigned long ulStatus)
 //! \param ulRef is the reference to use.
 //!
 //! The ADC reference is set as specified by \e ulRef.  It must be one of
-//! \b ADC_REF_INT, \b ADC_REF_EXT_3V, or \b ADC_REF_EXT_1V for internal or
-//! external reference.  If \b ADC_REF_INT is chosen, then an internal 3V
-//! reference is used and no external reference is needed.  If
-//! \b ADC_REF_EXT_3V is chosen, then a 3V reference must be supplied to the
-//! AVREF pin.  If \b ADC_REF_EXT_1V is chosen, then a 1V external reference
-//! must be supplied to the AVREF pin.
+//! \b ADC_REF_INT or \b ADC_REF_EXT_3V, for internal or external reference.
+//! If \b ADC_REF_INT is chosen, then an internal 3V reference is used and
+//! no external reference is needed.  If \b ADC_REF_EXT_3V is chosen, then a 3V
+//! reference must be supplied to the AVREF pin.
 //!
 //! \note The ADC reference can only be selected on parts that have an external
 //! reference.  Consult the data sheet for your part to determine if there is
@@ -1375,13 +1336,12 @@ ADCReferenceSet(unsigned long ulBase, unsigned long ulRef)
     // Check the arguments.
     //
     ASSERT((ulBase == ADC0_BASE) || (ulBase == ADC1_BASE));
-    ASSERT((ulRef == ADC_REF_INT) || (ulRef == ADC_REF_EXT_3V) ||
-           (ulRef == ADC_REF_EXT_1V));
+    ASSERT((ulRef == ADC_REF_INT) || (ulRef == ADC_REF_EXT_3V));
 
     //
     // Set the reference.
     //
-    HWREG(ulBase + ADC_O_CTL) = (HWREG(ulBase + ADC_O_CTL) & ~ADC_CTL_VREF_M) |
+    HWREG(ulBase + ADC_O_CTL) = (HWREG(ulBase + ADC_O_CTL) & ~ADC_CTL_VREF) |
                                 ulRef;
 }
 
@@ -1391,8 +1351,8 @@ ADCReferenceSet(unsigned long ulBase, unsigned long ulRef)
 //!
 //! \param ulBase is the base address of the ADC module.
 //!
-//! Returns the value of the ADC reference setting.  The returned value is one
-//! of \b ADC_REF_INT, \b ADC_REF_EXT_3V, or \b ADC_REF_EXT_1V.
+//! Returns the value of the ADC reference setting.  The returned value will be
+//! one of \b ADC_REF_INT or \b ADC_REF_EXT_3V.
 //!
 //! \note The value returned by this function is only meaningful if used on a
 //! part that is capable of using an external reference.  Consult the data
@@ -1412,149 +1372,7 @@ ADCReferenceGet(unsigned long ulBase)
     //
     // Return the value of the reference.
     //
-    return(HWREG(ulBase + ADC_O_CTL) & ADC_CTL_VREF_M);
-}
-
-//*****************************************************************************
-//
-//! Selects the ADC resolution.
-//!
-//! \param ulBase is the base address of the ADC module.
-//! \param ulResolution is the ADC bit resolution.
-//!
-//! The ADC resolution is set as specified by \e ulResolution.  It must be one
-//! of \b ADC_RES_12BIT or \b ADC_RES_10BIT.
-//!
-//! \note The ADC resolution can only be set on parts that are capable of
-//! changing ADC resolution mode.  Consult the data sheet for your part to
-//! determine if it is capable of operating in more than one resolution mode.
-//!
-//! \return None.
-//
-//*****************************************************************************
-void
-ADCResolutionSet(unsigned long ulBase, unsigned long ulResolution)
-{
-    //
-    // Check the arguments.
-    //
-    ASSERT((ulBase == ADC0_BASE) || (ulBase == ADC1_BASE));
-    ASSERT((ulResolution == ADC_RES_10BIT) || (ulResolution == ADC_RES_12BIT));
-
-    //
-    // Set the resolution.
-    //
-    HWREG(ulBase + ADC_O_CTL) = (HWREG(ulBase + ADC_O_CTL) & ~ADC_CTL_RES) |
-                                ulResolution;
-}
-
-//*****************************************************************************
-//
-//! Gets the setting of ADC resolution.
-//!
-//! \param ulBase is the base address of the ADC module.
-//!
-//! The ADC resolution is returned as one of \b ADC_RES_12BIT or
-//! \b ADC_RES_10BIT.
-//!
-//! \note The value returned by this function is only meaningful if used on a
-//! part that is capable of changing ADC resolution mode.  Consult the
-//! data sheet for your part to determine if it is capable of operating in
-//! more than one resolution mode.
-//!
-//! \return The current setting of the ADC resolution.
-//
-//*****************************************************************************
-unsigned long
-ADCResolutionGet(unsigned long ulBase)
-{
-    //
-    // Check the arguments.
-    //
-    ASSERT((ulBase == ADC0_BASE) || (ulBase == ADC1_BASE));
-
-    //
-    // Get the resolution and return it to the caller.
-    //
-    return(HWREG(ulBase + ADC_O_CTL) & ADC_CTL_RES);
-}
-
-//*****************************************************************************
-//
-//! Sets the phase delay between a trigger and the start of a sequence.
-//!
-//! \param ulBase is the base address of the ADC module.
-//! \param ulPhase is the phase delay, specified as one of \b ADC_PHASE_0,
-//! \b ADC_PHASE_22_5, \b ADC_PHASE_45, \b ADC_PHASE_67_5, \b ADC_PHASE_90,
-//! \b ADC_PHASE_112_5, \b ADC_PHASE_135, \b ADC_PHASE_157_5, \b ADC_PHASE_180,
-//! \b ADC_PHASE_202_5, \b ADC_PHASE_225, \b ADC_PHASE_247_5, \b ADC_PHASE_270,
-//! \b ADC_PHASE_292_5, \b ADC_PHASE_315, or \b ADC_PHASE_337_5.
-//!
-//! This function sets the phase delay between the detection of an ADC trigger
-//! event and the start of the sample sequence.  By selecting a different phase
-//! delay for a pair of ADC modules (such as \b ADC_PHASE_0 and
-//! \b ADC_PHASE_180) and having each ADC module sample the same analog input,
-//! it is possible to increase the sampling rate of the analog input (with
-//! samples N, N+2, N+4, and so on, coming from the first ADC and samples N+1,
-//! N+3, N+5, and so on, coming from the second ADC).  The ADC module has a
-//! single phase delay that is applied to all sample sequences within that
-//! module.
-//!
-//! \note This capability is not available on all parts.
-//!
-//! \return None.
-//
-//*****************************************************************************
-void
-ADCPhaseDelaySet(unsigned long ulBase, unsigned long ulPhase)
-{
-    //
-    // Check the arguments.
-    //
-    ASSERT((ulBase == ADC0_BASE) || (ulBase == ADC1_BASE));
-    ASSERT((ulPhase == ADC_PHASE_0) || (ulPhase == ADC_PHASE_22_5) ||
-           (ulPhase == ADC_PHASE_45) || (ulPhase == ADC_PHASE_67_5) ||
-           (ulPhase == ADC_PHASE_90) || (ulPhase == ADC_PHASE_112_5) ||
-           (ulPhase == ADC_PHASE_135) || (ulPhase == ADC_PHASE_157_5) ||
-           (ulPhase == ADC_PHASE_180) || (ulPhase == ADC_PHASE_202_5) ||
-           (ulPhase == ADC_PHASE_225) || (ulPhase == ADC_PHASE_247_5) ||
-           (ulPhase == ADC_PHASE_270) || (ulPhase == ADC_PHASE_292_5) ||
-           (ulPhase == ADC_PHASE_315) || (ulPhase == ADC_PHASE_337_5));
-
-    //
-    // Set the phase delay.
-    //
-    HWREG(ulBase + ADC_O_SPC) = ulPhase;
-}
-
-//*****************************************************************************
-//
-//! Gets the phase delay between a trigger and the start of a sequence.
-//!
-//! \param ulBase is the base address of the ADC module.
-//!
-//! This function gets the current phase delay between the detection of an ADC
-//! trigger event and the start of the sample sequence.
-//!
-//! \return Returns the phase delay, specified as one of \b ADC_PHASE_0,
-//! \b ADC_PHASE_22_5, \b ADC_PHASE_45, \b ADC_PHASE_67_5, \b ADC_PHASE_90,
-//! \b ADC_PHASE_112_5, \b ADC_PHASE_135, \b ADC_PHASE_157_5, \b ADC_PHASE_180,
-//! \b ADC_PHASE_202_5, \b ADC_PHASE_225, \b ADC_PHASE_247_5, \b ADC_PHASE_270,
-//! \b ADC_PHASE_292_5, \b ADC_PHASE_315, or \b ADC_PHASE_337_5.
-//
-//*****************************************************************************
-unsigned long
-ADCPhaseDelayGet(unsigned long ulBase)
-{
-    //
-    // Check the arguments.
-    //
-    ASSERT((ulBase == ADC0_BASE) || (ulBase == ADC1_BASE));
-
-    //
-    // Return the phase delay.
-    //
-    return(HWREG(ulBase + ADC_O_SPC));
+    return(HWREG(ulBase + ADC_O_CTL) & ADC_CTL_VREF);
 }
 
 //*****************************************************************************

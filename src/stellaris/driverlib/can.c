@@ -2,38 +2,23 @@
 //
 // can.c - Driver for the CAN module.
 //
-// Copyright (c) 2006-2013 Texas Instruments Incorporated.  All rights reserved.
+// Copyright (c) 2006-2010 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
 // 
-//   Redistribution and use in source and binary forms, with or without
-//   modification, are permitted provided that the following conditions
-//   are met:
+// Texas Instruments (TI) is supplying this software for use solely and
+// exclusively on TI's microcontroller products. The software is owned by
+// TI and/or its suppliers, and is protected under applicable copyright
+// laws. You may not combine this software with "viral" open-source
+// software in order to form a larger program.
 // 
-//   Redistributions of source code must retain the above copyright
-//   notice, this list of conditions and the following disclaimer.
+// THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
+// NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
+// NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
+// CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+// DAMAGES, FOR ANY REASON WHATSOEVER.
 // 
-//   Redistributions in binary form must reproduce the above copyright
-//   notice, this list of conditions and the following disclaimer in the
-//   documentation and/or other materials provided with the  
-//   distribution.
-// 
-//   Neither the name of Texas Instruments Incorporated nor the names of
-//   its contributors may be used to endorse or promote products derived
-//   from this software without specific prior written permission.
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
-// This is part of revision 10636 of the Stellaris Peripheral Driver Library.
+// This is part of revision 5727 of the Stellaris Peripheral Driver Library.
 //
 //*****************************************************************************
 
@@ -59,56 +44,34 @@
 // identifier.
 //
 //*****************************************************************************
-#define CAN_MAX_11BIT_MSG_ID    0x7ff
+#define CAN_MAX_11BIT_MSG_ID    (0x7ff)
 
 //*****************************************************************************
 //
 // This is used as the loop delay for accessing the CAN controller registers.
 //
 //*****************************************************************************
-#define CAN_RW_DELAY            5
+#define CAN_RW_DELAY            (5)
 
-//*****************************************************************************
 //
-// The maximum CAN bit timing divisor is 19.
+// The maximum CAN bit timing divisor is 13.
 //
-//*****************************************************************************
-#define CAN_MAX_BIT_DIVISOR     19
+#define CAN_MAX_BIT_DIVISOR     (13)
 
-//*****************************************************************************
 //
-// The minimum CAN bit timing divisor is 4.
+// The minimum CAN bit timing divisor is 5.
 //
-//*****************************************************************************
-#define CAN_MIN_BIT_DIVISOR     4
+#define CAN_MIN_BIT_DIVISOR     (5)
 
-//*****************************************************************************
 //
 // The maximum CAN pre-divisor is 1024.
 //
-//*****************************************************************************
-#define CAN_MAX_PRE_DIVISOR     1024
+#define CAN_MAX_PRE_DIVISOR     (1024)
 
-//*****************************************************************************
 //
 // The minimum CAN pre-divisor is 1.
 //
-//*****************************************************************************
-#define CAN_MIN_PRE_DIVISOR     1
-
-//*****************************************************************************
-//
-// Converts a set of CAN bit timing values into the value that needs to be
-// programmed into the CAN_BIT register to achieve those timings.
-//
-//*****************************************************************************
-#define CAN_BIT_VALUE(seg1, seg2, sjw)                                        \
-                                ((((seg1 - 1) << CAN_BIT_TSEG1_S) &           \
-                                  CAN_BIT_TSEG1_M) |                          \
-                                 (((seg2 - 1) << CAN_BIT_TSEG2_S) &           \
-                                  CAN_BIT_TSEG2_M) |                          \
-                                 (((sjw - 1) << CAN_BIT_SJW_S) &              \
-                                  CAN_BIT_SJW_M))
+#define CAN_MIN_PRE_DIVISOR     (1)
 
 //*****************************************************************************
 //
@@ -118,22 +81,15 @@
 //*****************************************************************************
 static const unsigned short g_usCANBitValues[] =
 {
-    CAN_BIT_VALUE(2, 1, 1),     // 4 clocks/bit
-    CAN_BIT_VALUE(3, 1, 1),     // 5 clocks/bit
-    CAN_BIT_VALUE(3, 2, 2),     // 6 clocks/bit
-    CAN_BIT_VALUE(4, 2, 2),     // 7 clocks/bit
-    CAN_BIT_VALUE(4, 3, 3),     // 8 clocks/bit
-    CAN_BIT_VALUE(5, 3, 3),     // 9 clocks/bit
-    CAN_BIT_VALUE(5, 4, 4),     // 10 clocks/bit
-    CAN_BIT_VALUE(6, 4, 4),     // 11 clocks/bit
-    CAN_BIT_VALUE(6, 5, 4),     // 12 clocks/bit
-    CAN_BIT_VALUE(7, 5, 4),     // 13 clocks/bit
-    CAN_BIT_VALUE(7, 6, 4),     // 14 clocks/bit
-    CAN_BIT_VALUE(8, 6, 4),     // 15 clocks/bit
-    CAN_BIT_VALUE(8, 7, 4),     // 16 clocks/bit
-    CAN_BIT_VALUE(9, 7, 4),     // 17 clocks/bit
-    CAN_BIT_VALUE(9, 8, 4),     // 18 clocks/bit
-    CAN_BIT_VALUE(10, 8, 4)     // 19 clocks/bit
+    0x1100, // TSEG2 2, TSEG1 2, SJW 1, Divide 5
+    0x1200, // TSEG2 2, TSEG1 3, SJW 1, Divide 6
+    0x2240, // TSEG2 3, TSEG1 3, SJW 2, Divide 7
+    0x2340, // TSEG2 3, TSEG1 4, SJW 2, Divide 8
+    0x3340, // TSEG2 4, TSEG1 4, SJW 2, Divide 9
+    0x3440, // TSEG2 4, TSEG1 5, SJW 2, Divide 10
+    0x3540, // TSEG2 4, TSEG1 6, SJW 2, Divide 11
+    0x3640, // TSEG2 4, TSEG1 7, SJW 2, Divide 12
+    0x3740  // TSEG2 4, TSEG1 8, SJW 2, Divide 13
 };
 
 //*****************************************************************************
@@ -166,8 +122,8 @@ CANBaseValid(unsigned long ulBase)
 //!
 //! \param ulBase is the base address of the selected CAN controller
 //!
-//! Given a CAN controller base address, this function returns the
-//! corresponding interrupt number.
+//! Given a CAN controller base address, returns the corresponding interrupt
+//! number.
 //!
 //! This function replaces the original CANGetIntNumber() API and performs the
 //! same actions.  A macro is provided in <tt>can.h</tt> to map the original
@@ -248,7 +204,7 @@ CANIntNumberGet(unsigned long ulBase)
 static unsigned long
 CANRegRead(unsigned long ulRegAddress)
 {
-    volatile unsigned long ulDelay;
+    volatile int iDelay;
     unsigned long ulRetVal;
     unsigned long ulIntNumber;
     unsigned long ulReenableInts;
@@ -285,9 +241,8 @@ CANRegRead(unsigned long ulRegAddress)
 
     //
     // This delay is necessary for the CAN have the correct data on the bus.
-    // This delay is only required on Fury-class devices.
     //
-    for(ulDelay = 0; ulDelay < CAN_RW_DELAY; ulDelay++)
+    for(iDelay = 0; iDelay < CAN_RW_DELAY; iDelay++)
     {
     }
 
@@ -333,7 +288,7 @@ CANRegRead(unsigned long ulRegAddress)
 static void
 CANRegWrite(unsigned long ulRegAddress, unsigned long ulRegValue)
 {
-    volatile unsigned long ulDelay;
+    volatile int iDelay;
 
     //
     // Trigger the initial write to the CAN controller.  The value will not make
@@ -342,10 +297,9 @@ CANRegWrite(unsigned long ulRegAddress, unsigned long ulRegValue)
     HWREG(ulRegAddress) = ulRegValue;
 
     //
-    // Delay to allow the CAN controller to receive the new data.  This delay
-    // is only required on Fury-class devices.
+    // Delay to allow the CAN controller to receive the new data.
     //
-    for(ulDelay = 0; ulDelay < CAN_RW_DELAY; ulDelay++)
+    for(iDelay = 0; iDelay < CAN_RW_DELAY; iDelay++)
     {
     }
 }
@@ -377,29 +331,29 @@ CANRegWrite(unsigned long ulRegAddress, unsigned long ulRegValue)
 //
 //*****************************************************************************
 static void
-CANDataRegWrite(unsigned char *pucData, unsigned long *pulRegister,
-                unsigned long ulSize)
+CANDataRegWrite(unsigned char *pucData, unsigned long *pulRegister, int iSize)
 {
-    unsigned long ulIdx, ulValue;
+    int iIdx;
+    unsigned long ulValue;
 
     //
     // Loop always copies 1 or 2 bytes per iteration.
     //
-    for(ulIdx = 0; ulIdx < ulSize; )
+    for(iIdx = 0; iIdx < iSize; )
     {
 
         //
         // Write out the data 16 bits at a time since this is how the registers
         // are aligned in memory.
         //
-        ulValue = pucData[ulIdx++];
+        ulValue = pucData[iIdx++];
 
         //
         // Only write the second byte if needed otherwise it will be zero.
         //
-        if(ulIdx < ulSize)
+        if(iIdx < iSize)
         {
-            ulValue |= (pucData[ulIdx++] << 8);
+            ulValue |= (pucData[iIdx++] << 8);
         }
         CANRegWrite((unsigned long)(pulRegister++), ulValue);
     }
@@ -432,15 +386,15 @@ CANDataRegWrite(unsigned char *pucData, unsigned long *pulRegister,
 //
 //*****************************************************************************
 static void
-CANDataRegRead(unsigned char *pucData, unsigned long *pulRegister,
-               unsigned long ulSize)
+CANDataRegRead(unsigned char *pucData, unsigned long *pulRegister, int iSize)
 {
-    unsigned long ulIdx, ulValue;
+    int iIdx;
+    unsigned long ulValue;
 
     //
     // Loop always copies 1 or 2 bytes per iteration.
     //
-    for(ulIdx = 0; ulIdx < ulSize; )
+    for(iIdx = 0; iIdx < iSize; )
     {
         //
         // Read out the data 16 bits at a time since this is how the registers
@@ -451,14 +405,14 @@ CANDataRegRead(unsigned char *pucData, unsigned long *pulRegister,
         //
         // Store the first byte.
         //
-        pucData[ulIdx++] = (unsigned char)ulValue;
+        pucData[iIdx++] = (unsigned char)ulValue;
 
         //
         // Only read the second byte if needed.
         //
-        if(ulIdx < ulSize)
+        if(iIdx < iSize)
         {
-            pucData[ulIdx++] = (unsigned char)(ulValue >> 8);
+            pucData[iIdx++] = (unsigned char)(ulValue >> 8);
         }
     }
 }
@@ -482,7 +436,7 @@ CANDataRegRead(unsigned char *pucData, unsigned long *pulRegister,
 void
 CANInit(unsigned long ulBase)
 {
-    unsigned long ulMsg;
+    int iMsg;
 
     //
     // Check the arguments.
@@ -516,7 +470,7 @@ CANInit(unsigned long ulBase)
     //
     // Loop through to program all 32 message objects
     //
-    for(ulMsg = 1; ulMsg <= 32; ulMsg++)
+    for(iMsg = 1; iMsg <= 32; iMsg++)
     {
         //
         // Wait for busy bit to clear
@@ -528,7 +482,7 @@ CANInit(unsigned long ulBase)
         //
         // Initiate programming the message object
         //
-        CANRegWrite(ulBase + CAN_O_IF1CRQ, ulMsg);
+        CANRegWrite(ulBase + CAN_O_IF1CRQ, iMsg);
     }
 
     //
@@ -541,7 +495,7 @@ CANInit(unsigned long ulBase)
     //
     // Loop through to program all 32 message objects
     //
-    for(ulMsg = 1; ulMsg <= 32; ulMsg++)
+    for(iMsg = 1; iMsg <= 32; iMsg++)
     {
         //
         // Wait for busy bit to clear.
@@ -553,7 +507,7 @@ CANInit(unsigned long ulBase)
         //
         // Initiate programming the message object
         //
-        CANRegWrite(ulBase + CAN_O_IF1CRQ, ulMsg);
+        CANRegWrite(ulBase + CAN_O_IF1CRQ, iMsg);
     }
 
     //
@@ -569,7 +523,7 @@ CANInit(unsigned long ulBase)
 //! \param ulBase is the base address of the CAN controller to enable.
 //!
 //! Enables the CAN controller for message processing.  Once enabled, the
-//! controller automatically transmits any pending frames, and processes any
+//! controller will automatically transmit any pending frames, and process any
 //! received frames.  The controller can be stopped by calling CANDisable().
 //! Prior to calling CANEnable(), CANInit() should have been called to
 //! initialize the controller and the CAN bus clock should be configured by
@@ -600,7 +554,7 @@ CANEnable(unsigned long ulBase)
 //! \param ulBase is the base address of the CAN controller to disable.
 //!
 //! Disables the CAN controller for message processing.  When disabled, the
-//! controller no longer automatically processes data on the CAN bus.  The
+//! controller will no longer automatically process data on the CAN bus.  The
 //! controller can be restarted by calling CANEnable().  The state of the CAN
 //! controller and the message objects in the controller are left as they were
 //! before this call was made.
@@ -631,7 +585,7 @@ CANDisable(unsigned long ulBase)
 //! \param pClkParms is a pointer to a structure to hold the timing parameters.
 //!
 //! This function reads the current configuration of the CAN controller bit
-//! clock timing and stores the resulting information in the structure
+//! clock timing, and stores the resulting information in the structure
 //! supplied by the caller.  Refer to CANBitTimingSet() for the meaning of the
 //! values that are returned in the structure pointed to by \e pClkParms.
 //!
@@ -645,7 +599,7 @@ CANDisable(unsigned long ulBase)
 void
 CANBitTimingGet(unsigned long ulBase, tCANBitClkParms *pClkParms)
 {
-    unsigned long ulBitReg;
+    unsigned int uBitReg;
 
     //
     // Check the arguments.
@@ -656,54 +610,50 @@ CANBitTimingGet(unsigned long ulBase, tCANBitClkParms *pClkParms)
     //
     // Read out all the bit timing values from the CAN controller registers.
     //
-    ulBitReg = CANRegRead(ulBase + CAN_O_BIT);
+    uBitReg = CANRegRead(ulBase + CAN_O_BIT);
 
     //
     // Set the phase 2 segment.
     //
-    pClkParms->ulPhase2Seg =
-        ((ulBitReg & CAN_BIT_TSEG2_M) >> CAN_BIT_TSEG2_S) + 1;
+    pClkParms->uPhase2Seg = ((uBitReg & CAN_BIT_TSEG2_M) >> 12) + 1;
 
     //
     // Set the phase 1 segment.
     //
-    pClkParms->ulSyncPropPhase1Seg =
-        ((ulBitReg & CAN_BIT_TSEG1_M) >> CAN_BIT_TSEG1_S) + 1;
+    pClkParms->uSyncPropPhase1Seg = ((uBitReg & CAN_BIT_TSEG1_M) >> 8) + 1;
 
     //
     // Set the synchronous jump width.
     //
-    pClkParms->ulSJW = ((ulBitReg & CAN_BIT_SJW_M) >> CAN_BIT_SJW_S) + 1;
+    pClkParms->uSJW = ((uBitReg & CAN_BIT_SJW_M) >> 6) + 1;
 
     //
     // Set the pre-divider for the CAN bus bit clock.
     //
-    pClkParms->ulQuantumPrescaler =
-        ((ulBitReg & CAN_BIT_BRP_M) |
+    pClkParms->uQuantumPrescaler =
+        ((uBitReg & CAN_BIT_BRP_M) |
          ((CANRegRead(ulBase + CAN_O_BRPE) & CAN_BRPE_BRPE_M) << 6)) + 1;
 }
 
 //*****************************************************************************
 //
-//! Sets the CAN bit timing values to a nominal setting based on a desired
-//! bit rate.
+//! This function is used to set the CAN bit timing values to a nominal setting
+//! based on a desired bit rate.
 //!
 //! \param ulBase is the base address of the CAN controller.
 //! \param ulSourceClock is the system clock for the device in Hz.
 //! \param ulBitRate is the desired bit rate.
 //!
-//! This function sets the CAN bit timing for the bit rate passed in the
-//! \e ulBitRate parameter based on the \e ulSourceClock parameter.  Because the
-//! CAN clock is based off of the system clock, the calling function should pass
+//! This function will set the CAN bit timing for the bit rate passed in the
+//! \e ulBitRate parameter based on the \e ulSourceClock parameter.  Since the
+//! CAN clock is based off of the system clock the calling function should pass
 //! in the source clock rate either by retrieving it from SysCtlClockGet() or
-//! using a specific value in Hz.  The CAN bit timing is calculated assuming a
-//! minimal amount of propagation delay, which works for most cases where
-//! the network length is short.  If tighter timing requirements or longer
-//! network lengths are needed, then the CANBitTimingSet() function is
-//! available for full customization of all of the CAN bit timing values.
-//! Because not all bit rates can be matched exactly, the bit rate is set to
-//! the value closest to the desired bit rate without being higher than the
-//! \e ulBitRate value.
+//! using a specific value in Hz.  The CAN bit clock is calculated to be an
+//! average timing value that should work for most systems.  If tighter timing
+//! requirements are needed, then the CANBitTimingSet() function is available
+//! for full customization of all of the CAN bit timing values.  Since not all
+//! bit rates can be matched exactly, the bit rate is set to the value closest
+//! to the desired bit rate without being higher than the \e ulBitRate value.
 //!
 //! \note On some devices the source clock is fixed at 8MHz so the
 //! \e ulSourceClock should be set to 8000000.
@@ -723,11 +673,6 @@ CANBitRateSet(unsigned long ulBase, unsigned long ulSourceClock,
     unsigned long ulRegValue;
     unsigned short usCANCTL;
 
-    //
-    // Check the arguments.
-    //
-    ASSERT(CANBaseValid(ulBase));
-    ASSERT(ulSourceClock != 0);
     ASSERT(ulBitRate != 0);
 
     //
@@ -736,8 +681,8 @@ CANBitRateSet(unsigned long ulBase, unsigned long ulSourceClock,
     ulDesiredRatio = ulSourceClock / ulBitRate;
 
     //
-    // Make sure that the ratio of CAN bit rate to processor clock is not too
-    // small or too large.
+    // If the ratio of CAN bit rate to processor clock is too small or too
+    // large then return 0 indicating that no bit rate was set.
     //
     ASSERT(ulDesiredRatio <= (CAN_MAX_PRE_DIVISOR * CAN_MAX_BIT_DIVISOR));
     ASSERT(ulDesiredRatio >= (CAN_MIN_PRE_DIVISOR * CAN_MIN_BIT_DIVISOR));
@@ -754,7 +699,7 @@ CANBitRateSet(unsigned long ulBase, unsigned long ulSourceClock,
     //
     // Check all possible values to find a matching value.
     //
-    while(ulDesiredRatio <= (CAN_MAX_PRE_DIVISOR * CAN_MAX_BIT_DIVISOR))
+    while(ulDesiredRatio <= CAN_MAX_PRE_DIVISOR * CAN_MAX_BIT_DIVISOR)
     {
         //
         // Loop through all possible CAN bit divisors.
@@ -786,13 +731,13 @@ CANBitRateSet(unsigned long ulBase, unsigned long ulSourceClock,
                 // so it can be restored.
                 //
                 usCANCTL = CANRegRead(ulBase + CAN_O_CTL);
-                CANRegWrite(ulBase + CAN_O_CTL,
-                            usCANCTL | CAN_CTL_INIT | CAN_CTL_CCE);
+                CANRegWrite(ulBase + CAN_O_CTL, usCANCTL | CAN_CTL_INIT |
+                                                CAN_CTL_CCE);
 
                 //
                 // Now add in the pre-scalar on the bit rate.
                 //
-                ulRegValue |= ((ulPreDivide - 1) & CAN_BIT_BRP_M);
+                ulRegValue |= ((ulPreDivide - 1)& CAN_BIT_BRP_M);
 
                 //
                 // Set the clock bits in the and the lower bits of the
@@ -824,11 +769,6 @@ CANBitRateSet(unsigned long ulBase, unsigned long ulSourceClock,
         //
         ulDesiredRatio++;
     }
-
-    //
-    // A valid combination could not be found, so return 0 to indicate that the
-    // bit rate was not changed.
-    //
     return(0);
 }
 
@@ -843,27 +783,27 @@ CANBitRateSet(unsigned long ulBase, unsigned long ulSourceClock,
 //! Propagation segment, Phase Buffer 1 segment, Phase Buffer 2 segment, and
 //! the Synchronization Jump Width.  The values for Propagation and Phase
 //! Buffer 1 segments are derived from the combination
-//! \e pClkParms->ulSyncPropPhase1Seg parameter.  Phase Buffer 2 is determined
-//! from the \e pClkParms->ulPhase2Seg parameter.  These two parameters, along
-//! with \e pClkParms->ulSJW are based in units of bit time quanta.  The actual
-//! quantum time is determined by the \e pClkParms->ulQuantumPrescaler value,
+//! \e pClkParms->uSyncPropPhase1Seg parameter.  Phase Buffer 2 is determined
+//! from the \e pClkParms->uPhase2Seg parameter.  These two parameters, along
+//! with \e pClkParms->uSJW are based in units of bit time quanta.  The actual
+//! quantum time is determined by the \e pClkParms->uQuantumPrescaler value,
 //! which specifies the divisor for the CAN module clock.
 //!
-//! The total bit time, in quanta, is the sum of the two Seg parameters,
+//! The total bit time, in quanta, will be the sum of the two Seg parameters,
 //! as follows:
 //!
-//! bit_time_q = ulSyncPropPhase1Seg + ulPhase2Seg + 1
+//! bit_time_q = uSyncPropPhase1Seg + uPhase2Seg + 1
 //!
-//! Note that the Sync_Seg is always one quantum in duration, and is added
+//! Note that the Sync_Seg is always one quantum in duration, and will be added
 //! to derive the correct duration of Prop_Seg and Phase1_Seg.
 //!
 //! The equation to determine the actual bit rate is as follows:
 //!
 //! CAN Clock /
-//! ((\e ulSyncPropPhase1Seg + \e ulPhase2Seg + 1) * (\e ulQuantumPrescaler))
+//! ((\e uSyncPropPhase1Seg + \e uPhase2Seg + 1) * (\e uQuantumPrescaler))
 //!
-//! Thus with \e ulSyncPropPhase1Seg = 4, \e ulPhase2Seg = 1,
-//! \e ulQuantumPrescaler = 2 and an 8 MHz CAN clock, the bit rate is
+//! This means that with \e uSyncPropPhase1Seg = 4, \e uPhase2Seg = 1,
+//! \e uQuantumPrescaler = 2 and an 8 MHz CAN clock, that the bit rate will be
 //! (8 MHz) / ((5 + 2 + 1) * 2) or 500 Kbit/sec.
 //!
 //! This function replaces the original CANSetBitTiming() API and performs the
@@ -876,7 +816,8 @@ CANBitRateSet(unsigned long ulBase, unsigned long ulSourceClock,
 void
 CANBitTimingSet(unsigned long ulBase, tCANBitClkParms *pClkParms)
 {
-    unsigned long ulBitReg, ulSavedInit;
+    unsigned int uBitReg;
+    unsigned int uSavedInit;
 
     //
     // Check the arguments.
@@ -887,63 +828,60 @@ CANBitTimingSet(unsigned long ulBase, tCANBitClkParms *pClkParms)
     //
     // The phase 1 segment must be in the range from 2 to 16.
     //
-    ASSERT((pClkParms->ulSyncPropPhase1Seg >= 2) &&
-           (pClkParms->ulSyncPropPhase1Seg <= 16));
+    ASSERT((pClkParms->uSyncPropPhase1Seg >= 2) &&
+           (pClkParms->uSyncPropPhase1Seg <= 16));
 
     //
     // The phase 2 segment must be in the range from 1 to 8.
     //
-    ASSERT((pClkParms->ulPhase2Seg >= 1) && (pClkParms->ulPhase2Seg <= 8));
+    ASSERT((pClkParms->uPhase2Seg >= 1) && (pClkParms->uPhase2Seg <= 8));
 
     //
     // The synchronous jump windows must be in the range from 1 to 4.
     //
-    ASSERT((pClkParms->ulSJW >= 1) && (pClkParms->ulSJW <= 4));
+    ASSERT((pClkParms->uSJW >= 1) && (pClkParms->uSJW <= 4));
 
     //
     // The CAN clock pre-divider must be in the range from 1 to 1024.
     //
-    ASSERT((pClkParms->ulQuantumPrescaler <= 1024) &&
-           (pClkParms->ulQuantumPrescaler >= 1));
+    ASSERT((pClkParms->uQuantumPrescaler <= 1024) &&
+           (pClkParms->uQuantumPrescaler >= 1));
 
     //
     // To set the bit timing register, the controller must be placed in init
     // mode (if not already), and also configuration change bit enabled.  State
     // of the init bit should be saved so it can be restored at the end.
     //
-    ulSavedInit = CANRegRead(ulBase + CAN_O_CTL);
-    CANRegWrite(ulBase + CAN_O_CTL, ulSavedInit | CAN_CTL_INIT | CAN_CTL_CCE);
+    uSavedInit = CANRegRead(ulBase + CAN_O_CTL);
+    CANRegWrite(ulBase + CAN_O_CTL, uSavedInit | CAN_CTL_INIT | CAN_CTL_CCE);
 
     //
     // Set the bit fields of the bit timing register according to the parms.
     //
-    ulBitReg = (((pClkParms->ulPhase2Seg - 1) << CAN_BIT_TSEG2_S) &
-                CAN_BIT_TSEG2_M);
-    ulBitReg |= (((pClkParms->ulSyncPropPhase1Seg - 1) << CAN_BIT_TSEG1_S) &
-                 CAN_BIT_TSEG1_M);
-    ulBitReg |= ((pClkParms->ulSJW - 1) << CAN_BIT_SJW_S) & CAN_BIT_SJW_M;
-    ulBitReg |= (pClkParms->ulQuantumPrescaler - 1) & CAN_BIT_BRP_M;
-    CANRegWrite(ulBase + CAN_O_BIT, ulBitReg);
+    uBitReg = ((pClkParms->uPhase2Seg - 1) << 12) & CAN_BIT_TSEG2_M;
+    uBitReg |= ((pClkParms->uSyncPropPhase1Seg - 1) << 8) & CAN_BIT_TSEG1_M;
+    uBitReg |= ((pClkParms->uSJW - 1) << 6) & CAN_BIT_SJW_M;
+    uBitReg |= (pClkParms->uQuantumPrescaler - 1) & CAN_BIT_BRP_M;
+    CANRegWrite(ulBase + CAN_O_BIT, uBitReg);
 
     //
     // Set the divider upper bits in the extension register.
     //
     CANRegWrite(ulBase + CAN_O_BRPE,
-                ((pClkParms->ulQuantumPrescaler - 1) >> 6) & CAN_BRPE_BRPE_M);
-
+                ((pClkParms->uQuantumPrescaler - 1) >> 6) & CAN_BRPE_BRPE_M);
     //
     // Clear the config change bit, and restore the init bit.
     //
-    ulSavedInit &= ~CAN_CTL_CCE;
+    uSavedInit &= ~CAN_CTL_CCE;
 
     //
     // If Init was not set before, then clear it.
     //
-    if(ulSavedInit & CAN_CTL_INIT)
+    if(uSavedInit & CAN_CTL_INIT)
     {
-        ulSavedInit &= ~CAN_CTL_INIT;
+        uSavedInit &= ~CAN_CTL_INIT;
     }
-    CANRegWrite(ulBase + CAN_O_CTL, ulSavedInit);
+    CANRegWrite(ulBase + CAN_O_CTL, uSavedInit);
 }
 
 //*****************************************************************************
@@ -1004,7 +942,7 @@ CANIntRegister(unsigned long ulBase, void (*pfnHandler)(void))
 //! \param ulBase is the base address of the controller.
 //!
 //! This function unregisters the previously registered interrupt handler and
-//! disables the interrupt in the interrupt controller.
+//! disables the interrupt on the interrupt controller.
 //!
 //! \sa IntRegister() for important information about registering interrupt
 //! handlers.
@@ -1028,14 +966,14 @@ CANIntUnregister(unsigned long ulBase)
     ulIntNumber = CANIntNumberGet(ulBase);
 
     //
-    // Disable the CAN interrupt.
-    //
-    IntDisable(ulIntNumber);
-
-    //
     // Register the interrupt handler.
     //
     IntUnregister(ulIntNumber);
+
+    //
+    // Disable the CAN interrupt.
+    //
+    IntDisable(ulIntNumber);
 }
 
 //*****************************************************************************
@@ -1045,8 +983,8 @@ CANIntUnregister(unsigned long ulBase)
 //! \param ulBase is the base address of the CAN controller.
 //! \param ulIntFlags is the bit mask of the interrupt sources to be enabled.
 //!
-//! This function enables specific interrupt sources of the CAN controller.
-//! Only enabled sources cause a processor interrupt.
+//! Enables specific interrupt sources of the CAN controller.  Only enabled
+//! sources will cause a processor interrupt.
 //!
 //! The \e ulIntFlags parameter is the logical OR of any of the following:
 //!
@@ -1060,7 +998,7 @@ CANIntUnregister(unsigned long ulBase)
 //! an interrupt, that message object must have interrupts enabled (see
 //! CANMessageSet()).  \b CAN_INT_ERROR will generate an interrupt if the
 //! controller enters the ``bus off'' condition, or if the error counters reach
-//! a limit.  \b CAN_INT_STATUS generates an interrupt under quite a few
+//! a limit.  \b CAN_INT_STATUS will generate an interrupt under quite a few
 //! status conditions and may provide more interrupts than the application
 //! needs to handle.  When an interrupt occurs, use CANIntStatus() to determine
 //! the cause.
@@ -1123,19 +1061,19 @@ CANIntDisable(unsigned long ulBase, unsigned long ulIntFlags)
 //! \param ulBase is the base address of the CAN controller.
 //! \param eIntStsReg indicates which interrupt status register to read
 //!
-//! This function returns the value of one of two interrupt status registers.
-//! The interrupt status register read is determined by the \e eIntStsReg
-//! parameter, which can have one of the following values:
+//! Returns the value of one of two interrupt status registers.  The interrupt
+//! status register read is determined by the \e eIntStsReg parameter, which
+//! can have one of the following values:
 //!
 //! - \b CAN_INT_STS_CAUSE - indicates the cause of the interrupt
 //! - \b CAN_INT_STS_OBJECT - indicates pending interrupts of all message
 //! objects
 //!
 //! \b CAN_INT_STS_CAUSE returns the value of the controller interrupt register
-//! and indicates the cause of the interrupt. The value returned is
+//! and indicates the cause of the interrupt.  It will be a value of
 //! \b CAN_INT_INTID_STATUS if the cause is a status interrupt.  In this case,
 //! the status register should be read with the CANStatusGet() function.
-//! Calling this function to read the status also clears the status
+//! Calling this function to read the status will also clear the status
 //! interrupt.  If the value of the interrupt register is in the range 1-32,
 //! then this indicates the number of the highest priority message object that
 //! has an interrupt pending.  The message object interrupt can be cleared by
@@ -1145,9 +1083,9 @@ CANIntDisable(unsigned long ulBase, unsigned long ulIntFlags)
 //! cleared before returning from the interrupt.
 //!
 //! \b CAN_INT_STS_OBJECT returns a bit mask indicating which message objects
-//! have pending interrupts.  This value can be used to discover all of the
-//! pending interrupts at once, as opposed to repeatedly reading the interrupt
-//! register by using \b CAN_INT_STS_CAUSE.
+//! have pending interrupts.  This can be used to discover all of the pending
+//! interrupts at once, as opposed to repeatedly reading the interrupt register
+//! by using \b CAN_INT_STS_CAUSE.
 //!
 //! \return Returns the value of one of the interrupt status registers.
 //
@@ -1201,7 +1139,6 @@ CANIntStatus(unsigned long ulBase, tCANIntStsReg eIntStsReg)
             break;
         }
     }
-
     //
     // Return the interrupt status value
     //
@@ -1222,21 +1159,21 @@ CANIntStatus(unsigned long ulBase, tCANIntStsReg eIntStsReg)
 //! - 1-32 - Clears the specified message object interrupt
 //!
 //! It is not necessary to use this function to clear an interrupt.  This
-//! function should only be used if the application wants to clear an interrupt
-//! source without taking the normal interrupt action.
+//! should only be used if the application wants to clear an interrupt source
+//! without taking the normal interrupt action.
 //!
 //! Normally, the status interrupt is cleared by reading the controller status
 //! using CANStatusGet().  A specific message object interrupt is normally
 //! cleared by reading the message object using CANMessageGet().
 //!
-//! \note Because there is a write buffer in the Cortex-M processor, it may
-//! take several clock cycles before the interrupt source is actually cleared.
+//! \note Since there is a write buffer in the Cortex-M3 processor, it may take
+//! several clock cycles before the interrupt source is actually cleared.
 //! Therefore, it is recommended that the interrupt source be cleared early in
 //! the interrupt handler (as opposed to the very last action) to avoid
 //! returning from the interrupt handler before the interrupt source is
 //! actually cleared.  Failure to do so may result in the interrupt handler
-//! being immediately reentered (because the interrupt controller still sees
-//! the interrupt source asserted).
+//! being immediately reentered (since NVIC still sees the interrupt source
+//! asserted).
 //!
 //! \return None.
 //
@@ -1294,9 +1231,9 @@ CANIntClear(unsigned long ulBase, unsigned long ulIntClr)
 //! \param ulBase is the base address of the CAN controller.
 //! \param bAutoRetry enables automatic retransmission.
 //!
-//! This function enables or disables automatic retransmission of messages with
-//! detected errors.  If \e bAutoRetry is \b true, then automatic
-//! retransmission is enabled, otherwise it is disabled.
+//! Enables or disables automatic retransmission of messages with detected
+//! errors.  If \e bAutoRetry is \b true, then automatic retransmission is
+//! enabled, otherwise it is disabled.
 //!
 //! \return None.
 //
@@ -1343,7 +1280,7 @@ CANRetrySet(unsigned long ulBase, tBoolean bAutoRetry)
 //!
 //! \param ulBase is the base address of the CAN controller.
 //!
-//! This function reads the current setting for automatic retransmission in the CAN
+//! Reads the current setting for the automatic retransmission in the CAN
 //! controller and returns it to the caller.
 //!
 //! \return Returns \b true if automatic retransmission is enabled, \b false
@@ -1382,8 +1319,7 @@ CANRetryGet(unsigned long ulBase)
 //! \param ulBase is the base address of the CAN controller.
 //! \param eStatusReg is the status register to read.
 //!
-//! This function reads a status register of the CAN controller and returns it
-//! to the caller.
+//! Reads a status register of the CAN controller and returns it to the caller.
 //! The different status registers are:
 //!
 //! - \b CAN_STS_CONTROL - the main controller status
@@ -1392,9 +1328,9 @@ CANRetryGet(unsigned long ulBase)
 //! - \b CAN_STS_MSGVAL - bit mask of objects with valid configuration
 //!
 //! When reading the main controller status register, a pending status
-//! interrupt is cleared.  This parameter should be used in the interrupt
-//! handler for the CAN controller if the cause is a status interrupt.  The
-//! controller status register fields are as follows:
+//! interrupt will be cleared.  This should be used in the interrupt handler
+//! for the CAN controller if the cause is a status interrupt.  The controller
+//! status register fields are as follows:
 //!
 //! - \b CAN_STATUS_BUS_OFF - controller is in bus-off condition
 //! - \b CAN_STATUS_EWARN - an error counter has reached a limit of at least 96
@@ -1414,21 +1350,20 @@ CANRetryGet(unsigned long ulBase)
 //! dominant mode
 //! - \b CAN_STATUS_LEC_CRC - CRC error in received message
 //!
-//! The remaining status registers consist of 32-bit-wide bit maps to the
-//! message objects. They can be used to quickly obtain information about the
-//! status of all the message objects without needing to query each one.  They
-//! contain the following information:
+//! The remaining status registers are 32-bit bit maps to the message objects.
+//! They can be used to quickly obtain information about the status of all the
+//! message objects without needing to query each one.  They contain the
+//! following information:
 //!
-//! - \b CAN_STS_TXREQUEST - if a message object's TXRQST bit is set, a
-//! transmission is pending on that object.  The application can use this
-//! information to determine which objects are still waiting to send a
-//! message.
-//! - \b CAN_STS_NEWDAT - if a message object's NEWDAT bit is set, a new
-//! message has been received in that object, and has not yet been picked up
-//! by the host application
-//! - \b CAN_STS_MSGVAL - if a message object's MSGVAL bit is set, the object
-//! has a valid configuration programmed.  The host application can use this
-//! information to determine which message objects are empty/unused.
+//! - \b CAN_STS_TXREQUEST - if a message object's TxRequest bit is set, that
+//! means that a transmission is pending on that object.  The application can
+//! use this to determine which objects are still waiting to send a message.
+//! - \b CAN_STS_NEWDAT - if a message object's NewDat bit is set, that means
+//! that a new message has been received in that object, and has not yet been
+//! picked up by the host application
+//! - \b CAN_STS_MSGVAL - if a message object's MsgVal bit is set, that means
+//! it has a valid configuration programmed.  The host application can use this
+//! to determine which message objects are empty/unused.
 //!
 //! \return Returns the value of the status register.
 //
@@ -1507,14 +1442,14 @@ CANStatusGet(unsigned long ulBase, tCANStsReg eStatusReg)
 //! \param pulRxCount is a pointer to storage for the receive error counter.
 //! \param pulTxCount is a pointer to storage for the transmit error counter.
 //!
-//! This function reads the error counter register and returns the transmit and
-//! receive error counts to the caller along with a flag indicating if the
-//! controller receive counter has reached the error passive limit.  The values
-//! of the receive and transmit error counters are returned through the
-//! pointers provided as parameters.
+//! Reads the error counter register and returns the transmit and receive error
+//! counts to the caller along with a flag indicating if the controller receive
+//! counter has reached the error passive limit.  The values of the receive and
+//! transmit error counters are returned through the pointers provided as
+//! parameters.
 //!
-//! After this call, \e *pulRxCount holds the current receive error count
-//! and \e *pulTxCount holds the current transmit error count.
+//! After this call, \e *pulRxCount will hold the current receive error count
+//! and \e *pulTxCount will hold the current transmit error count.
 //!
 //! \return Returns \b true if the receive error count has reached the error
 //! passive limit, and \b false if the error count is below the error passive
@@ -1561,10 +1496,10 @@ CANErrCntrGet(unsigned long ulBase, unsigned long *pulRxCount,
 //! \param eMsgType indicates the type of message for this object.
 //!
 //! This function is used to configure any one of the 32 message objects in the
-//! CAN controller.  A message object can be configured to be any type of CAN
-//! message object as well as to use automatic transmission and reception.
-//! This call also allows the message object to be configured to generate
-//! interrupts on completion of message receipt or transmission.  The
+//! CAN controller.  A message object can be configured as any type of CAN
+//! message object as well as several options for automatic transmission and
+//! reception.  This call also allows the message object to be configured to
+//! generate interrupts on completion of message receipt or transmission.  The
 //! message object can also be configured with a filter/mask so that actions
 //! are only taken when a message that meets certain parameters is seen on the
 //! CAN bus.
@@ -1589,13 +1524,13 @@ CANErrCntrGet(unsigned long ulBase, unsigned long *pulRxCount,
 //!   - Set \b MSG_OBJ_RX_INT_ENABLE flag to enable interrupt on receipt.
 //!   - Set \b MSG_OBJ_USE_ID_FILTER flag to enable filtering based on the
 //!   identifier mask specified by \e ulMsgIDMask.
-//! - \e ulMsgLen - the number of bytes in the message data.  This parameter
-//! should be non-zero even for a remote frame; it should match the expected
-//! bytes of data in the responding data frame.
+//! - \e ulMsgLen - the number of bytes in the message data.  This should be
+//! non-zero even for a remote frame; it should match the expected bytes of the
+//! data responding data frame.
 //! - \e pucMsgData - points to a buffer containing up to 8 bytes of data for a
 //! data frame.
 //!
-//! \b Example: To send a data frame or remote frame (in response to a remote
+//! \b Example: To send a data frame or remote frame(in response to a remote
 //! request), take the following steps:
 //!
 //! -# Set \e eMsgType to \b MSG_OBJ_TYPE_TX.
@@ -1615,17 +1550,18 @@ CANErrCntrGet(unsigned long ulBase, unsigned long *pulRxCount,
 //! -# Set \e pMsgObject->ulMsgIDMask bits that should be used for masking
 //! during comparison.
 //! -# Set \e pMsgObject->ulFlags as follows:
-//!   - Set \b MSG_OBJ_RX_INT_ENABLE flag to be interrupted when the data frame
+//!   - Set \b MSG_OBJ_TX_INT_ENABLE flag to be interrupted when the data frame
 //!   is received.
-//!   - Set \b MSG_OBJ_USE_ID_FILTER flag to enable identifier-based filtering.
+//!   - Set \b MSG_OBJ_USE_ID_FILTER flag to enable identifier based filtering.
 //! -# Set \e pMsgObject->ulMsgLen to the number of bytes in the expected data
 //! frame.
-//! -# The buffer pointed to by \e pMsgObject->pucMsgData is not used by this
-//! call as no data is present at the time of the call.
+//! -# The buffer pointed to by \e pMsgObject->pucMsgData  and
+//! \e pMsgObject->ulMsgLen are not used by this call as no data is present at
+//! the time of the call.
 //! -# Call this function with \e ulObjID set to one of the 32 object buffers.
 //!
 //! If you specify a message object buffer that already contains a message
-//! definition, it is overwritten.
+//! definition, it will be overwritten.
 //!
 //! \return None.
 //
@@ -1947,9 +1883,11 @@ CANMessageSet(unsigned long ulBase, unsigned long ulObjID,
     CANRegWrite(ulBase + CAN_O_IF1MCTL, usMsgCtrl);
 
     //
-    // Transfer the message object to the message object specified by ulObjID.
+    // Transfer the message object to the message object specifiec by ulObjID.
     //
     CANRegWrite(ulBase + CAN_O_IF1CRQ, ulObjID & CAN_IF1CRQ_MNUM_M);
+
+    return;
 }
 
 //*****************************************************************************
@@ -1963,27 +1901,27 @@ CANMessageSet(unsigned long ulBase, unsigned long ulObjID,
 //! cleared.
 //!
 //! This function is used to read the contents of one of the 32 message objects
-//! in the CAN controller and return it to the caller.  The data returned is
+//! in the CAN controller, and return it to the caller.  The data returned is
 //! stored in the fields of the caller-supplied structure pointed to by
 //! \e pMsgObject.  The data consists of all of the parts of a CAN message,
 //! plus some control and status information.
 //!
-//! Normally, this function is used to read a message object that has received
-//! and stored a CAN message with a certain identifier.  However, this function
-//! could also be used to read the contents of a message object in order to
-//! load the fields of the structure in case only part of the structure must
-//! be changed from a previous setting.
+//! Normally this is used to read a message object that has received and stored
+//! a CAN message with a certain identifier.  However, this could also be used
+//! to read the contents of a message object in order to load the fields of the
+//! structure in case only part of the structure needs to be changed from a
+//! previous setting.
 //!
-//! When using CANMessageGet(), all of the same fields of the structure are
+//! When using CANMessageGet, all of the same fields of the structure are
 //! populated in the same way as when the CANMessageSet() function is used,
 //! with the following exceptions:
 //!
 //! \e pMsgObject->ulFlags:
 //!
-//! - \b MSG_OBJ_NEW_DATA indicates if this data is new since the last time it
+//! - \b MSG_OBJ_NEW_DATA indicates if this is new data since the last time it
 //! was read
 //! - \b MSG_OBJ_DATA_LOST indicates that at least one message was received on
-//! this message object and not read by the host before being overwritten.
+//! this message object, and not read by the host before being overwritten.
 //!
 //! \return None.
 //
@@ -2223,8 +2161,8 @@ CANMessageGet(unsigned long ulBase, unsigned long ulObjID,
 //! \param ulObjID is the message object number to disable (1-32).
 //!
 //! This function frees the specified message object from use.  Once a message
-//! object has been ``cleared,'' it no longer automatically sends or
-//! receives messages, nor does it generate interrupts.
+//! object has been ``cleared,'' it will no longer automatically send or
+//! receive messages, or generate interrupts.
 //!
 //! \return None.
 //

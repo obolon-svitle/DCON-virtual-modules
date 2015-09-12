@@ -2,38 +2,23 @@
 //
 // hw_ethernet.h - Macros used when accessing the Ethernet hardware.
 //
-// Copyright (c) 2006-2013 Texas Instruments Incorporated.  All rights reserved.
+// Copyright (c) 2006-2010 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
 // 
-//   Redistribution and use in source and binary forms, with or without
-//   modification, are permitted provided that the following conditions
-//   are met:
+// Texas Instruments (TI) is supplying this software for use solely and
+// exclusively on TI's microcontroller products. The software is owned by
+// TI and/or its suppliers, and is protected under applicable copyright
+// laws. You may not combine this software with "viral" open-source
+// software in order to form a larger program.
 // 
-//   Redistributions of source code must retain the above copyright
-//   notice, this list of conditions and the following disclaimer.
+// THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
+// NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
+// NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
+// CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+// DAMAGES, FOR ANY REASON WHATSOEVER.
 // 
-//   Redistributions in binary form must reproduce the above copyright
-//   notice, this list of conditions and the following disclaimer in the
-//   documentation and/or other materials provided with the  
-//   distribution.
-// 
-//   Neither the name of Texas Instruments Incorporated nor the names of
-//   its contributors may be used to endorse or promote products derived
-//   from this software without specific prior written permission.
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
-// This is part of revision 10636 of the Stellaris Firmware Development Package.
+// This is part of revision 5727 of the Stellaris Firmware Development Package.
 //
 //*****************************************************************************
 
@@ -60,7 +45,6 @@
 #define MAC_O_THR               0x0000001C  // Ethernet MAC Threshold
 #define MAC_O_MCTL              0x00000020  // Ethernet MAC Management Control
 #define MAC_O_MDV               0x00000024  // Ethernet MAC Management Divider
-#define MAC_O_MADD              0x00000028  // Ethernet MAC Management Address
 #define MAC_O_MTXD              0x0000002C  // Ethernet MAC Management Transmit
                                             // Data
 #define MAC_O_MRXD              0x00000030  // Ethernet MAC Management Receive
@@ -194,14 +178,6 @@
 
 //*****************************************************************************
 //
-// The following are defines for the bit fields in the MAC_O_MADD register.
-//
-//*****************************************************************************
-#define MAC_MADD_PHYADR_M       0x0000001F  // PHY Address
-#define MAC_MADD_PHYADR_S       0
-
-//*****************************************************************************
-//
 // The following are defines for the bit fields in the MAC_O_MTXD register.
 //
 //*****************************************************************************
@@ -244,13 +220,13 @@
 // The following are defines for the bit fields in the MAC_O_LED register.
 //
 //*****************************************************************************
-#define MAC_LED_LED1_M          0x00000F00  // LED1 Source
+#define MAC_LED_LED1_M          0x000000F0  // LED1 Source
 #define MAC_LED_LED1_LINK       0x00000000  // Link OK
-#define MAC_LED_LED1_RXTX       0x00000100  // RX or TX Activity (Default LED1)
-#define MAC_LED_LED1_100        0x00000500  // 100BASE-TX mode
-#define MAC_LED_LED1_10         0x00000600  // 10BASE-T mode
-#define MAC_LED_LED1_DUPLEX     0x00000700  // Full-Duplex
-#define MAC_LED_LED1_LINKACT    0x00000800  // Link OK & Blink=RX or TX
+#define MAC_LED_LED1_RXTX       0x00000010  // RX or TX Activity (Default LED1)
+#define MAC_LED_LED1_100        0x00000050  // 100BASE-TX mode
+#define MAC_LED_LED1_10         0x00000060  // 10BASE-T mode
+#define MAC_LED_LED1_DUPLEX     0x00000070  // Full-Duplex
+#define MAC_LED_LED1_LINKACT    0x00000080  // Link OK & Blink=RX or TX
                                             // Activity
 #define MAC_LED_LED0_M          0x0000000F  // LED0 Source
 #define MAC_LED_LED0_LINK       0x00000000  // Link OK (Default LED0)
@@ -579,6 +555,7 @@
 //
 //*****************************************************************************
 #define MAC_O_IS                0x00000000  // Interrupt Status Register
+#define MAC_O_MADD              0x00000028  // Management Address Register
 
 //*****************************************************************************
 //
