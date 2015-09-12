@@ -98,6 +98,7 @@ extern void vAssertCalled( const char *pcFile, unsigned long ulLine );
 #define configIDLE_SHOULD_YIELD			0
 #define configUSE_CO_ROUTINES 			0
 #define configUSE_MUTEXES				1
+#define INCLUDE_xSemaphoreGetMutexHolder 1
 #define configCHECK_FOR_STACK_OVERFLOW	2
 #define configUSE_RECURSIVE_MUTEXES		1
 #define configQUEUE_REGISTRY_SIZE		10

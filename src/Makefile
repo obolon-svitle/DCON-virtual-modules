@@ -34,7 +34,8 @@ CFLAGS = \
 
 SOURCE = \
 		main.c \
-		task_mlx90614.c \
+		iom/devices/gpio.c \
+		iom/iomodules-core.c \
 		webserver/lwip_task.c \
 		timers.c \
 		$(STELLARIS_DRIVER_DIR)/utils/uartstdio.c \

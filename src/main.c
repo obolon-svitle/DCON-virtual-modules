@@ -82,7 +82,7 @@
 #include <utils/lwiplib.h>
 #include <stdio.h>
 
-#define LWIP_STACK_SIZE 300
+#define LWIP_STACK_SIZE 200
 
 static void prvSetupHardware(void);
 extern void setup_timers(void);
@@ -90,17 +90,30 @@ extern void setup_timers(void);
 /*-----------------------------------------------------------*/
 
 extern void TaskLWIPFunction(void *pvParameters);
-extern void TaskMLX90614Function(void *pvParameters);
+extern void TaskGPIOFunction(void *pvParameters);
+
+#include "iom/iom_data.h"
+void TaskTestFunction(void *pvParameters) {
+	struct iom_dev *dev;
+	while ((dev = iom_data_open("GPIO")) == NULL)
+		;
+
+	if (iom_data_to_dev(dev, "pin_type", "YOBADATA") == -1)
+			UARTprintf("iom_write err\n");
+	iom_data_close(dev);
+}
 
 int main( void ) {
 	prvSetupHardware();
 	setup_timers();
+	iom_init();
 	
 	if (SysCtlPeripheralPresent(SYSCTL_PERIPH_ETH)) {
 		xTaskCreate(TaskLWIPFunction, "lwip", LWIP_STACK_SIZE, NULL, 1, NULL);
 	}
 
-	xTaskCreate(TaskMLX90614Function, "mlx90614", 100, NULL, 1, NULL);
+	xTaskCreate(TaskGPIOFunction, "GPIO", 100, NULL, 1, NULL);
+	xTaskCreate(TaskTestFunction, "TEST", 100, NULL, 1, NULL);
 
 	vTaskStartScheduler();
 	
