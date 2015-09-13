@@ -107,6 +107,10 @@ extern void vAssertCalled( const char *pcFile, unsigned long ulLine );
 #define configMAX_PRIORITIES		( 5 )
 #define configMAX_CO_ROUTINE_PRIORITIES ( 2 )
 
+/*Workaround for openocd */
+#define uxTopReadyPriority uxTopUsedPriority
+
+
 /* Set the following definitions to 1 to include the API function, or zero
 to exclude the API function. */
 

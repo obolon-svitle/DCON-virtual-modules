@@ -43,27 +43,17 @@ void iom_dev_unregister(struct iom_dev *dev) {
 	xSemaphoreTake(dev->mutex, portMAX_DELAY);
 	
 	iom_table[dev->id] = NULL;
-
+	
 	xSemaphoreGive(dev->mutex);
 	xSemaphoreGive(iom_dev_mutex);
 }
 
 void iom_dev_recvaction(struct iom_dev *dev, struct msg *msgbuf) {
-	
-	xSemaphoreTake(dev->mutex, portMAX_DELAY);
-
 	xQueueReceive(dev->data_q, msgbuf, portMAX_DELAY);
-
-	xSemaphoreGive(dev->mutex);
 }
 
 void iom_dev_sendaction(struct iom_dev *dev, const struct msg *msgbuf) {
-
-	xSemaphoreTake(dev->mutex, portMAX_DELAY);
-	
 	xQueueSend(dev->dev_q, msgbuf, portMAX_DELAY);
-
-	xSemaphoreGive(dev->mutex);
 }
 
 struct iom_dev* iom_data_open(const char* name) {

@@ -62,7 +62,6 @@ void TaskGPIOFunction(void *pvParameters) {
 	
 	iom_dev_register(&gpio);
 
-
 	for (;;) {
 		iom_dev_recvaction(&gpio, &msgbuf);
 		perform_action(&msgbuf);
