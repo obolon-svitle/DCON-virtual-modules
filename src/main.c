@@ -82,6 +82,8 @@
 #include <utils/lwiplib.h>
 #include <stdio.h>
 
+#include "drivers/set_pinout.h"
+
 #define LWIP_STACK_SIZE 200
 
 static void prvSetupHardware(void);
@@ -90,30 +92,14 @@ extern void setup_timers(void);
 /*-----------------------------------------------------------*/
 
 extern void TaskLWIPFunction(void *pvParameters);
-extern void TaskGPIOFunction(void *pvParameters);
-
-#include "iom/iom_data.h"
-void TaskTestFunction(void *pvParameters) {
-	struct iom_dev *dev;
-	while ((dev = iom_data_open("GPIO")) == NULL)
-		;
-
-	if (iom_data_to_dev(dev, "pin_type", "YOBADATA") == -1)
-			UARTprintf("iom_write err\n");
-	iom_data_close(dev);
-}
 
 int main( void ) {
 	prvSetupHardware();
 	setup_timers();
-	iom_init();
-	
+
 	if (SysCtlPeripheralPresent(SYSCTL_PERIPH_ETH)) {
 		xTaskCreate(TaskLWIPFunction, "lwip", LWIP_STACK_SIZE, NULL, 1, NULL);
 	}
-
-	xTaskCreate(TaskGPIOFunction, "GPIO", 100, NULL, 1, NULL);
-	xTaskCreate(TaskTestFunction, "TEST", 100, NULL, 1, NULL);
 
 	vTaskStartScheduler();
 	
@@ -125,7 +111,7 @@ int main( void ) {
 /*-----------------------------------------------------------*/
 
 void prvSetupHardware( void ) {
-        
+	
 	/* If running on Rev A2 silicon, turn the LDO voltage up to 2.75V.  This is
 	a workaround to allow the PLL to operate reliably. */
 	if( DEVICE_IS_REVA2 ) {
@@ -135,6 +121,7 @@ void prvSetupHardware( void ) {
 	/* Set the clocking to run from the PLL at 50 MHz */
 	SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_OSC_MAIN | SYSCTL_USE_PLL |
                    SYSCTL_XTAL_16MHZ);
+	PinoutSet();
 	GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
 	
 	GPIOPinTypeEthernetLED(GPIO_PORTF_BASE, GPIO_PIN_2 | GPIO_PIN_3);

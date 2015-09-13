@@ -42,6 +42,7 @@ SOURCE = \
 		$(STELLARIS_DRIVER_DIR)/driverlib/ethernet.c \
 		$(STELLARIS_DRIVER_DIR)/utils/ustdlib.c \
 		$(STELLARIS_DRIVER_DIR)/utils/lwiplib.c \
+		$(STELLARIS_DRIVER_DIR)/drivers/set_pinout.c \
 		$(RTOS_SOURCE_DIR)/list.c \
 		$(RTOS_SOURCE_DIR)/queue.c \
 		$(RTOS_SOURCE_DIR)/tasks.c \
@@ -80,7 +81,7 @@ SOURCE = \
 		$(HTTPD_SOURCE_DIR)/restfs.c \
 		$(HTTPD_SOURCE_DIR)/httpd.c
 
-LIBS = $(STELLARIS_DRIVER_DIR)/driverlib/gcc-cm3/libdriver-cm3.a
+LIBS = $(STELLARIS_DRIVER_DIR)/driverlib/gcc/libdriver.a
 
 OBJS = $(SOURCE:.c=.o)
 

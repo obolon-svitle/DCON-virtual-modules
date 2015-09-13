@@ -28,8 +28,6 @@ void TaskLWIPFunction(void *pvParameters) {
     pucMACArray[4] = ((ulUser1 >>  8) & 0xff);
     pucMACArray[5] = ((ulUser1 >> 16) & 0xff);
 
-	lwIPLocalMACGet(pucMACArray);
-	
 	lwIPInit(pucMACArray, 0, 0, 0, IPADDR_USE_DHCP);
 	httpd_init();
 
