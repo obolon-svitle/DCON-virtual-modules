@@ -25,6 +25,8 @@
 //
 //*****************************************************************************
 
+#include <stdint.h>
+
 //*****************************************************************************
 //
 // Forward declaration of the default fault handlers.
@@ -56,7 +58,7 @@ extern void SysTickIntHandler(void);
 //
 //*****************************************************************************
 #ifndef STACK_SIZE
-#define STACK_SIZE                              0x200
+#define STACK_SIZE                              0xf00
 #endif
 static unsigned long pulStack[STACK_SIZE];
 
@@ -68,8 +70,7 @@ static unsigned long pulStack[STACK_SIZE];
 //
 //*****************************************************************************
 __attribute__ ((section(".isr_vector")))
-void (*const g_pfnVectors[]) (void) =
-{
+void (*const g_pfnVectors[]) (void) = {
 	(void (*)(void))((unsigned long)pulStack + sizeof(pulStack)),	// The initial stack pointer
 	    ResetISR,		// The reset handler
 	    NmiSR,		// The NMI handler
@@ -156,8 +157,7 @@ extern unsigned long _ebss;
 //
 
 //*****************************************************************************
-void ResetISR(void)
-{
+void ResetISR(void) {
 	unsigned long *pulSrc, *pulDest;
 
 	//
@@ -174,7 +174,6 @@ void ResetISR(void)
 	for (pulDest = &_bss; pulDest < &_ebss;) {
 		*pulDest++ = 0;
 	}
-	
 
 	//
 	// Call the application's entry point.
@@ -202,10 +201,48 @@ static void NmiSR(void)
 // for examination by a debugger.
 //
 //*****************************************************************************
-static void FaultISR(void)
-{
-	while (1) {
-	}
+volatile uint32_t r0;
+volatile uint32_t r1;
+volatile uint32_t r2;
+volatile uint32_t r3;
+volatile uint32_t r12;
+volatile uint32_t lr; /* Link register. */
+volatile uint32_t pc; /* Program counter. */
+volatile uint32_t psr;/* Program status register. */
+
+void prvGetRegistersFromStack( uint32_t *pulFaultStackAddress ) {
+
+	r0 = pulFaultStackAddress[ 0 ];
+	r1 = pulFaultStackAddress[ 1 ];
+	r2 = pulFaultStackAddress[ 2 ];
+	r3 = pulFaultStackAddress[ 3 ];
+	r12 = pulFaultStackAddress[ 4 ];
+	lr = pulFaultStackAddress[ 5 ];
+	pc = pulFaultStackAddress[ 6 ];
+	psr = pulFaultStackAddress[ 7 ];
+
+	for( ;; )
+		;
+}
+
+static void HardFault_Handler( void ) __attribute__( ( naked ) );
+static void HardFault_Handler(void) {
+	__asm volatile
+		(
+			" tst lr, #4                                                \n"
+			" ite eq                                                    \n"
+			" mrseq r0, msp                                             \n"
+			" mrsne r0, psp                                             \n"
+			" ldr r1, [r0, #24]                                         \n"
+			" ldr r2, handler2_address_const                            \n"
+			" bx r2                                                     \n"
+			" handler2_address_const: .word prvGetRegistersFromStack    \n"
+						    
+			);
+}
+
+static void FaultISR(void) {
+	HardFault_Handler();	
 }
 
 //*****************************************************************************
@@ -215,8 +252,7 @@ static void FaultISR(void)
 // for examination by a debugger.
 //
 //*****************************************************************************
-static void IntDefaultHandler(void)
-{
-	while (1) {
-	}
+static void IntDefaultHandler(void) {
+	for (;;) 
+		;
 }
