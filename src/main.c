@@ -82,6 +82,8 @@
 #include <utils/lwiplib.h>
 #include <stdio.h>
 
+#include "common.h"
+
 #define LWIP_STACK_SIZE 200
 
 static void prvSetupHardware(void);
@@ -89,31 +91,22 @@ extern void setup_timers(void);
 
 /*-----------------------------------------------------------*/
 
+extern xSemaphoreHandle iom_mutex;
+
 extern void TaskLWIPFunction(void *pvParameters);
 extern void TaskGPIOFunction(void *pvParameters);
-
-#include "iom/iom_data.h"
-void TaskTestFunction(void *pvParameters) {
-	struct iom_dev *dev;
-	while ((dev = iom_data_open("GPIO")) == NULL)
-		;
-
-	if (iom_data_to_dev(dev, "pin_type", "YOBADATA") == -1)
-			UARTprintf("iom_write err\n");
-	iom_data_close(dev);
-}
 
 int main( void ) {
 	prvSetupHardware();
 	setup_timers();
-	iom_init();
+
+	iom_mutex = xSemaphoreCreateMutex();
 	
 	if (SysCtlPeripheralPresent(SYSCTL_PERIPH_ETH)) {
 		xTaskCreate(TaskLWIPFunction, "lwip", LWIP_STACK_SIZE, NULL, 1, NULL);
 	}
 
 	xTaskCreate(TaskGPIOFunction, "GPIO", 100, NULL, 1, NULL);
-	xTaskCreate(TaskTestFunction, "TEST", 100, NULL, 1, NULL);
 
 	vTaskStartScheduler();
 	
@@ -140,13 +133,7 @@ void prvSetupHardware( void ) {
 	GPIOPinTypeEthernetLED(GPIO_PORTF_BASE, GPIO_PIN_2 | GPIO_PIN_3);
 	
 	IntPrioritySet(INT_ETH, configKERNEL_INTERRUPT_PRIORITY);
-	IntPrioritySet(INT_UART0, configKERNEL_INTERRUPT_PRIORITY);
-
-	SysTickPeriodSet(SysCtlClockGet() / configTICK_RATE_HZ);
-	SysTickEnable();
-	SysTickIntEnable();
-
-	IntMasterEnable();
+	IntPrioritySet(INT_UART0, configMAX_SYSCALL_INTERRUPT_PRIORITY);
 
 	UARTStdioInit(0);
 }
@@ -154,7 +141,7 @@ void prvSetupHardware( void ) {
 
 void vApplicationStackOverflowHook(TaskHandle_t *pxTask, signed char *pcTaskName) {
 	(void) pxTask;
-	UARTprintf("Stack overflow in %s task", pcTaskName);
+	UARTprintf("Stack overflow in %s task\n", pcTaskName);
 
 	for( ;; )
 		;

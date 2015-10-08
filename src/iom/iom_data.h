@@ -5,10 +5,12 @@
 
 struct iom_dev;
 
-void iom_init();
+int iom_init();
 struct iom_dev* iom_data_open(const char *devname);
 void iom_data_close(struct iom_dev *dev);
-int iom_data_to_dev(struct iom_dev *dev, const char *param, char *data);
-int iom_data_from_dev(struct iom_dev *dev, const char *param, char **data);
+int iom_data_read(struct iom_dev *dev, const char *request[],
+					  size_t request_len, const char **response);
+int iom_data_write(struct iom_dev *dev, const char *request[],
+				   size_t request_len, const char *data);
 
 #endif /* _IOM_DATA_H_ */

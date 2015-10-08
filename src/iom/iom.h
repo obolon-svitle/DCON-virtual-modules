@@ -6,31 +6,37 @@
 #include "FreeRTOS.h"
 #include "semphr.h"
 
-enum msg_type {
-	READ,
-	WRITE,
+enum status {
+	OK,
+	FAIL,
+};
+
+enum destination {
+	TO_DEV,
+	FROM_DEV,
 };
 
 struct msg {
-	const char *param;
-	char *data;
-	enum msg_type type;
-	int status;
+	const char **request;
+	size_t request_len;
+	const char *response;
+	const char *data;
+	enum status status;
+	enum destination destination;
 };
 
 struct iom_dev {
 	const char *name;
-	const char **parameters;
-	const int param_count;
 	xSemaphoreHandle mutex;
 	xQueueHandle dev_q;
 	xQueueHandle data_q;
-	int id;
+	struct iom_dev *next;
+	struct iom_dev *prev;
 };
 
 int iom_dev_register(struct iom_dev *dev);
 void iom_dev_unregister(struct iom_dev *dev);
-void iom_dev_recvaction(struct iom_dev *dev, struct msg *msgbuf);
-void iom_dev_sendaction(struct iom_dev *dev, const struct msg *msgbuf);
+void iom_dev_recv(struct iom_dev *dev, struct msg *msgbuf);
+void iom_dev_send(struct iom_dev *dev, const struct msg *msgbuf);
 
 #endif /* _IOM_H_ */

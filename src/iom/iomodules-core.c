@@ -8,67 +8,69 @@
 #include "iom/iom.h"
 #include "iom/iom_data.h"
 
-#define IOM_TABLE_SIZE 30
-static struct iom_dev* iom_table[IOM_TABLE_SIZE];
-static xSemaphoreHandle iom_dev_mutex;
-
-void iom_init() {
-	memset(iom_table, sizeof(iom_table), 0);
-	iom_dev_mutex = xSemaphoreCreateMutex();
-}
+xSemaphoreHandle iom_mutex;
+static struct iom_dev* iom_root = NULL;
 
 int iom_dev_register(struct iom_dev *dev) {
-	
-	xSemaphoreTake(iom_dev_mutex, portMAX_DELAY);
+	xSemaphoreTake(iom_mutex, portMAX_DELAY);
 
-	for (int i = 0; i < ARRAY_SIZE(iom_table); i++) {
-		if (iom_table[i] == NULL) {
-			dev->mutex = xSemaphoreCreateMutex();
-			dev->dev_q = xQueueCreate(1, sizeof(struct msg));
-			dev->data_q = xQueueCreate(1, sizeof(struct msg));
-			dev->id = i;
-			iom_table[i] = dev;
-			xSemaphoreGive(iom_dev_mutex);
-			return 0;
-		}
+	dev->mutex = xSemaphoreCreateMutex();
+	if (dev->mutex == NULL) {
+		xSemaphoreGive(iom_mutex);
+		return -1;
 	}
-	
-	xSemaphoreGive(iom_dev_mutex);
-	return -1;
+			
+	dev->dev_q = xQueueCreate(1, sizeof(struct msg));
+	dev->data_q = xQueueCreate(1, sizeof(struct msg));
+	if (dev->dev_q == 0 || dev->data_q == 0) {
+		xSemaphoreGive(iom_mutex);
+		return -1;
+	}
+
+	dev->prev = NULL;
+	dev->next = iom_root;
+	if (iom_root != NULL)
+		iom_root->prev = dev;
+	iom_root = dev;
+  
+	xSemaphoreGive(iom_mutex);
+	return 0;
 }
 
 void iom_dev_unregister(struct iom_dev *dev) {
 	
-	xSemaphoreTake(iom_dev_mutex, portMAX_DELAY);
+	xSemaphoreTake(iom_mutex, portMAX_DELAY);
 	xSemaphoreTake(dev->mutex, portMAX_DELAY);
-	
-	iom_table[dev->id] = NULL;
+
+	dev->prev->next = dev->next;
+	dev->next->prev = dev->prev;
 	
 	xSemaphoreGive(dev->mutex);
-	xSemaphoreGive(iom_dev_mutex);
+	xSemaphoreGive(iom_mutex);
 }
 
-void iom_dev_recvaction(struct iom_dev *dev, struct msg *msgbuf) {
-	xQueueReceive(dev->data_q, msgbuf, portMAX_DELAY);
+void iom_dev_recv(struct iom_dev *dev, struct msg *msg) {
+	xQueueReceive(dev->data_q, msg, portMAX_DELAY);
 }
 
-void iom_dev_sendaction(struct iom_dev *dev, const struct msg *msgbuf) {
+void iom_dev_send(struct iom_dev *dev, const struct msg *msgbuf) {
 	xQueueSend(dev->dev_q, msgbuf, portMAX_DELAY);
 }
 
 struct iom_dev* iom_data_open(const char* name) {
 
-	xSemaphoreTake(iom_dev_mutex, portMAX_DELAY);
-	
-	for (int i = 0; i < ARRAY_SIZE(iom_table); i++) {
-		if (!strcmp(name, iom_table[i]->name)) {
-			xSemaphoreTake(iom_table[i]->mutex, portMAX_DELAY);
-			xSemaphoreGive(iom_dev_mutex);
-			return iom_table[i];
+	xSemaphoreTake(iom_mutex, portMAX_DELAY);
+
+	for (struct iom_dev *p = iom_root; p != NULL; p = p->next) {	
+		if (!strcmp(name, p->name)) {
+			xSemaphoreTake(p->mutex, portMAX_DELAY);
+			xSemaphoreGive(iom_mutex);
+			return p;
 		}
 	}
 
-	xSemaphoreGive(iom_dev_mutex);
+	
+	xSemaphoreGive(iom_mutex);
 	return NULL;
 }
 
@@ -79,37 +81,54 @@ void iom_data_close(struct iom_dev *dev) {
 	}
 }
 
-int iom_data_to_dev(struct iom_dev *dev, const char *param, char *data) {
+static void iom_call_dev(struct iom_dev *dev, struct msg *msg ) {
+	if (xSemaphoreGetMutexHolder(dev->mutex) == NULL) {
+		msg->status = FAIL;
+		return;
+	}	
 
-	struct msg msgbuf;
-	
-	if (xSemaphoreGetMutexHolder(dev->mutex) == NULL)
-		return -1;
+	if (xQueueSend(dev->data_q, msg, portMAX_DELAY) != pdTRUE) {
+		msg->status = FAIL;
+		return;
+	}
 
-	msgbuf.param = param;
-	msgbuf.data = data;
-	msgbuf.type = WRITE;
-			
-	xQueueSend(dev->data_q, &msgbuf, portMAX_DELAY);
-	xQueueReceive(dev->dev_q, &msgbuf, portMAX_DELAY);
-			
-	return msgbuf.status;
+	if (xQueueReceive(dev->dev_q, msg, portMAX_DELAY) != pdTRUE) {
+		msg->status = FAIL;
+		return;
+	}	
 }
 
-int iom_data_from_dev(struct iom_dev *dev, const char *param, char **data) {
+int iom_data_read(struct iom_dev *dev, const char *request[],
+					  size_t request_len, const char **response) {
+	struct msg msg;
+	msg.destination = FROM_DEV;
+	msg.request = request;
+	msg.request_len = request_len;
 
-	struct msg msgbuf;
-
-	if (xSemaphoreGetMutexHolder(dev->mutex) == NULL) {
+	iom_call_dev(dev, &msg);
+	
+	if (msg.status != OK) {
 		return -1;
 	}
 
-	msgbuf.data = *data;
-	msgbuf.param = param;
-	msgbuf.type = READ;
-		
-	xQueueSend(dev->data_q, &msgbuf, portMAX_DELAY);
-	xQueueReceive(dev->dev_q, &msgbuf, portMAX_DELAY);
-		
-	return msgbuf.status;
+	*response = msg.response;
+			
+	return 0;
+}
+
+int iom_data_write(struct iom_dev *dev, const char *request[],
+				   size_t request_len, const char *data) {
+	struct msg msg;
+	msg.destination = TO_DEV;
+	msg.request = request;
+	msg.request_len = request_len;
+	msg.data = data;
+
+	iom_call_dev(dev, &msg);
+
+	if (msg.status != OK) {
+		return -1;	
+	}
+
+	return 0;	
 }

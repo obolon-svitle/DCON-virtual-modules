@@ -32,10 +32,11 @@ CFLAGS = \
 		-D GCC_ARMCM3_LM3S102 -D gcc -D RTOS_FREERTOS -D UART_BUFFERED \
 		-D printf=uipprintf -D sprintf=usprintf -D snprintf=usnprintf  \
 
+
 SOURCE = \
 		main.c \
-		iom/devices/gpio.c \
 		iom/iomodules-core.c \
+		iom/devices/gpio.c \
 		webserver/lwip_task.c \
 		timers.c \
 		$(STELLARIS_DRIVER_DIR)/utils/uartstdio.c \
