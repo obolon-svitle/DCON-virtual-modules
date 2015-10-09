@@ -5,6 +5,8 @@ core
 *.o
 *.a
 *.s
+.d
+*.d
 *.axf
 *.bin
 *.log
