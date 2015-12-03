@@ -89,22 +89,14 @@ extern void setup_timers(void);
 
 /*-----------------------------------------------------------*/
 
-extern xSemaphoreHandle iom_mutex;
-
 extern void TaskLWIPFunction(void *pvParameters);
-extern void TaskGPIOFunction(void *pvParameters);
-
 int main( void ) {
 	prvSetupHardware();
 	setup_timers();
-
-	iom_mutex = xSemaphoreCreateMutex();
 	
 	if (SysCtlPeripheralPresent(SYSCTL_PERIPH_ETH)) {
 		xTaskCreate(TaskLWIPFunction, "lwip", LWIP_STACK_SIZE, NULL, 1, NULL);
 	}
-
-	xTaskCreate(TaskGPIOFunction, "GPIO", 100, NULL, 1, NULL);
 
 	vTaskStartScheduler();
 	

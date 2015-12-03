@@ -1,10 +1,12 @@
-PROJ_NAME = restful-iom
+PROJ_NAME = dcon-virt-mod
 
 RTOS_SOURCE_DIR = third_party/freertos
 STELLARIS_DRIVER_DIR = stellaris
 LWIP_SOURCE_DIR = third_party/lwip
+COAP_SOURCE_DIR = third_party/coap
 
 CC = arm-none-eabi-gcc
+
 OBJCOPY = arm-none-eabi-objcopy
 LDSCRIPT = ld/standalone.ld
 
@@ -16,24 +18,22 @@ LDFLAGS = -nostartfiles -Xlinker -Map=$(PROJ_PATH).map -Xlinker --no-gc-sections
 DEBUG = -g3
 OPTIM = -O0 -pipe
 
-INCLUDE = -I include
+INCLUDE = -I include -I include/coap
 
 CFLAGS = \
-		$(DEBUG) $(OPTIM) $(INCLUDE) -std=c99 -pedantic -Wall -Wfatal-errors -Werror \
-		-mthumb -mcpu=cortex-m3 \
-		-ffunction-sections -fdata-sections \
-		-D GCC_ARMCM3_LM3S102 -D gcc -D RTOS_FREERTOS -D UART_BUFFERED \
-		-D printf=uipprintf -D sprintf=usprintf -D snprintf=usnprintf  \
+		$(DEBUG) $(OPTIM) $(INCLUDE) -std=c99 -pedantic -Wall -Wfatal-errors  \
+		-mthumb -mcpu=cortex-m3\
+		-ffunction-sections -fdata-sections\
+		-D GCC_ARMCM3_LM3S102 -D gcc -D RTOS_FREERTOS -DIPv4 -DWITH_LWIP -D UART_BUFFERED -Dsrand=usrand \
+		-D uipprintf=UARTprintf -D printf=uipprintf -D sprintf=usprintf -D snprintf=usnprintf  \
 
 SOURCE = \
 		init/main.c \
 		init/timers.c \
-		iom/iomodules-core.c \
-		iom/devices/gpio.c \
-		rest/lwip_task.c \
-		rest/fs.c \
-		rest/restfs.c \
-		rest/httpd.c \
+		dcon/dconmodules-core.c \
+		dcon/devices/7050.c \
+		webserver/server-coap.c \
+		webserver/lwip_task.c \
 		$(STELLARIS_DRIVER_DIR)/utils/uartstdio.c \
 		$(STELLARIS_DRIVER_DIR)/driverlib/ethernet.c \
 		$(STELLARIS_DRIVER_DIR)/utils/ustdlib.c \
@@ -71,7 +71,19 @@ SOURCE = \
 		$(LWIP_SOURCE_DIR)/core/stats.c \
 		$(LWIP_SOURCE_DIR)/ports/stellaris/perf.c \
 		$(LWIP_SOURCE_DIR)/ports/stellaris/sys_arch.c \
-		$(LWIP_SOURCE_DIR)/ports/stellaris/netif/stellarisif.c
+		$(LWIP_SOURCE_DIR)/ports/stellaris/netif/stellarisif.c \
+		$(COAP_SOURCE_DIR)/option.o \
+		$(COAP_SOURCE_DIR)/hashkey.o \
+		$(COAP_SOURCE_DIR)/encode.o \
+		$(COAP_SOURCE_DIR)/coap_io_lwip.o \
+		$(COAP_SOURCE_DIR)/block.o \
+		$(COAP_SOURCE_DIR)/resource.o \
+		$(COAP_SOURCE_DIR)/net.o \
+		$(COAP_SOURCE_DIR)/uri.o \
+		$(COAP_SOURCE_DIR)/pdu.o \
+		$(COAP_SOURCE_DIR)/subscribe.o \
+		$(COAP_SOURCE_DIR)/debug.o \
+		$(COAP_SOURCE_DIR)/address.c
 
 LIBS = lib/gcc-cm3/libdriver-cm3.a
 
@@ -106,4 +118,4 @@ $(DEPDIR)/%.d: ;
 -include $(patsubst %,$(DEPDIR)/%.d,$(basename $(SOURCE)))
 
 clean :
-	rm -f $(OBJS) $(PROJ_PATH).bin $(PROJ_PATH).axf startup.o
+	rm -f $(OBJS) $(PROJ_PATH).bin $(PROJ_PATH).map $(PROJ_PATH).axf startup.o

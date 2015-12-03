@@ -28,6 +28,7 @@
 
 #define SYS_LIGHTWEIGHT_PROT 1
 #define LWIP_DHCP                       1
+
 #define IP_REASSEMBLY 0
 #define IP_FRAG 0
 
@@ -37,7 +38,7 @@
 #define ETH_PAD_SIZE 2
 
 #define TCPIP_THREAD_NAME              "tcpip_thread"
-#define TCPIP_THREAD_STACKSIZE          200
+#define TCPIP_THREAD_STACKSIZE          300
 #define TCPIP_THREAD_PRIO               1
 
 #define TCP_SND_BUF (2 * TCP_MSS)
@@ -50,4 +51,4 @@
 #define LWIP_DEBUG
 #define HTTPD_DEBUG LWIP_DBG_ON
 
-
+#define MEMP_USE_CUSTOM_POOLS 1

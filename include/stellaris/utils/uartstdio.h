@@ -62,7 +62,7 @@ extern void UARTStdioInit(unsigned long ulPort);
 extern void UARTStdioInitExpClk(unsigned long ulPort, unsigned long ulBaud);
 extern int UARTgets(char *pcBuf, unsigned long ulLen);
 extern unsigned char UARTgetc(void);
-extern void UARTprintf(const char *pcString, ...);
+extern int UARTprintf(const char *pcString, ...);
 extern int UARTwrite(const char *pcBuf, unsigned long ulLen);
 #ifdef UART_BUFFERED
 extern int UARTPeek(unsigned char ucChar);

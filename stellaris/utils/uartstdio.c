@@ -918,7 +918,7 @@ UARTgetc(void)
 //! \return None.
 //
 //*****************************************************************************
-void
+int
 UARTprintf(const char *pcString, ...)
 {
     unsigned long ulIdx, ulValue, ulPos, ulCount, ulBase, ulNeg;
@@ -1318,6 +1318,8 @@ convert:
     // End the varargs processing.
     //
     va_end(vaArgP);
+
+	return 0;
 }
 
 //*****************************************************************************

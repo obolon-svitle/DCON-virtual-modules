@@ -36,8 +36,6 @@ n * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 #include <stellaris/hw_types.h>
 #include <stellaris/utils/uartstdio.h>
 
-#define uipprintf(...) UARTprintf(__VA_ARGS__)
-
 #ifndef __GNUC__
 	#include <limits.h>
 	#pragma warning (disable: 4244) /* disable conversion warning (implicit integer promotion!) */
