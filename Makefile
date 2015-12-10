@@ -32,8 +32,8 @@ SOURCE = \
 		init/timers.c \
 		dcon/dconmodules-core.c \
 		dcon/devices/7050.c \
-		webserver/server-coap.c \
-		webserver/lwip_task.c \
+		coapserver/server-coap.c \
+		coapserver/lwip_task.c \
 		$(STELLARIS_DRIVER_DIR)/utils/uartstdio.c \
 		$(STELLARIS_DRIVER_DIR)/driverlib/ethernet.c \
 		$(STELLARIS_DRIVER_DIR)/utils/ustdlib.c \

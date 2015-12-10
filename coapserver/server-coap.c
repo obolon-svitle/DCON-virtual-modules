@@ -9,7 +9,7 @@
 #define min(a,b) ((a) < (b) ? (a) : (b))
 #endif
 
-/******************************************************************************/
+/*****************************************************************************/
 
 static void hnd_get_index(coap_context_t *ctx ,
 						 struct coap_resource_t *resource,
@@ -41,14 +41,12 @@ hnd_get_module_data(coap_context_t  *ctx,
 					coap_pdu_t *request,
 					str *token,
 					coap_pdu_t *response) {
-	coap_opt_iterator_t opt_iter;
-	coap_opt_t *option;
-	unsigned char buf[40];
+	size_t request_len;
+	unsigned char *request_buf;
+	unsigned char buf[DCON_MAX_BUF];
 	size_t len;
-	time_t now;
-	coap_tick_t t;
+	int result;
 
-	/* if my_clock_base was deleted, we pretend to have no such resource */
 	response->hdr->code = COAP_RESPONSE_CODE(205);
 
 	if (coap_find_observer(resource, peer, token)) {
@@ -57,7 +55,7 @@ hnd_get_module_data(coap_context_t  *ctx,
 						COAP_OPTION_OBSERVE,
 						coap_encode_var_bytes(buf, ctx->observe), buf);
 	}
-
+	
 	coap_add_option(response,
 					COAP_OPTION_CONTENT_FORMAT,
 					coap_encode_var_bytes(buf, COAP_MEDIATYPE_TEXT_PLAIN), buf);
@@ -66,30 +64,28 @@ hnd_get_module_data(coap_context_t  *ctx,
 					COAP_OPTION_MAXAGE,
 					coap_encode_var_bytes(buf, 0x01), buf);
 
-	/* calculate current time */
-	if (request != NULL
-		&& (option = coap_check_option(request, COAP_OPTION_URI_QUERY, &opt_iter))
-		&& memcmp(COAP_OPT_VALUE(option), "ticks",
-				  min(5, COAP_OPT_LENGTH(option))) == 0) {
-		/* output ticks */
+	if (request != NULL) {
+		
+		coap_get_data(request, &request_len, &request_buf);
+
+		/* FIXME: add check for overflow*/
+		request_buf[request_len] = '\0';
+		
+		dcon_data_send(request_buf, buf);
+
 		len = snprintf((char *)buf,
 					   min(sizeof(buf),
 						   response->max_size - response->length),
-					   "ALLLLLOO");
+					   buf);
 		coap_add_data(response, len, buf);
-	} else {      /* output human-readable time */
-		len = snprintf((char *)buf,
-					   min(sizeof(buf),
-						   response->max_size - response->length),
-					   "PIZDLOOOO");
-		coap_add_data(response, len, buf);
-	}	
+	}
+
 }
 
 static void init_resources(coap_context_t* ctx) {
 	coap_resource_t *r;
 
-	r = coap_resource_init(NULL, 0, 0);
+ 	r = coap_resource_init(NULL, 0, 0);
 	coap_register_handler(r, COAP_REQUEST_GET, hnd_get_index);
 
 	coap_add_attr(r, (unsigned char *)"ct", 2, (unsigned char *)"0", 1, 0);
@@ -97,14 +93,10 @@ static void init_resources(coap_context_t* ctx) {
 	coap_add_resource(ctx, r);
 
 	r = coap_resource_init((unsigned char *)"dcon", 4, COAP_RESOURCE_FLAGS_NOTIFY_CON);
-	coap_register_handler(r, COAP_REQUEST_GET, hnd_get_module_data);
+	coap_register_handler(r, COAP_REQUEST_POST, hnd_get_module_data);
 
 	coap_add_attr(r, (unsigned char *)"ct", 2, (unsigned char *)"0", 1, 0);
 	coap_add_attr(r, (unsigned char *)"title", 5, (unsigned char *)"\"DCON Virtual Module\"", 16, 0);
-	coap_add_attr(r, (unsigned char *)"rt", 2, (unsigned char *)"\"Ticks\"", 7, 0);
-	r->observable = 1;
-	coap_add_attr(r, (unsigned char *)"if", 2, (unsigned char *)"\"clock\"", 7, 0);
-
 	coap_add_resource(ctx, r);
 }
 

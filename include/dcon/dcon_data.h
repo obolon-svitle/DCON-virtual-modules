@@ -5,10 +5,10 @@
 
 struct dcon_dev;
 
-extern const int BUFSIZE;
+extern const int DCON_MAX_BUF;
 
 int dcon_init();
 
-int dcon_data_send(const char *request, char *response);
+void dcon_data_send(const char *request, char *response);
 
 #endif /* _DCON_DATA_H_ */

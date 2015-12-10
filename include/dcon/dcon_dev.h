@@ -6,7 +6,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 
-const int DCON_MAX_BUF = 30;
+extern const int DCON_MAX_BUF;
 
 enum status {
 	OK,
@@ -15,13 +15,13 @@ enum status {
 
 struct msg {
 	const char *request;
-	const char *response;
+	char *response;
 	enum status status;
 };
 
 struct dcon_dev {
-	char *addr;
-	char *type;
+	unsigned int addr;
+	unsigned int type;
 	xSemaphoreHandle mutex;
 	xQueueHandle dev_q;
 	xQueueHandle data_q;

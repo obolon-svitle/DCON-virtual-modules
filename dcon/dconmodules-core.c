@@ -1,26 +1,41 @@
+#include <stdio.h>
 #include <string.h>
 
 #include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "freertos/semphr.h"
 
 #include "common.h"
 
-#include "dcon_common.h"
 #include "dcon/dcon_dev.h"
 #include "dcon/dcon_data.h"
 
-xSemaphoreHandle dcon_root_mutex;
+#include "devices/7050.h"
+
+const int DCON_MAX_BUF = 30;
+
+static xSemaphoreHandle dcon_root_mutex;
 static struct dcon_dev* dcon_root = NULL;
+
+int dcon_init(void) {
+	
+	if ((dcon_root_mutex = xSemaphoreCreateMutex()) == NULL)
+		return -1;
+
+	xTaskCreate(Task7050Function, MODULE_7050_NAME, 200, NULL, 1, NULL);
+	
+	return 0;
+}
 
 int dcon_dev_register(struct dcon_dev *dev) {
 	xSemaphoreTake(dcon_root_mutex, portMAX_DELAY);
-
+	
+	dev->mutex = xSemaphoreCreateMutex();
 	if (dev->mutex == NULL) {
 		xSemaphoreGive(dcon_root_mutex);
 		return -1;
 	}
 
-	dev->mutex = xSemaphoreCreateMutex();
 			
 	dev->dev_q = xQueueCreate(1, sizeof(struct msg));
 	dev->data_q = xQueueCreate(1, sizeof(struct msg));
@@ -50,15 +65,16 @@ void dcon_dev_unregister(struct dcon_dev *dev) {
 	xSemaphoreGive(dcon_root_mutex);
 }
 
-void dcon_dev_recv(struct dcon_dev *dev, struct msg *msg) {
+inline void dcon_dev_recv(struct dcon_dev *dev, struct msg *msg) {
 	xQueueReceive(dev->data_q, msg, portMAX_DELAY);
 }
 
-void dcon_dev_send(struct dcon_dev *dev, const struct msg *msgbuf) {
+inline void dcon_dev_send(struct dcon_dev *dev, const struct msg *msgbuf) {
 	xQueueSend(dev->dev_q, msgbuf, portMAX_DELAY);
 }
 
 static struct dcon_dev* dcon_find(const char *request) {
+	char addr_str[3];
 	if (strlen(request) < 3)
 		return NULL;
 	
@@ -66,7 +82,8 @@ static struct dcon_dev* dcon_find(const char *request) {
 
 	for (struct dcon_dev *p = dcon_root; p != NULL; p = p->next) {
 		xSemaphoreTake(p->mutex, portMAX_DELAY);
-		if (!strncmp(p->addr + 1, request, 2)) {
+		snprintf(addr_str, ARRAY_SIZE(addr_str), "%02x", p->addr);
+		if (!strncmp(addr_str, request + 1, 2)) {
 			xSemaphoreGive(dcon_root_mutex);
 			return p;
 		}
@@ -104,28 +121,29 @@ static void dcon_call_all(struct msg *msg) {
 	xSemaphoreGive(dcon_root_mutex);
 }
 
-int dcon_data_send(const char *request, char *response) {
+void dcon_data_send(const char *request, char *response) {
 	struct msg msg;
 	struct dcon_dev *dev;
 
 	msg.request = request;
 	msg.response = response;
 
-	if (!strcmp(request, CMD_SYNC_SAMPLING) ||
-		!strcmp(request, CMD_HOST_OK)) {
+	if (strlen(request) == 3 && request[1] == '*' &&
+		request[2] == '*') {
 		
 		dcon_call_all(&msg);
-		return 0;
+		return;
 	}
 	
 	if ((dev = dcon_find(request)) != NULL) {
 		dcon_call_dev(dev, &msg);
 		if (msg.status == OK) {
+			
 			dcon_close(dev);
 			return 0;
 		}
 		dcon_close(dev);
-	}	
+	}
 
-	return -1;
+	response[0] = '\0';
 }

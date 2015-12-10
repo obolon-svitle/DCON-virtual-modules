@@ -82,6 +82,8 @@
 
 #include "common.h"
 
+#include "dcon/dcon_init.h"
+
 #define LWIP_STACK_SIZE 200
 
 static void prvSetupHardware(void);
@@ -90,10 +92,16 @@ extern void setup_timers(void);
 /*-----------------------------------------------------------*/
 
 extern void TaskLWIPFunction(void *pvParameters);
+
+/*-----------------------------------------------------------*/
+
+
 int main( void ) {
 	prvSetupHardware();
 	setup_timers();
-	
+
+	dcon_init();
+
 	if (SysCtlPeripheralPresent(SYSCTL_PERIPH_ETH)) {
 		xTaskCreate(TaskLWIPFunction, "lwip", LWIP_STACK_SIZE, NULL, 1, NULL);
 	}
