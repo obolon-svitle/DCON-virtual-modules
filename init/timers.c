@@ -64,12 +64,9 @@
     mission critical applications that require provable dependability.
 */
 
-/* Scheduler includes. */
-
 #include "freertos/FreeRTOS.h"
 #include "freertos/FreeRTOSConfig.h"
 
-/* Library includes. */
 #include "stellaris/hw_ints.h"
 #include "stellaris/hw_memmap.h"
 #include "stellaris/hw_types.h"
@@ -79,20 +76,13 @@
 
 /* The set frequency of the interrupt.  Deviations from this are measured as
 the jitter. */
-#define timerINTERRUPT_FREQUENCY		( 20000UL )
+#define timerINTERRUPT_FREQUENCY		(20000UL)
 
 #define timerHIGHEST_PRIORITY			0
 
-/*-----------------------------------------------------------*/
-
 void Timer0IntHandler(void);
 
-/* Counts the total number of times that the high frequency timer has 'ticked'.
-This value is used by the run time stats function to work out what percentage
-of CPU time each task is taking. */
 volatile unsigned long ulHighFrequencyTimerTicks = 0UL;
-
-/*-----------------------------------------------------------*/
 
 void setup_timers(void) {
 	unsigned long ulFrequency;
@@ -113,13 +103,8 @@ void setup_timers(void) {
 	portENABLE_INTERRUPTS();
 }
 
-/*-----------------------------------------------------------*/
-
 void Timer0IntHandler(void) {
 	TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
 	
-	/* Keep a count of the total number of 20KHz ticks.  This is used by the
-	   run time stats functionality to calculate how much CPU time is used by
-	   each task. */
 	ulHighFrequencyTimerTicks++;
 }

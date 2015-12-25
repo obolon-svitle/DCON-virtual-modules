@@ -82,28 +82,26 @@
 
 #include "common.h"
 
+#include "coap/coap_task.h"
 #include "dcon/dcon_init.h"
 
-#define LWIP_STACK_SIZE 200
+#define COAP_STACK_SIZE 200
+#define COAP_TASK_PRIORITY 1
 
 static void prvSetupHardware(void);
 extern void setup_timers(void);
 
 /*-----------------------------------------------------------*/
 
-extern void TaskLWIPFunction(void *pvParameters);
-
-/*-----------------------------------------------------------*/
-
-
-int main( void ) {
-	prvSetupHardware();
+int main(void) {
+	setup_hardware();
 	setup_timers();
 
 	dcon_init();
 
 	if (SysCtlPeripheralPresent(SYSCTL_PERIPH_ETH)) {
-		xTaskCreate(TaskLWIPFunction, "lwip", LWIP_STACK_SIZE, NULL, 1, NULL);
+		xTaskCreate(TaskCoAPServerFunction, "lwip", COAP_STACK_SIZE,
+					NULL, COAP_TASK_PRIORITY, NULL);
 	}
 
 	vTaskStartScheduler();
@@ -115,12 +113,12 @@ int main( void ) {
 }
 /*-----------------------------------------------------------*/
 
-void prvSetupHardware( void ) {
+void setup_hardware(void) {
         
 	/* If running on Rev A2 silicon, turn the LDO voltage up to 2.75V.  This is
 	a workaround to allow the PLL to operate reliably. */
-	if( DEVICE_IS_REVA2 ) {
-		SysCtlLDOSet( SYSCTL_LDO_2_75V );
+	if (DEVICE_IS_REVA2) {
+		SysCtlLDOSet(SYSCTL_LDO_2_75V);
 	}
 	
 	/* Set the clocking to run from the PLL at 50 MHz */
@@ -135,7 +133,6 @@ void prvSetupHardware( void ) {
 
 	UARTStdioInit(0);
 }
-/*-----------------------------------------------------------*/
 
 void vApplicationStackOverflowHook(TaskHandle_t *pxTask, signed char *pcTaskName) {
 	(void) pxTask;
@@ -144,17 +141,12 @@ void vApplicationStackOverflowHook(TaskHandle_t *pxTask, signed char *pcTaskName
 	for( ;; )
 		;
 }
-/*-----------------------------------------------------------*/
 
 void vAssertCalled( const char *pcFile, unsigned long ulLine ) {
 volatile unsigned long ulSetTo1InDebuggerToExit = 0;
 
 	taskENTER_CRITICAL(); {
-		while( ulSetTo1InDebuggerToExit == 0 )
-		{
-			/* Nothing do do here.  Set the loop variable to a non zero value in
-			the debugger to step out of this function to the point that caused
-			the assertion. */
+		while (ulSetTo1InDebuggerToExit == 0) {
 			( void ) pcFile;
 			( void ) ulLine;
 		}

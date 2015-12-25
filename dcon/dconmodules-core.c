@@ -11,18 +11,24 @@
 #include "dcon/dcon_data.h"
 
 #include "devices/7050.h"
+#include "devices/7017.h"
 
 const int DCON_MAX_BUF = 30;
 
 static xSemaphoreHandle dcon_root_mutex;
 static struct dcon_dev* dcon_root = NULL;
 
+#define DEFAULT_MODULE_STACK_SIZE 200
+
 int dcon_init(void) {
 	
 	if ((dcon_root_mutex = xSemaphoreCreateMutex()) == NULL)
 		return -1;
 
-	xTaskCreate(Task7050Function, MODULE_7050_NAME, 200, NULL, 1, NULL);
+	xTaskCreate(Task7050Function, "7050",
+		    DEFAULT_MODULE_STACK_SIZE, NULL, 1, NULL);
+	xTaskCreate(Task7017Function, "7017",
+		    DEFAULT_MODULE_STACK_SIZE, NULL, 1, NULL);
 	
 	return 0;
 }
@@ -57,6 +63,9 @@ int dcon_dev_register(struct dcon_dev *dev) {
 void dcon_dev_unregister(struct dcon_dev *dev) {	
 	xSemaphoreTake(dcon_root_mutex, portMAX_DELAY);
 	xSemaphoreTake(dev->mutex, portMAX_DELAY);
+	
+	vQueueDelete(dev->dev_q);
+	vQueueDelete(dev->data_q);
 
 	dev->prev->next = dev->next;
 	dev->next->prev = dev->prev;

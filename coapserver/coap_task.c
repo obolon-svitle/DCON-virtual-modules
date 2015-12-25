@@ -7,7 +7,7 @@
 
 static unsigned char pucMACArray[8];
 
-void TaskLWIPFunction(void *pvParameters) {
+void TaskCoAPServerFunction(void *pvParameters) {
 	unsigned long ulUser0, ulUser1;
 
     FlashUserGet(&ulUser0, &ulUser1);
