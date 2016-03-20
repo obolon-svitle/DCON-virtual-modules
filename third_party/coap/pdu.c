@@ -56,8 +56,8 @@ coap_pdu_from_pbuf(struct pbuf *pbuf)
 
   coap_pdu_t *result = coap_malloc_type(COAP_PDU, sizeof(coap_pdu_t));
   if (!result) {
-	  pbuf_free(pbuf);
-	  return NULL;
+      pbuf_free(pbuf);
+      return NULL;
   }
 
   memset(result, 0, sizeof(coap_pdu_t));
@@ -73,7 +73,7 @@ coap_pdu_from_pbuf(struct pbuf *pbuf)
 
 coap_pdu_t *
 coap_pdu_init(unsigned char type, unsigned char code, 
-	      unsigned short id, size_t size) {
+          unsigned short id, size_t size) {
   coap_pdu_t *pdu;
 #ifdef WITH_LWIP
     struct pbuf *p;
@@ -184,7 +184,7 @@ coap_add_option(coap_pdu_t *pdu, unsigned short type, unsigned int len, const un
 
   /* encode option and check length */
   optsize = coap_opt_encode(opt, pdu->max_size - pdu->length, 
-			    type - pdu->max_delta, data, len);
+                type - pdu->max_delta, data, len);
 
   if (!optsize) {
     warn("coap_add_option: cannot add option\n");
@@ -216,7 +216,7 @@ coap_add_option_later(coap_pdu_t *pdu, unsigned short type, unsigned int len) {
 
   /* encode option and check length */
   optsize = coap_opt_encode(opt, pdu->max_size - pdu->length,
-			    type - pdu->max_delta, NULL, len);
+                type - pdu->max_delta, NULL, len);
 
   if (!optsize) {
     warn("coap_add_option: cannot add option\n");
@@ -262,7 +262,7 @@ coap_get_data(coap_pdu_t *pdu, size_t *len, unsigned char **data) {
   if (pdu->data) {
     *len = (unsigned char *)pdu->hdr + pdu->length - pdu->data;
     *data = pdu->data;
-  } else {			/* no data, clear everything */
+  } else {            /* no data, clear everything */
     *len = 0;
     *data = NULL;
   }
@@ -299,7 +299,7 @@ error_desc_t coap_error[] = {
   { COAP_RESPONSE_CODE(503), "Service Unavailable" },
   { COAP_RESPONSE_CODE(504), "Gateway Timeout" },
   { COAP_RESPONSE_CODE(505), "Proxying Not Supported" },
-  { 0, NULL }			/* end marker */
+  { 0, NULL }            /* end marker */
 };
 
 char *
@@ -414,7 +414,7 @@ coap_pdu_parse(unsigned char *data, size_t length, coap_pdu_t *pdu) {
     }
 
     debug("set data to %p (pdu ends at %p)\n", (unsigned char *)opt, 
-	  (unsigned char *)pdu->hdr + pdu->length);
+      (unsigned char *)pdu->hdr + pdu->length);
     pdu->data = (unsigned char *)opt;
   }
 

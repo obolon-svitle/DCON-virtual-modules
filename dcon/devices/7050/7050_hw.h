@@ -1,0 +1,9 @@
+#ifndef _7050_HW_H_
+#define _7050_HW_H_
+
+void dev_init(void);
+int set_output(unsigned char group, unsigned char value);
+unsigned long get_input(void);
+unsigned long int get_io_status(void);
+
+#endif /* _7050_HW_H_ */

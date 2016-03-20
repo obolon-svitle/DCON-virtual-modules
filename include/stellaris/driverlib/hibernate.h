@@ -150,7 +150,7 @@ extern unsigned long HibernateBatCheckDone(void);
 //
 //*****************************************************************************
 #ifndef DEPRECATED
-#include "driverlib/sysctl.h"
+#include "stellaris/driverlib/sysctl.h"
 #define HibernateEnable(a)                         \
         HibernateEnableExpClk(a, SysCtlClockGet())
 #endif

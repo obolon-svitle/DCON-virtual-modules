@@ -30,7 +30,7 @@
 #include "stellaris/driverlib/gpio.h"
 #include "stellaris/driverlib/epi.h"
 #include "stellaris/driverlib/debug.h"
-#include "set_pinout.h"
+#include "stellaris/EVB_9B95/drivers/set_pinout.h"
 
 //*****************************************************************************
 //
@@ -326,7 +326,7 @@ EEPROMReadPolled(unsigned char *pucData, unsigned long ulOffset,
     // Tell the caller we read the required data.
     //
     return(true);
-	}*/
+    }*/
 
 //*****************************************************************************
 //
@@ -371,7 +371,7 @@ DaughterBoardTypeGet(tDaughterIDInfo *psInfo)
     // Read the ID information from the I2C EEPROM.
     //
 //    bRetcode = EEPROMReadPolled((unsigned char *)psInfo, 0,
-	//                              sizeof(tDaughterIDInfo));
+    //                              sizeof(tDaughterIDInfo));
 
     //
     // Did we read the ID information successfully?

@@ -48,7 +48,7 @@
 #include "net/ip/uip-debug.h"
 #endif
 
-static coap_log_t maxlog = LOG_WARNING;	/* default maximum log level */
+static coap_log_t maxlog = LOG_WARNING;    /* default maximum log level */
 
 const char *coap_package_name(void) {
   return PACKAGE_NAME;
@@ -89,8 +89,8 @@ static inline size_t
 print_timestamp(char *s, size_t len, coap_tick_t t) {
 #ifdef HAVE_SNPRINTF
   return snprintf(s, len, "%u.%03u", 
-		  (unsigned int)coap_ticks_to_rt(t),
-		  (unsigned int)(t % COAP_TICKS_PER_SECOND));
+          (unsigned int)coap_ticks_to_rt(t),
+          (unsigned int)(t % COAP_TICKS_PER_SECOND));
 #else /* HAVE_SNPRINTF */
   /* @todo do manual conversion of timestamp */
   return 0;
@@ -119,7 +119,7 @@ strnlen(const char *s, size_t maxlen) {
 
 static unsigned int
 print_readable( const unsigned char *data, unsigned int len,
-		unsigned char *result, unsigned int buflen, int encode_always ) {
+        unsigned char *result, unsigned int buflen, int encode_always ) {
   const unsigned char hex[] = "0123456789ABCDEF";
   unsigned int cnt = 0;
   assert(data || len == 0);
@@ -134,17 +134,17 @@ print_readable( const unsigned char *data, unsigned int len,
       *result++ = *data;
       ++cnt;
       } else {
-	break;
+    break;
       }
     } else {
       if (cnt+4 < buflen) { /* keep one byte for terminating zero */
-	*result++ = '\\';
-	*result++ = 'x';
-	*result++ = hex[(*data & 0xf0) >> 4];
-	*result++ = hex[*data & 0x0f];
-	cnt += 4;
+    *result++ = '\\';
+    *result++ = 'x';
+    *result++ = hex[(*data & 0xf0) >> 4];
+    *result++ = hex[*data & 0x0f];
+    cnt += 4;
       } else
-	break;
+    break;
     }
 
     ++data; --len;
@@ -338,7 +338,7 @@ msg_option_string(uint16_t option_type) {
 
 static unsigned int
 print_content_format(unsigned int format_type,
-		     unsigned char *result, unsigned int buflen) {
+             unsigned char *result, unsigned int buflen) {
   struct desc_t {
     unsigned int type;
     const char *name;
@@ -375,10 +375,10 @@ print_content_format(unsigned int format_type,
 static inline int
 is_binary(int content_format) {
   return !(content_format == -1 ||
-	   content_format == COAP_MEDIATYPE_TEXT_PLAIN ||
-	   content_format == COAP_MEDIATYPE_APPLICATION_LINK_FORMAT ||
-	   content_format == COAP_MEDIATYPE_APPLICATION_XML ||
-	   content_format == COAP_MEDIATYPE_APPLICATION_JSON);
+       content_format == COAP_MEDIATYPE_TEXT_PLAIN ||
+       content_format == COAP_MEDIATYPE_APPLICATION_LINK_FORMAT ||
+       content_format == COAP_MEDIATYPE_APPLICATION_XML ||
+       content_format == COAP_MEDIATYPE_APPLICATION_JSON);
 }
 
 void
@@ -393,8 +393,8 @@ coap_show_pdu(const coap_pdu_t *pdu) {
   unsigned char *data;
 
   fprintf(COAP_DEBUG_FD, "v:%d t:%s c:%s i:%04x {",
-	  pdu->hdr->version, msg_type_string(pdu->hdr->type),
-	  msg_code_string(pdu->hdr->code), ntohs(pdu->hdr->id));
+      pdu->hdr->version, msg_type_string(pdu->hdr->type),
+      msg_code_string(pdu->hdr->code), ntohs(pdu->hdr->id));
 
   for (i = 0; i < pdu->hdr->token_length; i++) {
     fprintf(COAP_DEBUG_FD, "%02x", pdu->hdr->token[i]);
@@ -415,7 +415,7 @@ coap_show_pdu(const coap_pdu_t *pdu) {
     switch (opt_iter.type) {
     case COAP_OPTION_CONTENT_FORMAT:
       content_format = (int)coap_decode_var_bytes(COAP_OPT_VALUE(option),
-						  COAP_OPT_LENGTH(option));
+                          COAP_OPT_LENGTH(option));
 
       buf_len = print_content_format(content_format, buf, sizeof(buf));
       break;
@@ -425,9 +425,9 @@ coap_show_pdu(const coap_pdu_t *pdu) {
       /* split block option into number/more/size where more is the
        * letter M if set, the _ otherwise */
       buf_len = snprintf((char *)buf, sizeof(buf), "%u/%c/%u",
-			 coap_opt_block_num(option), /* block number */
-			 COAP_OPT_BLOCK_MORE(option) ? 'M' : '_', /* M bit */
-			 (2 << (COAP_OPT_BLOCK_SZX(option) + 4))); /* block size */
+             coap_opt_block_num(option), /* block number */
+             COAP_OPT_BLOCK_MORE(option) ? 'M' : '_', /* M bit */
+             (2 << (COAP_OPT_BLOCK_SZX(option) + 4))); /* block size */
 
       break;
 
@@ -437,30 +437,30 @@ coap_show_pdu(const coap_pdu_t *pdu) {
     case COAP_OPTION_SIZE1:
       /* show values as unsigned decimal value */
       buf_len = snprintf((char *)buf, sizeof(buf), "%u",
-			 coap_decode_var_bytes(COAP_OPT_VALUE(option),
-					       COAP_OPT_LENGTH(option)));
+             coap_decode_var_bytes(COAP_OPT_VALUE(option),
+                           COAP_OPT_LENGTH(option)));
       break;
 
     default:
       /* generic output function for all other option types */
       if (opt_iter.type == COAP_OPTION_URI_PATH ||
-	  opt_iter.type == COAP_OPTION_PROXY_URI ||
-	  opt_iter.type == COAP_OPTION_URI_HOST ||
-	  opt_iter.type == COAP_OPTION_LOCATION_PATH ||
-	  opt_iter.type == COAP_OPTION_LOCATION_QUERY ||
-	  opt_iter.type == COAP_OPTION_URI_QUERY) {
-	encode = 0;
+      opt_iter.type == COAP_OPTION_PROXY_URI ||
+      opt_iter.type == COAP_OPTION_URI_HOST ||
+      opt_iter.type == COAP_OPTION_LOCATION_PATH ||
+      opt_iter.type == COAP_OPTION_LOCATION_QUERY ||
+      opt_iter.type == COAP_OPTION_URI_QUERY) {
+    encode = 0;
       } else {
-	encode = 1;
+    encode = 1;
       }
 
       buf_len = print_readable(COAP_OPT_VALUE(option),
-			       COAP_OPT_LENGTH(option),
-			       buf, sizeof(buf), encode);
+                   COAP_OPT_LENGTH(option),
+                   buf, sizeof(buf), encode);
     }
 
     fprintf(COAP_DEBUG_FD, " %s:%.*s", msg_option_string(opt_iter.type),
-	    (int)buf_len, buf);
+        (int)buf_len, buf);
   }
 
   fprintf(COAP_DEBUG_FD, " ]");
@@ -472,12 +472,12 @@ coap_show_pdu(const coap_pdu_t *pdu) {
     if (is_binary(content_format)) {
       fprintf(COAP_DEBUG_FD, "<<");
       while (data_len--) {
-	fprintf(COAP_DEBUG_FD, "%02x", *data++);
+    fprintf(COAP_DEBUG_FD, "%02x", *data++);
       }
       fprintf(COAP_DEBUG_FD, ">>");
     } else {
       if (print_readable(data, data_len, buf, sizeof(buf), 0)) {
-	fprintf(COAP_DEBUG_FD, "'%s'", buf);
+    fprintf(COAP_DEBUG_FD, "'%s'", buf);
       }
     }
   }

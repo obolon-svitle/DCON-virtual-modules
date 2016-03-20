@@ -18,7 +18,7 @@
 #include <string.h>
 
 #include "option.h"
-#include "encode.h"		/* for coap_fls() */
+#include "encode.h"        /* for coap_fls() */
 #include "debug.h"
 
 coap_opt_t *
@@ -42,12 +42,12 @@ coap_opt_parse(const coap_opt_t *opt, size_t length, coap_option_t *result) {
 
   assert(opt); assert(result);
 
-#define ADVANCE_OPT(o,e,step) if ((e) < step) {			\
-    debug("cannot advance opt past end\n");			\
-    return 0;							\
-  } else {							\
-    (e) -= step;						\
-    (o) = ((unsigned char *)(o)) + step;			\
+#define ADVANCE_OPT(o,e,step) if ((e) < step) {            \
+    debug("cannot advance opt past end\n");            \
+    return 0;                            \
+  } else {                            \
+    (e) -= step;                        \
+    (o) = ((unsigned char *)(o)) + step;            \
   }
 
   if (length < 1)
@@ -118,7 +118,7 @@ coap_opt_parse(const coap_opt_t *opt, size_t length, coap_option_t *result) {
 
 coap_opt_iterator_t *
 coap_option_iterator_init(coap_pdu_t *pdu, coap_opt_iterator_t *oi,
-			  const coap_opt_filter_t filter) {
+              const coap_opt_filter_t filter) {
   assert(pdu); 
   assert(pdu->hdr);
   assert(oi);
@@ -160,7 +160,7 @@ coap_option_next(coap_opt_iterator_t *oi) {
   coap_option_t option;
   coap_opt_t *current_opt = NULL;
   size_t optsize;
-  int b;		   /* to store result of coap_option_getb() */
+  int b;           /* to store result of coap_option_getb() */
 
   assert(oi);
 
@@ -183,7 +183,7 @@ coap_option_next(coap_opt_iterator_t *oi) {
       oi->length -= optsize;
       
       oi->type += option.delta;
-    } else {			/* current option is malformed */
+    } else {            /* current option is malformed */
       oi->bad = 1;
       return NULL;
     }
@@ -194,9 +194,9 @@ coap_option_next(coap_opt_iterator_t *oi) {
      *   - the filter is too small for the current option number 
      */
     if (!oi->filtered ||
-	(b = coap_option_getb(oi->filter, oi->type)) > 0)
+    (b = coap_option_getb(oi->filter, oi->type)) > 0)
       break;
-    else if (b < 0) {		/* filter too small, cannot proceed */
+    else if (b < 0) {        /* filter too small, cannot proceed */
       oi->bad = 1;
       return NULL;
     }
@@ -207,7 +207,7 @@ coap_option_next(coap_opt_iterator_t *oi) {
 
 coap_opt_t *
 coap_check_option(coap_pdu_t *pdu, unsigned short type, 
-		  coap_opt_iterator_t *oi) {
+          coap_opt_iterator_t *oi) {
   coap_opt_filter_t f;
   
   coap_option_filter_clear(f);
@@ -327,12 +327,12 @@ coap_opt_size(const coap_opt_t *opt) {
 
 size_t
 coap_opt_setheader(coap_opt_t *opt, size_t maxlen, 
-		   unsigned short delta, size_t length) {
+           unsigned short delta, size_t length) {
   size_t skip = 0;
 
   assert(opt);
 
-  if (maxlen == 0)		/* need at least one byte */
+  if (maxlen == 0)        /* need at least one byte */
     return 0;
 
   if (delta < 13) {
@@ -382,7 +382,7 @@ coap_opt_setheader(coap_opt_t *opt, size_t maxlen,
 
 size_t
 coap_opt_encode(coap_opt_t *opt, size_t maxlen, unsigned short delta,
-		const unsigned char *val, size_t length) {
+        const unsigned char *val, size_t length) {
   size_t l = 1;
 
   l = coap_opt_setheader(opt, maxlen, delta, length);
@@ -401,7 +401,7 @@ coap_opt_encode(coap_opt_t *opt, size_t maxlen, unsigned short delta,
     return 0;
   }
 
-  if (val)			/* better be safe here */
+  if (val)            /* better be safe here */
     memcpy(opt, val, length);
 
   return l + length;
@@ -447,8 +447,8 @@ enum filter_op_t { FILTER_SET, FILTER_CLEAR, FILTER_GET };
  */
 static int
 coap_option_filter_op(coap_opt_filter_t filter,
-		      unsigned short type,
-		      enum filter_op_t op) {
+              unsigned short type,
+              enum filter_op_t op) {
   size_t index = 0;
   opt_filter *of = (opt_filter *)filter;
   uint16_t nr, mask = 0;
@@ -459,25 +459,25 @@ coap_option_filter_op(coap_opt_filter_t filter,
     for (nr = 1; index < COAP_OPT_FILTER_LONG; nr <<= 1, index++) {
 
       if (((of->mask & nr) > 0) && (of->long_opts[index] == type)) {
-	if (op == FILTER_CLEAR) {
-	  of->mask &= ~nr;
-	}
+    if (op == FILTER_CLEAR) {
+      of->mask &= ~nr;
+    }
 
-	return 1;
+    return 1;
       }
     }
   } else {
     mask = SHORT_MASK;
 
     for (nr = 1 << COAP_OPT_FILTER_LONG; index < COAP_OPT_FILTER_SHORT;
-	 nr <<= 1, index++) {
+     nr <<= 1, index++) {
 
       if (((of->mask & nr) > 0) && (of->short_opts[index] == (type & 0xff))) {
-	if (op == FILTER_CLEAR) {
-	  of->mask &= ~nr;
-	}
+    if (op == FILTER_CLEAR) {
+      of->mask &= ~nr;
+    }
 
-	return 1;
+    return 1;
       }
     }
   }

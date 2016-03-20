@@ -4,9 +4,9 @@
 typedef void (*cmd_handler_t)(const char *cmd, char *response);
 
 struct cmd_t {
-	const char *pattern;
-	const char *check_bytes;
-	cmd_handler_t handler;
+    const char *pattern;
+    const char *check_bytes;
+    cmd_handler_t handler;
 };
 
 int parse_command(const char *cmd, const struct cmd_t *cmds, size_t cmd_count);

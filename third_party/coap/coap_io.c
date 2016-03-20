@@ -39,16 +39,16 @@
 
 #ifdef WITH_POSIX
 struct coap_packet_t {
-  coap_if_handle_t hnd;	      /**< the interface handle */
-  coap_address_t src;	      /**< the packet's source address */
-  coap_address_t dst;	      /**< the packet's destination address */
+  coap_if_handle_t hnd;          /**< the interface handle */
+  coap_address_t src;          /**< the packet's source address */
+  coap_address_t dst;          /**< the packet's destination address */
   const coap_endpoint_t *interface;
 
   int ifindex;
-  void *session;		/**< opaque session data */
+  void *session;        /**< opaque session data */
 
-  size_t length;		/**< length of payload */
-  unsigned char payload[];	/**< payload */
+  size_t length;        /**< length of payload */
+  unsigned char payload[];    /**< payload */
 };
 #endif
 
@@ -182,8 +182,8 @@ coap_new_endpoint(const coap_address_t *addr, int flags) {
 
     if (coap_print_addr(&ep->addr, addr_str, INET6_ADDRSTRLEN+8)) {
       debug("created %sendpoint %s\n", 
-	    ep->flags & COAP_ENDPOINT_DTLS ? "DTLS " : "",
-	    addr_str);
+        ep->flags & COAP_ENDPOINT_DTLS ? "DTLS " : "",
+        addr_str);
     }
   }
 #endif /* NDEBUG */
@@ -210,8 +210,8 @@ coap_free_endpoint(coap_endpoint_t *ep) {
    FIXME: check with configure 
 */
 struct in6_pktinfo {
-  struct in6_addr ipi6_addr;	/* src/dst IPv6 address */
-  unsigned int ipi6_ifindex;	/* send/recv interface index */
+  struct in6_addr ipi6_addr;    /* src/dst IPv6 address */
+  unsigned int ipi6_ifindex;    /* send/recv interface index */
 };
 
 struct in_pktinfo {
@@ -234,10 +234,10 @@ struct in_pktinfo {
 
 ssize_t
 coap_network_send(struct coap_context_t *context UNUSED_PARAM,
-		  const coap_endpoint_t *local_interface,
-		  const coap_address_t *dst,
-		  unsigned char *data,
-		  size_t datalen) {
+          const coap_endpoint_t *local_interface,
+          const coap_address_t *dst,
+          unsigned char *data,
+          size_t datalen) {
 
   struct coap_endpoint_t *ep = 
     (struct coap_endpoint_t *)local_interface;
@@ -285,8 +285,8 @@ coap_network_send(struct coap_context_t *context UNUSED_PARAM,
     } else {
       pktinfo->ipi6_ifindex = ep->ifindex;
       memcpy(&pktinfo->ipi6_addr,
-	     &local_interface->addr.addr.sin6.sin6_addr,
-	     local_interface->addr.size);
+         &local_interface->addr.addr.sin6.sin6_addr,
+         local_interface->addr.size);
     }
     break;
   }
@@ -313,8 +313,8 @@ coap_network_send(struct coap_context_t *context UNUSED_PARAM,
     } else {
       pktinfo->ipi_ifindex = ep->ifindex;
       memcpy(&pktinfo->ipi_spec_dst,
-	     &local_interface->addr.addr.sin.sin_addr,
-	     local_interface->addr.size);
+         &local_interface->addr.addr.sin.sin_addr,
+         local_interface->addr.size);
     }
     break;
   }
@@ -329,7 +329,7 @@ coap_network_send(struct coap_context_t *context UNUSED_PARAM,
   /* FIXME: untested */
   /* FIXME: is there a way to check if send was successful? */
   uip_udp_packet_sendto((struct uip_udp_conn *)ep->handle.conn, data, datalen, 
-			&dst->addr, dst->port);
+            &dst->addr, dst->port);
   return datalen;
 #endif /* WITH_CONTIKI */
 }
@@ -391,8 +391,8 @@ coap_packet_copy_source(coap_packet_t *packet, coap_address_t *target)
 void
 coap_packet_get_memmapped(coap_packet_t *packet, unsigned char **address, size_t *length)
 {
-	*address = packet->payload;
-	*length = packet->length;
+    *address = packet->payload;
+    *length = packet->length;
 }
 
 /**
@@ -470,43 +470,43 @@ coap_network_read(coap_endpoint_t *ep, coap_packet_t **packet) {
       
       /* get the local interface for IPv6 */
       if (cmsg->cmsg_level == IPPROTO_IPV6 && cmsg->cmsg_type == IPV6_PKTINFO) {
-	union {
-	  unsigned char *c;
-	  struct in6_pktinfo *p;
-	} u;
-	u.c = CMSG_DATA(cmsg);
-	(*packet)->ifindex = (int)(u.p->ipi6_ifindex);
+    union {
+      unsigned char *c;
+      struct in6_pktinfo *p;
+    } u;
+    u.c = CMSG_DATA(cmsg);
+    (*packet)->ifindex = (int)(u.p->ipi6_ifindex);
 
-	memcpy(&(*packet)->dst.addr.sin6.sin6_addr, 
-	       &u.p->ipi6_addr, sizeof(struct in6_addr));
+    memcpy(&(*packet)->dst.addr.sin6.sin6_addr, 
+           &u.p->ipi6_addr, sizeof(struct in6_addr));
 
-	(*packet)->src.size = mhdr.msg_namelen;
-	assert((*packet)->src.size == sizeof(struct sockaddr_in6));
+    (*packet)->src.size = mhdr.msg_namelen;
+    assert((*packet)->src.size == sizeof(struct sockaddr_in6));
 
-	(*packet)->src.addr.sin6.sin6_family = SIN6(mhdr.msg_name)->sin6_family;
-	(*packet)->src.addr.sin6.sin6_addr = SIN6(mhdr.msg_name)->sin6_addr;
-	(*packet)->src.addr.sin6.sin6_port = SIN6(mhdr.msg_name)->sin6_port;
+    (*packet)->src.addr.sin6.sin6_family = SIN6(mhdr.msg_name)->sin6_family;
+    (*packet)->src.addr.sin6.sin6_addr = SIN6(mhdr.msg_name)->sin6_addr;
+    (*packet)->src.addr.sin6.sin6_port = SIN6(mhdr.msg_name)->sin6_port;
 
-	break;
+    break;
       }
 
       /* local interface for IPv4 */
       if (cmsg->cmsg_level == SOL_IP && cmsg->cmsg_type == IP_PKTINFO) {
-	union {
-	  unsigned char *c;
-	  struct in_pktinfo *p;
-	} u;
+    union {
+      unsigned char *c;
+      struct in_pktinfo *p;
+    } u;
 
-	u.c = CMSG_DATA(cmsg);
-	(*packet)->ifindex = u.p->ipi_ifindex;
+    u.c = CMSG_DATA(cmsg);
+    (*packet)->ifindex = u.p->ipi_ifindex;
 
-	memcpy(&(*packet)->dst.addr.sin.sin_addr, 
-	       &u.p->ipi_addr, sizeof(struct in_addr));
+    memcpy(&(*packet)->dst.addr.sin.sin_addr, 
+           &u.p->ipi_addr, sizeof(struct in_addr));
 
-	(*packet)->src.size = mhdr.msg_namelen;
-	memcpy(&(*packet)->src.addr.st, mhdr.msg_name, (*packet)->src.size);
+    (*packet)->src.size = mhdr.msg_namelen;
+    memcpy(&(*packet)->src.addr.st, mhdr.msg_name, (*packet)->src.size);
 
-	break;
+    break;
       }
     }
 
@@ -549,7 +549,7 @@ coap_network_read(coap_endpoint_t *ep, coap_packet_t **packet) {
       unsigned char addr_str[INET6_ADDRSTRLEN+8];
       
       if (coap_print_addr(&(*packet)->src, addr_str, INET6_ADDRSTRLEN+8)) {
-	debug("received %zd bytes from %s\n", len, addr_str);
+    debug("received %zd bytes from %s\n", len, addr_str);
       }
     }
 #endif /* NDEBUG */

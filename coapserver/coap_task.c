@@ -8,16 +8,15 @@
 static unsigned char pucMACArray[8];
 
 void TaskCoAPServerFunction(void *pvParameters) {
-	unsigned long ulUser0, ulUser1;
+    unsigned long ulUser0, ulUser1;
 
     FlashUserGet(&ulUser0, &ulUser1);
-       
-    ulUser0 = 0x001cc1de;
-    ulUser1 = 0x0086ba4b;
-    
+
+    ulUser0 = 0x00123456;
+    ulUser1 = 0x00987654;
+
     if ((ulUser0 == 0xffffffff) || (ulUser1 == 0xffffffff)) {
-        for (;;)
-			;
+        while(1);            
     }
 
     pucMACArray[0] = ((ulUser0 >>  0) & 0xff);
@@ -27,11 +26,10 @@ void TaskCoAPServerFunction(void *pvParameters) {
     pucMACArray[4] = ((ulUser1 >>  8) & 0xff);
     pucMACArray[5] = ((ulUser1 >> 16) & 0xff);
 
-	lwIPLocalMACGet(pucMACArray);
-	lwIPInit(pucMACArray, 0, 0, 0, IPADDR_USE_DHCP);
-	
-	server_coap_serve();
+    lwIPInit(pucMACArray, 0, 0, 0, IPADDR_USE_DHCP);
 
-	for (;;)
-		;
+    server_coap_serve();
+
+    for (;;)
+        ;
 }

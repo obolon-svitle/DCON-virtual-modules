@@ -16,11 +16,11 @@
  * string with coap_split_uri() and can be used as input for
  * option-creation functions. */
 typedef struct {
-  str host;			/**< host part of the URI */
-  unsigned short port;		/**< The port in host byte order */
-  str path;			/**< Beginning of the first path segment. 
-				   Use coap_split_path() to create Uri-Path options */
-  str query;			/**<  The query part if present */
+  str host;            /**< host part of the URI */
+  unsigned short port;        /**< The port in host byte order */
+  str path;            /**< Beginning of the first path segment. 
+                   Use coap_split_path() to create Uri-Path options */
+  str query;            /**<  The query part if present */
 } coap_uri_t;
 
 /**
@@ -93,7 +93,7 @@ coap_split_uri(unsigned char *str_var, size_t len, coap_uri_t *uri);
  * @return The number of segments created or @c -1 on error.
  */
 int coap_split_path(const unsigned char *s, size_t length, 
-		    unsigned char *buf, size_t *buflen);
+            unsigned char *buf, size_t *buflen);
 
 /** 
  * Splits the given URI query into segments. Each segment is preceded
@@ -111,7 +111,7 @@ int coap_split_path(const unsigned char *s, size_t length,
  * @bug This function does not reserve additional space for delta > 12.
  */
 int coap_split_query(const unsigned char *s, size_t length, 
-		     unsigned char *buf, size_t *buflen);
+             unsigned char *buf, size_t *buflen);
 
 /** @} */
 

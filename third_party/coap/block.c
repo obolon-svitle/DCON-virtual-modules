@@ -35,7 +35,7 @@ coap_opt_block_num(const coap_opt_t *block_opt) {
   
   if (len > 1) {
     num = coap_decode_var_bytes(COAP_OPT_VALUE(block_opt), 
-				COAP_OPT_LENGTH(block_opt) - 1);
+                COAP_OPT_LENGTH(block_opt) - 1);
   }
   
   return (num << 4) | ((*COAP_OPT_BLOCK_LAST(block_opt) & 0xF0) >> 4);
@@ -62,7 +62,7 @@ coap_get_block(coap_pdu_t *pdu, unsigned short type, coap_block_t *block) {
 
 int
 coap_write_block_opt(coap_block_t *block, unsigned short type,
-		     coap_pdu_t *pdu, size_t data_length) {
+             coap_pdu_t *pdu, size_t data_length) {
   size_t start, want, avail;
   unsigned char buf[3];
 
@@ -94,9 +94,9 @@ coap_write_block_opt(coap_block_t *block, unsigned short type,
       unsigned char szx;
 
       /* we need to decrease the block size */
-      if (avail < 16) { 	/* bad luck, this is the smallest block size */
-	debug("not enough space, even the smallest block does not fit");
-	return -3;
+      if (avail < 16) {     /* bad luck, this is the smallest block size */
+    debug("not enough space, even the smallest block does not fit");
+    return -3;
       }
       debug("decrease block size for %zu to %d\n", avail, coap_fls(avail) - 5);
       szx = block->szx;
@@ -108,16 +108,16 @@ coap_write_block_opt(coap_block_t *block, unsigned short type,
 
   /* to re-encode the block option */
   coap_add_option(pdu, type, coap_encode_var_bytes(buf, ((block->num << 4) | 
-							 (block->m << 3) | 
-							 block->szx)), 
-		  buf);
+                             (block->m << 3) | 
+                             block->szx)), 
+          buf);
 
   return 1;
 }
 
 int 
 coap_add_block(coap_pdu_t *pdu, unsigned int len, const unsigned char *data,
-	       unsigned int block_num, unsigned char block_szx) {
+           unsigned int block_num, unsigned char block_szx) {
   size_t start;
   start = block_num << (block_szx + 4);
 
@@ -125,7 +125,7 @@ coap_add_block(coap_pdu_t *pdu, unsigned int len, const unsigned char *data,
     return 0;
   
   return coap_add_data(pdu, 
-		       min(len - start, (unsigned int)(1 << (block_szx + 4))),
-		       data + start);
+               min(len - start, (unsigned int)(1 << (block_szx + 4))),
+               data + start);
 }
 #endif /* WITHOUT_BLOCK  */

@@ -8,25 +8,19 @@
 
 extern const int DCON_MAX_BUF;
 
-enum status {
-	OK,
-	FAIL,
-};
-
 struct msg {
-	const char *request;
-	char *response;
-	enum status status;
+    const char *request;
+    char *response;
 };
 
 struct dcon_dev {
-	unsigned int addr;
-	unsigned int type;
-	xSemaphoreHandle mutex;
-	xQueueHandle dev_q;
-	xQueueHandle data_q;
-	struct dcon_dev *next;
-	struct dcon_dev *prev;
+    unsigned int addr;
+    unsigned int type;
+    xSemaphoreHandle mutex;
+    xQueueHandle dev_q;
+    xQueueHandle data_q;
+    struct dcon_dev *next;
+    struct dcon_dev *prev;
 };
 
 int dcon_dev_register(struct dcon_dev *dev);

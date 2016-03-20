@@ -1,7 +1,7 @@
 PROJ_NAME = dcon-virt-mod
 
 RTOS_SOURCE_DIR = third_party/freertos
-STELLARIS_DRIVER_DIR = stellaris
+STELLARIS_DRIVER_DIR = third_party/stellaris
 LWIP_SOURCE_DIR = third_party/lwip
 COAP_SOURCE_DIR = third_party/coap
 
@@ -12,7 +12,6 @@ LDSCRIPT = ld/standalone.ld
 
 PROJ_PATH := bin/$(PROJ_NAME)
 
-# should use --gc-sections but the debugger does not seem to be able to cope with the option.
 LDFLAGS = -nostartfiles -Xlinker -Map=$(PROJ_PATH).map \
 		-Xlinker --no-gc-sections -T $(LDSCRIPT)
 
@@ -21,10 +20,12 @@ OPTIM = -O0 -pipe
 
 INCLUDE = -I include -I include/coap
 
+#-D GCC_ARMCM3_LM3S9B95
+#-D GCC_ARMCM3_LM3S102
 CFLAGS = \
 	$(DEBUG) $(OPTIM) $(INCLUDE) -std=c99 -pedantic -Wall -Wfatal-errors \
 	-mthumb -mcpu=cortex-m3 -ffunction-sections -fdata-sections \
-	-D GCC_ARMCM3_LM3S102 -D gcc -D RTOS_FREERTOS -DIPv4 -DWITH_LWIP \
+	-D GCC_ARMCM3_LM3S9B95 -D gcc -D RTOS_FREERTOS -DIPv4 -DWITH_LWIP \
 	-D UART_BUFFERED -Dsrand=usrand -D uipprintf=UARTprintf \
 	-D printf=uipprintf -D sprintf=usprintf -D snprintf=usnprintf  \
 
@@ -32,13 +33,15 @@ SOURCE = \
 	init/main.c \
 	init/timers.c \
 	dcon/dconmodules-core.c \
-	dcon/devices/dcon_common.c \
-	dcon/devices/7050.c \
-	dcon/devices/7017.c \
+	dcon/devices/dcon_dev_common.c \
+	dcon/devices/7050/7050.c \
+	dcon/devices/7050/7050_hw.c \
+	dcon/devices/7017/7017.c \
 	coapserver/server-coap.c \
 	coapserver/coap_task.c \
 	$(STELLARIS_DRIVER_DIR)/utils/uartstdio.c \
-	$(STELLARIS_DRIVER_DIR)/driverlib/ethernet.c \
+	$(wildcard $(STELLARIS_DRIVER_DIR)/driverlib/*.c) \
+	$(STELLARIS_DRIVER_DIR)/EVB_9B95/drivers/set_pinout.c \
 	$(STELLARIS_DRIVER_DIR)/utils/ustdlib.c \
 	$(STELLARIS_DRIVER_DIR)/utils/lwiplib.c \
 	$(RTOS_SOURCE_DIR)/list.c \
@@ -75,20 +78,20 @@ SOURCE = \
 	$(LWIP_SOURCE_DIR)/ports/stellaris/perf.c \
 	$(LWIP_SOURCE_DIR)/ports/stellaris/sys_arch.c \
 	$(LWIP_SOURCE_DIR)/ports/stellaris/netif/stellarisif.c \
-	$(COAP_SOURCE_DIR)/option.o \
-	$(COAP_SOURCE_DIR)/hashkey.o \
-	$(COAP_SOURCE_DIR)/encode.o \
-	$(COAP_SOURCE_DIR)/coap_io_lwip.o \
-	$(COAP_SOURCE_DIR)/block.o \
-	$(COAP_SOURCE_DIR)/resource.o \
-	$(COAP_SOURCE_DIR)/net.o \
-	$(COAP_SOURCE_DIR)/uri.o \
-	$(COAP_SOURCE_DIR)/pdu.o \
-	$(COAP_SOURCE_DIR)/subscribe.o \
-	$(COAP_SOURCE_DIR)/debug.o \
+	$(COAP_SOURCE_DIR)/option.c \
+	$(COAP_SOURCE_DIR)/hashkey.c \
+	$(COAP_SOURCE_DIR)/encode.c \
+	$(COAP_SOURCE_DIR)/coap_io_lwip.c \
+	$(COAP_SOURCE_DIR)/block.c \
+	$(COAP_SOURCE_DIR)/resource.c \
+	$(COAP_SOURCE_DIR)/net.c \
+	$(COAP_SOURCE_DIR)/uri.c \
+	$(COAP_SOURCE_DIR)/pdu.c \
+	$(COAP_SOURCE_DIR)/subscribe.c \
+	$(COAP_SOURCE_DIR)/debug.c \
 	$(COAP_SOURCE_DIR)/address.c
 
-LIBS = lib/gcc-cm3/libdriver-cm3.a
+LIBS = 
 
 OBJS = $(SOURCE:.c=.o)
 

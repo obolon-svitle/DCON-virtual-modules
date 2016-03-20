@@ -37,9 +37,9 @@
 #include "freertos/queue.h"
 #include "freertos/semphr.h"
 
-#define SYS_MBOX_NULL					( ( QueueHandle_t ) NULL )
-#define SYS_SEM_NULL					( ( SemaphoreHandle_t ) NULL )
-#define SYS_DEFAULT_THREAD_STACK_DEPTH	configMINIMAL_STACK_SIZE
+#define SYS_MBOX_NULL                    ( ( QueueHandle_t ) NULL )
+#define SYS_SEM_NULL                    ( ( SemaphoreHandle_t ) NULL )
+#define SYS_DEFAULT_THREAD_STACK_DEPTH    configMINIMAL_STACK_SIZE
 
 typedef SemaphoreHandle_t sys_sem_t;
 typedef SemaphoreHandle_t sys_mutex_t;

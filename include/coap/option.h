@@ -106,7 +106,7 @@ coap_opt_t *options_start(coap_pdu_t *pdu);
 #endif /* (COAP_OPT_FILTER_SHORT + COAP_OPT_FILTER_LONG > 16) */
 
 /** The number of elements in coap_opt_filter_t. */
-#define COAP_OPT_FILTER_SIZE					\
+#define COAP_OPT_FILTER_SIZE                    \
   (((COAP_OPT_FILTER_SHORT + 1) >> 1) + COAP_OPT_FILTER_LONG) +1
 
 /**

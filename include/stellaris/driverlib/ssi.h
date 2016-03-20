@@ -130,7 +130,7 @@ extern unsigned long SSIClockSourceGet(unsigned long ulBase);
 //
 //*****************************************************************************
 #ifndef DEPRECATED
-#include "driverlib/sysctl.h"
+#include "stellaris/driverlib/sysctl.h"
 #define SSIConfig(a, b, c, d, e)                            \
         SSIConfigSetExpClk(a, SysCtlClockGet(), b, c, d, e)
 #define SSIDataNonBlockingGet(a, b) \

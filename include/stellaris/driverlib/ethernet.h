@@ -166,7 +166,7 @@ extern void EthernetPHYPowerOn(unsigned long ulBase);
 //
 //*****************************************************************************
 #ifndef DEPRECATED
-#include "sysctl.h"
+#include "stellaris/driverlib/sysctl.h"
 #define EthernetInit(a)                         \
         EthernetInitExpClk(a, SysCtlClockGet())
 #define EthernetPacketNonBlockingGet(a, b, c) \

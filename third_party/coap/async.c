@@ -23,7 +23,7 @@
 
 coap_async_state_t *
 coap_register_async(coap_context_t *context, coap_address_t *peer,
-		    coap_pdu_t *request, unsigned char flags, void *data) {
+            coap_pdu_t *request, unsigned char flags, void *data) {
   coap_async_state_t *s;
   coap_tid_t id;
 
@@ -39,7 +39,7 @@ coap_register_async(coap_context_t *context, coap_address_t *peer,
 
   /* store information for handling the asynchronous task */
   s = (coap_async_state_t *)coap_malloc(sizeof(coap_async_state_t) + 
-					request->hdr->token_length);
+                    request->hdr->token_length);
   if (!s) {
     coap_log(LOG_CRIT, "coap_register_async: insufficient memory\n");
     return NULL;
@@ -79,7 +79,7 @@ coap_find_async(coap_context_t *context, coap_tid_t id) {
 
 int
 coap_remove_async(coap_context_t *context, coap_tid_t id, 
-		  coap_async_state_t **s) {
+          coap_async_state_t **s) {
   coap_async_state_t *tmp = coap_find_async(context, id);
 
   if (tmp)
@@ -97,5 +97,5 @@ coap_free_async(coap_async_state_t *s) {
 }
 
 #else
-void does_not_exist();	/* make some compilers happy */
+void does_not_exist();    /* make some compilers happy */
 #endif /* WITHOUT_ASYNC */

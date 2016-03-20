@@ -37,11 +37,11 @@ n * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 #include <stellaris/utils/uartstdio.h>
 
 #ifndef __GNUC__
-	#include <limits.h>
-	#pragma warning (disable: 4244) /* disable conversion warning (implicit integer promotion!) */
-	#pragma warning (disable: 4127) /* conditional expression is constant */
-	#pragma warning (disable: 4996) /* 'strncpy' was declared deprecated */
-	#pragma warning (disable: 4103) /* structure packing changed by including file */
+    #include <limits.h>
+    #pragma warning (disable: 4244) /* disable conversion warning (implicit integer promotion!) */
+    #pragma warning (disable: 4127) /* conditional expression is constant */
+    #pragma warning (disable: 4996) /* 'strncpy' was declared deprecated */
+    #pragma warning (disable: 4103) /* structure packing changed by including file */
 #endif
 
 #define LWIP_PROVIDE_ERRNO
@@ -100,7 +100,7 @@ typedef u32_t sys_prot_t;
 #define LWIP_PLATFORM_DIAG(x)   do { UARTprintf x; } while(0)
 
 #define LWIP_PLATFORM_ASSERT(x) do { UARTprintf("Assertion \"%s\" failed at line %d in %s\n", \
-												x, __LINE__, __FILE__); for(;;); } while(0)
+                                                x, __LINE__, __FILE__); for(;;); } while(0)
 
 #define LWIP_ERROR(message, expression, handler) do { if (!(expression)) { \
   printf("Assertion \"%s\" failed at line %d in %s\n", message, __LINE__, __FILE__); \

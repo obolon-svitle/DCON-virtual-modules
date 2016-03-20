@@ -551,7 +551,7 @@ lwIPPrivateInit(void *pvArg)
                 (unsigned portCHAR *)g_pulStack, sizeof(g_pulStack), 0, 1, 0);
 #elif RTOS_FREERTOS
     xTaskCreate(lwIPInterruptTask, (portCHAR *)"eth_int",
-				sizeof(g_pulStack)/sizeof(int), 0, tskIDLE_PRIORITY+1, 0);
+                sizeof(g_pulStack)/sizeof(int), 0, tskIDLE_PRIORITY+1, 0);
 #endif
 #endif
 
@@ -807,7 +807,7 @@ lwIPEthernetIntHandler(void)
 #elif RTOS_FREERTOS
     if(xWake == pdTRUE)
     {
-		portYIELD_FROM_ISR(xWake);
+        portYIELD_FROM_ISR(xWake);
     }
 #endif
 #endif

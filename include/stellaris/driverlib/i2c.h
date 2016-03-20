@@ -207,7 +207,7 @@ extern unsigned long I2CSlaveStatus(unsigned long ulBase);
 //
 //*****************************************************************************
 #ifndef DEPRECATED
-#include "driverlib/sysctl.h"
+#include "stellaris/driverlib/sysctl.h"
 #define I2CMasterInit(a, b)                         \
         I2CMasterInitExpClk(a, SysCtlClockGet(), b)
 #endif

@@ -81,7 +81,7 @@ definitions below remain in the code for backward compatibility only.  New
 projects should not use them. */
 
 #ifdef GCC_ARMCM3
-	#include "../../portable/GCC/ARM_CM3/portmacro.h"
+    #include "../../portable/GCC/ARM_CM3/portmacro.h"
 #endif
 #endif /* DEPRECATED_DEFINITIONS_H */
 
