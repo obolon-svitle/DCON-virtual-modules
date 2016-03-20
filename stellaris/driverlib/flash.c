@@ -44,13 +44,13 @@
 //
 //*****************************************************************************
 
-#include "inc/hw_flash.h"
-#include "inc/hw_ints.h"
-#include "inc/hw_sysctl.h"
-#include "inc/hw_types.h"
-#include "driverlib/debug.h"
-#include "driverlib/flash.h"
-#include "driverlib/interrupt.h"
+#include "stellaris/hw_flash.h"
+#include "stellaris/hw_ints.h"
+#include "stellaris/hw_sysctl.h"
+#include "stellaris/hw_types.h"
+#include "stellaris/driverlib/debug.h"
+#include "stellaris/driverlib/flash.h"
+#include "stellaris/driverlib/interrupt.h"
 
 //*****************************************************************************
 //

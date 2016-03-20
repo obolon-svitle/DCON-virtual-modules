@@ -44,14 +44,14 @@
 //
 //*****************************************************************************
 
-#include "inc/hw_adc.h"
-#include "inc/hw_ints.h"
-#include "inc/hw_memmap.h"
-#include "inc/hw_types.h"
-#include "inc/hw_sysctl.h"
-#include "driverlib/adc.h"
-#include "driverlib/debug.h"
-#include "driverlib/interrupt.h"
+#include "stellaris/hw_adc.h"
+#include "stellaris/hw_ints.h"
+#include "stellaris/hw_memmap.h"
+#include "stellaris/hw_types.h"
+#include "stellaris/hw_sysctl.h"
+#include "stellaris/driverlib/adc.h"
+#include "stellaris/driverlib/debug.h"
+#include "stellaris/driverlib/interrupt.h"
 
 //*****************************************************************************
 //

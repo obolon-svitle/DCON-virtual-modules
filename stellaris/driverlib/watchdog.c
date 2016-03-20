@@ -44,13 +44,13 @@
 //
 //*****************************************************************************
 
-#include "inc/hw_ints.h"
-#include "inc/hw_memmap.h"
-#include "inc/hw_types.h"
-#include "inc/hw_watchdog.h"
-#include "driverlib/debug.h"
-#include "driverlib/interrupt.h"
-#include "driverlib/watchdog.h"
+#include "stellaris/hw_ints.h"
+#include "stellaris/hw_memmap.h"
+#include "stellaris/hw_types.h"
+#include "stellaris/hw_watchdog.h"
+#include "stellaris/driverlib/debug.h"
+#include "stellaris/driverlib/interrupt.h"
+#include "stellaris/driverlib/watchdog.h"
 
 //*****************************************************************************
 //

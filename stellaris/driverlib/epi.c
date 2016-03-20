@@ -37,13 +37,13 @@
 //
 //*****************************************************************************
 
-#include "inc/hw_epi.h"
-#include "inc/hw_ints.h"
-#include "inc/hw_memmap.h"
-#include "inc/hw_types.h"
-#include "driverlib/debug.h"
-#include "driverlib/epi.h"
-#include "driverlib/interrupt.h"
+#include "stellaris/hw_epi.h"
+#include "stellaris/hw_ints.h"
+#include "stellaris/hw_memmap.h"
+#include "stellaris/hw_types.h"
+#include "stellaris/driverlib/debug.h"
+#include "stellaris/driverlib/epi.h"
+#include "stellaris/driverlib/interrupt.h"
 
 //*****************************************************************************
 //

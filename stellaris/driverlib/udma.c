@@ -44,12 +44,12 @@
 //
 //*****************************************************************************
 
-#include "inc/hw_sysctl.h"
-#include "inc/hw_types.h"
-#include "inc/hw_udma.h"
-#include "driverlib/debug.h"
-#include "driverlib/interrupt.h"
-#include "driverlib/udma.h"
+#include "stellaris/hw_sysctl.h"
+#include "stellaris/hw_types.h"
+#include "stellaris/hw_udma.h"
+#include "stellaris/driverlib/debug.h"
+#include "stellaris/driverlib/interrupt.h"
+#include "stellaris/driverlib/udma.h"
 
 //*****************************************************************************
 //
