@@ -36,6 +36,7 @@ SOURCE = \
 	dcon/devices/dcon_dev_common.c \
 	dcon/devices/7050/7050.c \
 	dcon/devices/7050/7050_hw.c \
+	dcon/devices/7050/smbus/smbus.c \
 	dcon/devices/7017/7017.c \
 	coapserver/server-coap.c \
 	coapserver/coap_task.c \

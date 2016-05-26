@@ -24,6 +24,7 @@ static void set_7050_sync_data(const char *, char *);
 static void get_7050_sync_data(const char *, char *);
 static void get_7050_digital_io_status(const char *, char *);
 static void get_7050_digital_io(const char *, char *);
+static void get_7050_temperature(const char *, char *);
 
 static const struct cmd_t cmds[] = {
     {"%AANN40CCFF", "056", get_7050_config},
@@ -34,6 +35,7 @@ static const struct cmd_t cmds[] = {
     {"$AA4", "03", get_7050_sync_data},
     {"$AA6", "03", get_7050_digital_io_status},
     {"@AA", "0", get_7050_digital_io},
+    {"@AAI", "0", get_7050_temperature},
 };
 
 static struct dcon_dev dev_7050 = {
@@ -97,6 +99,18 @@ static inline void get_7050_digital_io(const char *request,
 
     input = get_input();
     snprintf(response, DCON_MAX_BUF, ">%02lx\r", input);
+}
+
+static inline void get_7050_temperature(const char *request,
+                                        char *response) {
+    int intpart, floatpart;
+    float temperature = mlx90614_get_temperature();
+
+    intpart = temperature;
+    floatpart = (temperature - intpart) * 100;
+    floatpart = (floatpart >= 0) ? floatpart : -(floatpart);
+
+    snprintf(response, DCON_MAX_BUF, ">%d.%02d\r", intpart, floatpart);
 }
 
 void Task7050Function(void *pvParameters) {
