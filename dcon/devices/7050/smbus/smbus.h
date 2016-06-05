@@ -8,8 +8,8 @@
 #include "stellaris/driverlib/gpio.h"
 #include <stdint.h>
 
-#define SDA_PIN			GPIO_PORTD_BASE, GPIO_PIN_6
-#define SCL_PIN 		GPIO_PORTD_BASE, GPIO_PIN_7
+#define SDA_PIN			GPIO_PORTH_BASE, GPIO_PIN_6
+#define SCL_PIN 		GPIO_PORTF_BASE, GPIO_PIN_1
 
 uint16_t memRead(uint8_t SlaveAddress, uint8_t command);
 
