@@ -13,7 +13,7 @@
 #include "devices/7050/7050.h"
 #include "devices/7017/7017.h"
 
-const int DCON_MAX_BUF = 30;
+const int DCON_MAX_BUF = 100;
 
 static xSemaphoreHandle dcon_root_mutex;
 static struct dcon_dev* dcon_root = NULL;
@@ -140,7 +140,7 @@ void dcon_data_send(const char *request, char *response) {
     if ((dev = dcon_find(request)) != NULL) {
         dcon_call_dev(dev, &msg);
         dcon_close(dev);
+    } else {
+        response[0] = '\0';
     }
-
-    response[0] = '\0';
 }
