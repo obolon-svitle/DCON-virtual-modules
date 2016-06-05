@@ -3,9 +3,13 @@
 #include <stdlib.h>
 #include "common.h"
 
-
 #include "dcon/dcon_dev_common.h"
 
+void float2int(float fl, int *restrict intpart, int *restrict floatpart) {
+	*intpart = fl;
+	*floatpart = (fl - *intpart ) * 100;
+	*floatpart = (*floatpart >= 0) ? *floatpart : -(*floatpart);
+}
 
 int parse_command(const char *cmd, const struct cmd_t *cmds,
                       size_t cmd_count) {
