@@ -10,6 +10,7 @@ struct cmd_t {
 };
 
 int parse_command(const char *cmd, const struct cmd_t *cmds, size_t cmd_count);
+void float2int(float fl, int *restrict intpart, int *restrict floatpart);
 
 /* The str MUST have at least 2 symbols long */
 unsigned int hex_to_int(const char *str);
