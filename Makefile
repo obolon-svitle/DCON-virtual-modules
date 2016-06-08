@@ -25,7 +25,7 @@ INCLUDE = -I include -I include/coap
 CFLAGS = \
 	$(DEBUG) $(OPTIM) $(INCLUDE) -std=c99 -pedantic -Wall -Wfatal-errors \
 	-mthumb -mcpu=cortex-m3 -ffunction-sections -fdata-sections \
-	-D GCC_ARMCM3_LM3S9B95 -D gcc -D RTOS_FREERTOS -DIPv4 -DWITH_LWIP \
+	-D GCC_ARMCM3_LM3S9B95 -DPART_LM3S9B95 -D gcc -D RTOS_FREERTOS -DIPv4 -DWITH_LWIP \
 	-D UART_BUFFERED -Dsrand=usrand -D uipprintf=UARTprintf \
 	-D printf=uipprintf -D sprintf=usprintf -D snprintf=usnprintf  \
 
@@ -38,6 +38,9 @@ SOURCE = \
 	dcon/devices/7050/7050_hw.c \
 	dcon/devices/7050/smbus/smbus.c \
 	dcon/devices/7017/7017.c \
+	dcon/devices/7017/7017_hw.c \
+	dcon/devices/7024/7024.c \
+	dcon/devices/7024/7024_hw.c \
 	coapserver/server-coap.c \
 	coapserver/coap_task.c \
 	$(STELLARIS_DRIVER_DIR)/utils/uartstdio.c \

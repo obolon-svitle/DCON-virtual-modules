@@ -12,6 +12,7 @@
 
 #include "devices/7050/7050.h"
 #include "devices/7017/7017.h"
+#include "devices/7024/7024.h"
 
 const int DCON_MAX_BUF = 100;
 
@@ -21,13 +22,14 @@ static struct dcon_dev* dcon_root = NULL;
 #define DEFAULT_MODULE_STACK_SIZE 200
 
 int dcon_init(void) {
-    
     if ((dcon_root_mutex = xSemaphoreCreateMutex()) == NULL)
         return -1;
 
     xTaskCreate(Task7050Function, "7050",
                 DEFAULT_MODULE_STACK_SIZE, NULL, 1, NULL);
     xTaskCreate(Task7017Function, "7017",
+                DEFAULT_MODULE_STACK_SIZE, NULL, 1, NULL);
+    xTaskCreate(Task7024Function, "7024",
                 DEFAULT_MODULE_STACK_SIZE, NULL, 1, NULL);
     
     return 0;
