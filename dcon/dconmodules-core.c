@@ -31,7 +31,6 @@ int dcon_init(void) {
                 DEFAULT_MODULE_STACK_SIZE, NULL, 1, NULL);
     xTaskCreate(Task7024Function, "7024",
                 DEFAULT_MODULE_STACK_SIZE, NULL, 1, NULL);
-    
     return 0;
 }
 
@@ -43,7 +42,6 @@ int dcon_dev_register(struct dcon_dev *dev) {
         xSemaphoreGive(dcon_root_mutex);
         return -1;
     }
-
             
     dev->dev_q = xQueueCreate(1, sizeof(struct msg));
     dev->data_q = xQueueCreate(1, sizeof(struct msg));
@@ -82,6 +80,17 @@ inline void dcon_dev_recv(struct dcon_dev *dev, struct msg *msg) {
 
 inline void dcon_dev_send(struct dcon_dev *dev, const struct msg *msgbuf) {
     xQueueSend(dev->dev_q, msgbuf, portMAX_DELAY);
+}
+
+void dcon_list_devices(void (*action)(int addr, int type,
+                                      void *data), void *data) {
+    xSemaphoreTake(dcon_root_mutex, portMAX_DELAY);
+    for (struct dcon_dev *p = dcon_root; p != NULL; p = p->next) {
+        xSemaphoreTake(p->mutex, portMAX_DELAY);
+        action(p->addr, p->type, data);
+        xSemaphoreGive(p->mutex);
+    }
+    xSemaphoreGive(dcon_root_mutex);
 }
 
 static struct dcon_dev* dcon_find(const char *request) {

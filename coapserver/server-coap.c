@@ -3,11 +3,18 @@
 
 #include "dcon/dcon_data.h"
 
-#define INDEX "Virtual I-7000, I-8000 modules\n"
+#define INDEX "Virtual ICP-DAS I-7000 modules series\n"
+#define DCON_NAME_RES "\"DCON virtual modules\""
+#define DCON_MAIN_RES "dcon"
+#define COLLECTION_ATTR "core.ll"
+
+#define RES_MEM_SIZE 15
 
 #ifndef min
 #define min(a,b) ((a) < (b) ? (a) : (b))
 #endif
+
+static void add_module(int addr, int type, coap_context_t *ctx);
 
 static void hnd_get_index(coap_context_t *ctx ,
                           struct coap_resource_t *resource,
@@ -46,7 +53,6 @@ hnd_get_module_data(coap_context_t  *ctx,
     response->hdr->code = COAP_RESPONSE_CODE(205);
 
     if (coap_find_observer(resource, peer, token)) {
-        /* FIXME: need to check for resource->dirty? */
         coap_add_option(response, COAP_OPTION_OBSERVE,
                         coap_encode_var_bytes(buf, ctx->observe), buf);
     }
@@ -60,7 +66,6 @@ hnd_get_module_data(coap_context_t  *ctx,
     if (request != NULL) {
         coap_get_data(request, &request_len, &request_buf);
 
-        /* FIXME: add check for overflow*/
         request_buf[request_len] = '\0';
         
         dcon_data_send(request_buf, buf);
@@ -77,17 +82,33 @@ static void init_resources(coap_context_t* ctx) {
     r = coap_resource_init(NULL, 0, 0);
     coap_register_handler(r, COAP_REQUEST_GET, hnd_get_index);
 
-    coap_add_attr(r, (unsigned char *)"ct", 2, (unsigned char *)"0", 1, 0);
-    coap_add_attr(r, (unsigned char *)"title", 5, (unsigned char *)"\"General Info\"",
-                  14, 0);
-    coap_add_resource(ctx, r);
-
-    r = coap_resource_init((unsigned char *)"dcon", 4, COAP_RESOURCE_FLAGS_NOTIFY_CON);
+    r = coap_resource_init((unsigned char *)DCON_MAIN_RES, 4, COAP_RESOURCE_FLAGS_NOTIFY_CON);
     coap_register_handler(r, COAP_REQUEST_POST, hnd_get_module_data);
 
     coap_add_attr(r, (unsigned char *)"ct", 2, (unsigned char *)"0", 1, 0);
     coap_add_attr(r, (unsigned char *)"title", 5,
-                  (unsigned char *)"\"DCON Virtual Module\"", 16, 0);
+                  (unsigned char *)DCON_NAME_RES, sizeof(DCON_NAME_RES) - 1, 0);
+    coap_add_resource(ctx, r);
+    vTaskDelay(10000);
+
+    dcon_list_devices(add_module, ctx);
+}
+
+static void add_module(int addr, int type, coap_context_t *ctx) {
+
+    coap_resource_t *r;
+    char *buf = mem_malloc(RES_MEM_SIZE);
+
+    snprintf(buf, RES_MEM_SIZE, DCON_MAIN_RES"/%02x", addr);
+
+    r = coap_resource_init((unsigned char *)buf, strlen(buf), COAP_RESOURCE_FLAGS_NOTIFY_CON);
+
+    coap_register_handler(r, COAP_REQUEST_POST, hnd_get_module_data);
+    buf = memp_malloc(RES_MEM_SIZE);
+    snprintf(buf, RES_MEM_SIZE, "\"%02x\"", type);
+    coap_add_attr(r, (unsigned char *)"rt", 2,
+                  (unsigned char *) buf, strlen(buf), 0);
+    coap_add_attr(r, (unsigned char *)"ct", 2, (unsigned char *)"0", 1, 0);
     coap_add_resource(ctx, r);
 }
 
@@ -97,7 +118,6 @@ static coap_context_t*  server_coap_init(void) {
 
     coap_address_init(&listenaddress);
 
-    /* looks like a server address, but is used as end point for clients too */
     listenaddress.addr = *(IP_ADDR_ANY);
     listenaddress.port = COAP_DEFAULT_PORT;
     newcontext = coap_new_context(&listenaddress);
@@ -124,10 +144,8 @@ void server_coap_serve(void) {
         coap_ticks(&now);
         while (nextpdu && nextpdu->t <= now - ctx->sendqueue_basetime) {
             coap_retransmit( ctx, coap_pop_next( ctx ) );
-            nextpdu = coap_peek_next( ctx );
-            
-        }        
-
+            nextpdu = coap_peek_next( ctx );            
+        }
         coap_check_notify(ctx);
     }
 }
