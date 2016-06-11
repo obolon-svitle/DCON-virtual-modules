@@ -21,7 +21,7 @@ static void set_7024_config(const char *, char *);
 static void set_7024_analog_output(const char *, char *);
 static void get_7024_name(const char *, char *);
 static void get_7024_config(const char *, char *);
-static void set_7024_chan_analog_output(const char *, char *);
+//static void set_7024_chan_analog_output(const char *, char *);
 static void get_7024_analog_output(const char *, char *);
 
 static const struct cmd_t cmds[] = {
@@ -52,7 +52,7 @@ static inline void set_7024_config(const char *request, char *response) {
 
 static inline long parse_out_voltage(const char *request) {
     const char *char_val = request + 4;
-    unsigned long value;
+    long value;
 
     if ((request[3] - '0') > 3 || !isdigit((int) char_val[0]) ||
         !isdigit((int) char_val[2]) || !isdigit((int) char_val[3]) ||
@@ -84,16 +84,19 @@ static inline void set_7024_analog_output(const char *request, char *response) {
 }
 
 static void get_7024_analog_output(const char *request, char *response) {
+    UNUSED(request);
     snprintf(response, DCON_MAX_BUF, "!%02x%s\r", dev_7024.addr,
              current_value);
 }
 
 static inline void get_7024_name(const char *request, char *response) {
+    UNUSED(request);
     snprintf(response, DCON_MAX_BUF, "!%02x%s\r", dev_7024.addr,
              MODULE_7024_NAME);
 }
 
 static inline void get_7024_config(const char *request, char *response) {
+    UNUSED(request);
     snprintf(response, DCON_MAX_BUF, "!%02x%02d0000\r", dev_7024.addr,
              dev_7024.type);
 }
@@ -101,6 +104,8 @@ static inline void get_7024_config(const char *request, char *response) {
 void Task7024Function(void *pvParameters) {
     struct msg msg;
     int result;
+
+    UNUSED(pvParameters);
 
     init_7024();
     

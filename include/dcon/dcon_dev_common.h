@@ -9,6 +9,8 @@ struct cmd_t {
     cmd_handler_t handler;
 };
 
+#define UNUSED(arg) ((void) arg)
+
 int parse_command(const char *cmd, const struct cmd_t *cmds, size_t cmd_count);
 void float2int(float fl, int *restrict intpart, int *restrict floatpart);
 

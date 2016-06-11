@@ -23,7 +23,7 @@ INCLUDE = -I include -I include/coap
 #-D GCC_ARMCM3_LM3S9B95
 #-D GCC_ARMCM3_LM3S102
 CFLAGS = \
-	$(DEBUG) $(OPTIM) $(INCLUDE) -std=c99 -pedantic -Wall -Wfatal-errors \
+	$(DEBUG) $(OPTIM) $(INCLUDE) -std=c99 -pedantic -Wall -Wextra -Wfatal-errors \
 	-mthumb -mcpu=cortex-m3 -ffunction-sections -fdata-sections \
 	-D GCC_ARMCM3_LM3S9B95 -DPART_LM3S9B95 -D gcc -D RTOS_FREERTOS -DIPv4 -DWITH_LWIP \
 	-D UART_BUFFERED -Dsrand=usrand -D uipprintf=UARTprintf \

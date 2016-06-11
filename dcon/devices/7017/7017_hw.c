@@ -6,25 +6,35 @@
 #include "stellaris/driverlib/gpio.h"
 #include "stellaris/driverlib/interrupt.h"
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/semphr.h"
+
 #include "7017_hw.h"
 
-#define ADC_DIVIDER 170.5
-#define MAX_VOLTAGE 5
-#define ADC_CHANNEL_COUNT 8
+#include "dcon/dcon_dev_common.h"
+
+#define MAX_VOLTAGE 3.3
+#define RESOLUTION 1024
+
+static unsigned long adc_vals[CHANNEL_COUNT];
+static SemaphoreHandle_t adc_mutex;
 
 void ADCIntHandler(void) {
-    unsigned long adc_vals[ADC_CHANNEL_COUNT];
-
-    ADCIntClear(ADC0_BASE, 0);
-
-    xSemaphoreTakeFromISR(adc_mutex, NULL);
-    ADCSequenceDataGet(ADC0_BASE, 0, &(adc_vals[0]));
-    xSemaphoreGiveFromISR(adc_mutex, NULL);
+    while(!ADCIntStatus(ADC0_BASE, 3, false));
+    ADCIntClear(ADC0_BASE, 3);
+    ADCSequenceDataGet(ADC0_BASE, 3, adc_vals);
+    ADCProcessorTrigger(ADC0_BASE, 3);
 }
 
-void dev_init(void) {
-    unsigned long ulDummy = 0;
+void get_voltage(int channel, int *intpart, int *floatpart) {
+    xSemaphoreTake(adc_mutex, portMAX_DELAY);
 
+    float2int((float) adc_vals[channel] / RESOLUTION * MAX_VOLTAGE, intpart, floatpart);
+    xSemaphoreGive(adc_mutex);
+}
+
+void init_7017(void) {
     adc_mutex = xSemaphoreCreateMutex();
     if (adc_mutex == NULL) {
         return;
@@ -32,23 +42,20 @@ void dev_init(void) {
 
     SysCtlPeripheralEnable(SYSCTL_PERIPH_ADC0);
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
-    GPIOPinTypeADC(GPIO_PORTC_BASE,
-                   GPIO_PIN_7| GPIO_PIN_6| GPIO_PIN_5| GPIO_PIN_4);
-    GPIOPinTypeADC(GPIO_PORTE_BASE, GPIO_PIN_1 | GPIO_PIN_2);
-
-    ADCSequenceDisable(ADC0_BASE, 0);
-    ADCSequenceConfigure(ADC0_BASE, 0, ADC_TRIGGER_PROCESSOR, 0);
-
-    ADCSequenceStepConfigure(ADC0_BASE, 0, 1, ADC_CTL_CH11);
-    ADCSequenceStepConfigure(ADC0_BASE, 0, 2, ADC_CTL_CH4);                   
-    ADCSequenceStepConfigure(ADC0_BASE, 0, 3, ADC_CTL_CH5);                   
-    ADCSequenceStepConfigure(ADC0_BASE, 0, 4, ADC_CTL_CH6);                   
-    ADCSequenceStepConfigure(ADC0_BASE, 0, 5, ADC_CTL_CH7 | ADC_CTL_IE | ADC_CTL_END);
-    ADCSequenceEnable(ADC0_BASE, 0);
+    GPIOPinTypeADC(GPIO_PORTD_BASE, GPIO_PIN_6 | GPIO_PIN_7);
     
-    ADCSequenceDataGet(ADC0_BASE, 0, &ulDummy);
+    ADCSequenceDisable(ADC0_BASE, 3);
+    ADCSequenceConfigure(ADC0_BASE, 3, ADC_TRIGGER_PROCESSOR, 0);
 
-    ADCIntEnable(ADC0_BASE, 0);
-    IntEnable(INT_ADC0);
+    ADCSequenceStepConfigure(ADC0_BASE, 3, 0, ADC_CTL_CH4);
+    ADCSequenceStepConfigure(ADC0_BASE, 3, 1, ADC_CTL_CH5 | ADC_CTL_IE | ADC_CTL_END);
+    ADCIntRegister(ADC0_BASE, 3, ADCIntHandler);
+    
+    ADCIntEnable(ADC0_BASE, 3);
+    ADCSequenceEnable(ADC_BASE, 3);
+    ADCIntClear(ADC0_BASE, 3);
+
+    ADCProcessorTrigger(ADC0_BASE, 3);
+
+
 }

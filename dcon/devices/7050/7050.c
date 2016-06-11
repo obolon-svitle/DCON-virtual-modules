@@ -45,6 +45,7 @@ static struct dcon_dev dev_7050 = {
 
 static SemaphoreHandle_t sync_mutex;
 static unsigned long int synchronized_data = 0;
+static int readed;
 
 static inline void set_7050_config(const char *request, char *response) {
     char char_addr[3];
@@ -69,43 +70,52 @@ static inline void set_7050_digital_output(const char *request, char *response) 
 }
 
 static inline void get_7050_name(const char *request, char *response) {
+    UNUSED(request);
     snprintf(response, DCON_MAX_BUF, "!%02x%s\r", dev_7050.addr,
              MODULE_7050_NAME);
 }
 
 static inline void get_7050_config(const char *request, char *response) {
+    UNUSED(request);
     snprintf(response, DCON_MAX_BUF, "!%02x%02d0000\r", dev_7050.addr,
              dev_7050.type);    
 }
 
 static inline void set_7050_sync_data(const char *request, char *response) {
+    UNUSED(request);
 	xSemaphoreTake(sync_mutex, portMAX_DELAY);
     synchronized_data = get_input();
     snprintf(response, DCON_MAX_BUF, "\r");
 	xSemaphoreGive(sync_mutex);
+    readed = 0;
 }
 
 static inline void get_7050_sync_data(const char *request, char *response) {
+    UNUSED(request);
 	xSemaphoreTake(sync_mutex, portMAX_DELAY);
-    snprintf(response, DCON_MAX_BUF, "!S%02x\r", synchronized_data);
+    snprintf(response, DCON_MAX_BUF, "!%d%02lx\r", readed, synchronized_data);
 	xSemaphoreGive(sync_mutex);
+    readed = 1;
 }
 
 static inline void get_7050_digital_io_status(const char *request, char *response) {
+    UNUSED(request);
     unsigned long int pintype = get_io_status();
-    snprintf(response, DCON_MAX_BUF, "!%02x\r", pintype);
+    snprintf(response, DCON_MAX_BUF, "!%02lx\r", pintype);
 }
 
 static inline void get_7050_digital_io(const char *request,
                        char *response) {
+    UNUSED(request);
     long int input;
 
     input = get_input();
-    snprintf(response, DCON_MAX_BUF, ">%02x\r", input);
+    snprintf(response, DCON_MAX_BUF, ">%02lx\r", input);
 }
 
 static inline void get_7050_temperature(const char *request,
                                         char *response) {
+    UNUSED(request);
     int intpart, floatpart;
     float temperature = mlx90614_get_temperature()
 ;
@@ -119,6 +129,8 @@ static inline void get_7050_temperature(const char *request,
 void Task7050Function(void *pvParameters) {
     struct msg msg;
     int result;
+
+    UNUSED(pvParameters);
 
 	sync_mutex = xSemaphoreCreateMutex();
 	if (sync_mutex == NULL)

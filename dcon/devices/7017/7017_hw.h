@@ -1,10 +1,9 @@
 #ifndef _7017_HW_H_
 #define _7017_HW_H_
 
-#define ADC_DIVIDER 170.5
-#define MAX_VOLTAGE 5
-#define ADC_CHANNEL_COUNT 8
+#define CHANNEL_COUNT 2
 
-void dev_init(void);
+void init_7017(void);
+void get_voltage(int channel, int *intpart, int *floatpart);
 
 #endif /*_7017_HW_H */

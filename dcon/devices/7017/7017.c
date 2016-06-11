@@ -15,7 +15,6 @@
 #define MODULE_7017_NAME "7017"
 
 /* Forward declarations */
-static unsigned long get_ADC_data(void);
 static void set_7017_config(const char *, char *);
 static void get_7017_name(const char *, char *);
 static void get_7017_config(const char *, char *);
@@ -25,13 +24,13 @@ static void get_7017_adc_data(const char *, char *);
 static void get_7017_adc_channel_data(const char *, char *);
 
 static const struct cmd_t cmds[] = {
-    {"%AANN40CCFF", "056", get_7017_config},
+    {"%AANN40CCFF", "056", set_7017_config},
     {"$AAM", "03", get_7017_name},
     {"$AA2", "03", get_7017_config},
-    {"#**", "0", set_7017_sync_data},
+    {"#**", "012", set_7017_sync_data},
     {"$AA4", "03", get_7017_sync_data},
     {"#AA", "0", get_7017_adc_data},
-    {"#AAN", "03", get_7017_adc_channel_data},
+    {"#AAN", "0", get_7017_adc_channel_data},
 };
 
 static struct dcon_dev dev_7017 = {
@@ -39,9 +38,9 @@ static struct dcon_dev dev_7017 = {
     .type = MODULE_7017_TYPE,
 };
 
-static SemaphoreHandle_t adc_mutex;
-static unsigned long adc_vals[ADC_CHANNEL_COUNT];
-static unsigned long sync_adc_vals[ADC_CHANNEL_COUNT];
+static int sync_val_int = 0;
+static int sync_val_float = 0;
+static int readed = 0;
 
 static void set_7017_config(const char *request, char *response) {
     char char_addr[3];
@@ -55,51 +54,72 @@ static void set_7017_config(const char *request, char *response) {
 }
 
 static void get_7017_name(const char *request, char *response) {
+    UNUSED(request);
     snprintf(response, DCON_MAX_BUF, "!%02x%s\r", dev_7017.addr,
              MODULE_7017_NAME);
 }
 
 static void get_7017_config(const char *request, char *response) {
+    UNUSED(request);
     snprintf(response, DCON_MAX_BUF, "!%02x%02d0000\r", dev_7017.addr,
              dev_7017.type);    
 }
 
 static void set_7017_sync_data(const char *request, char *response) {
-    xSemaphoreTake(adc_mutex, portMAX_DELAY);
-
-    for (size_t i = 0; i < ADC_CHANNEL_COUNT; i++) {
-        sync_adc_vals[i] = adc_vals[i];
-    }
-
-    xSemaphoreGive(adc_mutex);
+    UNUSED(request);
     
+    get_voltage(0, &sync_val_int, &sync_val_float);
+
+    readed = 0;
+
     snprintf(response, DCON_MAX_BUF, "\r");
 }
 
 static void get_7017_sync_data(const char *request, char *response) {
-    snprintf(response, DCON_MAX_BUF,
-             "!S%+2.4f%+2.4f%+2.4f%+2.4f%+2.4f%+2.4f\r",
-             sync_adc_vals[0] / ADC_DIVIDER, sync_adc_vals[1] / ADC_DIVIDER,
-             sync_adc_vals[2] / ADC_DIVIDER, sync_adc_vals[3] / ADC_DIVIDER,
-             sync_adc_vals[4] / ADC_DIVIDER, sync_adc_vals[5] / ADC_DIVIDER);
+    UNUSED(request);
+    int intpart;
+    int floatpart;
+    char *pos = response;
+    
+    snprintf(response, DCON_MAX_BUF, ">%02x%d+%02d.%d",
+             MODULE_7017_ADDR, readed, sync_val_int,
+             sync_val_float);
+    readed = 1;
 }
 
 static void get_7017_adc_data(const char *request, char *response) {
-    snprintf(response, DCON_MAX_BUF,
-             ">%+2.4f%+2.4f%+2.4f%+2.4f%+2.4f%+2.4f\r",
-             adc_vals[0] / ADC_DIVIDER, adc_vals[1] / ADC_DIVIDER,
-             adc_vals[2] / ADC_DIVIDER, adc_vals[3] / ADC_DIVIDER,
-             adc_vals[4] / ADC_DIVIDER, adc_vals[5] / ADC_DIVIDER);
+    int intpart;
+    int floatpart;
+    char *pos = response;
+    ssize_t max_size;
+
+    UNUSED(request);
+
+    for (size_t i = 0; i < CHANNEL_COUNT; i++) {
+        max_size = DCON_MAX_BUF - 2 - (pos - response);
+        if (max_size < 0)
+            break;
+        get_voltage(i, &intpart, &floatpart);
+        pos += snprintf(pos, max_size,
+                        "+%d.%d", intpart, floatpart);
+    }
+    *(pos) = '\r';
+    *(pos + 1) = '\0';
 }
 static void get_7017_adc_channel_data(const char *request, char *response) {
-    snprintf(response, DCON_MAX_BUF, ">%+2.4ld\r", adc_vals[(unsigned)request[3]]);
+    int intpart, floatpart;
+
+    get_voltage(request[3] - '0', &intpart, &floatpart);
+    snprintf(response, DCON_MAX_BUF, ">+%01d.%d\r", intpart, floatpart);
 }
 
 void Task7017Function(void *pvParameters){
     struct msg msg;
     int result;
 
-    dev_init();
+    UNUSED(pvParameters);
+
+    init_7017();
 
     dcon_dev_register(&dev_7017);
 
