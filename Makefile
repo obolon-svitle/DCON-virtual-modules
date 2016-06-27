@@ -30,9 +30,9 @@ CFLAGS += -DUART_BUFFERED -Dsrand=usrand -Duipprintf=UARTprintf -Dprintf=uipprin
 #CFLAGS +=-ffunction-sections -fdata-sections
 	
 ifdef QEMU_BUILD
-CFLAGS += -D GCC_ARMCM3_LM3S102 -DPART_LM3S6965
+CFLAGS += -DPART_LM3S6965
 else
-CFLAGS += -D GCC_ARMCM3_LM3S9B95 -DPART_LM3S9B95
+CFLAGS += -DPART_LM3S9B95
 endif
 
 SOURCE = \
@@ -51,7 +51,6 @@ SOURCE = \
 	src/coapserver/coap_task.c \
 	$(STELLARIS_DRIVER_DIR)/utils/uartstdio.c \
 	$(wildcard $(STELLARIS_DRIVER_DIR)/driverlib/*.c) \
-	$(STELLARIS_DRIVER_DIR)/EVB_9B95/drivers/set_pinout.c \
 	$(STELLARIS_DRIVER_DIR)/utils/ustdlib.c \
 	$(STELLARIS_DRIVER_DIR)/utils/lwiplib.c \
 	$(RTOS_SOURCE_DIR)/list.c \
@@ -100,6 +99,10 @@ SOURCE = \
 	$(COAP_SOURCE_DIR)/src/subscribe.c \
 	$(COAP_SOURCE_DIR)/src/debug.c \
 	$(COAP_SOURCE_DIR)/src/address.c
+
+ifndef QEMU_BUILD
+SOURCE += $(STELLARIS_DRIVER_DIR)/EVB_9B95/drivers/set_pinout.c
+endif
 
 LIBS = 
 

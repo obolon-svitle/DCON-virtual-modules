@@ -10,6 +10,7 @@ static unsigned char pucMACArray[8];
 void TaskCoAPServerFunction(void *pvParameters) {
     unsigned long ulUser0, ulUser1;
 
+#ifndef PART_LM3S6965
     FlashUserGet(&ulUser0, &ulUser1);
 
     ulUser0 = 0x00123456;
@@ -25,6 +26,10 @@ void TaskCoAPServerFunction(void *pvParameters) {
     pucMACArray[3] = ((ulUser1 >>  0) & 0xff);
     pucMACArray[4] = ((ulUser1 >>  8) & 0xff);
     pucMACArray[5] = ((ulUser1 >> 16) & 0xff);
+
+#else
+    lwIPLocalMACGet(pucMACArray);
+#endif
 
     lwIPInit(pucMACArray, 0, 0, 0, IPADDR_USE_DHCP);
 

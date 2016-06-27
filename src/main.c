@@ -13,8 +13,11 @@
 #include "stellaris/driverlib/gpio.h"
 #include "stellaris/driverlib/systick.h"
 #include "stellaris/driverlib/interrupt.h"
-#include "stellaris/EVB_9B95/drivers/set_pinout.h"
 #include "stellaris/utils/uartstdio.h"
+
+#ifdef DPART_LM3S9B95
+#include "stellaris/EVB_9B95/drivers/set_pinout.h"
+#endif
 
 #include "common.h"
 
@@ -26,8 +29,6 @@
 
 static void setup_hardware(void);
 extern void setup_timers(void);
-
-/*-----------------------------------------------------------*/
 
 int main(void) {
     setup_hardware();
@@ -61,7 +62,9 @@ static void setup_hardware(void) {
     SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_OSC_MAIN | SYSCTL_USE_PLL |
                    SYSCTL_XTAL_16MHZ);
 
+#ifdef DPART_LM3S9B95
     PinoutSet();
+#endif
 
     GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
     
