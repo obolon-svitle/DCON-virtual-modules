@@ -50,18 +50,18 @@ static void set_7017_config(const char *request, char *response) {
 
     dev_7017.addr = hex_to_int(char_addr);
     
-    snprintf(response, DCON_MAX_BUF, "!\r");
+    snprintf(response, DCON_MAX_RESPONSE_SIZE, "!\r");
 }
 
 static void get_7017_name(const char *request, char *response) {
     UNUSED(request);
-    snprintf(response, DCON_MAX_BUF, "!%02x%s\r", dev_7017.addr,
+    snprintf(response, DCON_MAX_RESPONSE_SIZE, "!%02x%s\r", dev_7017.addr,
              MODULE_7017_NAME);
 }
 
 static void get_7017_config(const char *request, char *response) {
     UNUSED(request);
-    snprintf(response, DCON_MAX_BUF, "!%02x%02d0000\r", dev_7017.addr,
+    snprintf(response, DCON_MAX_RESPONSE_SIZE, "!%02x%02d0000\r", dev_7017.addr,
              dev_7017.type);    
 }
 
@@ -72,16 +72,13 @@ static void set_7017_sync_data(const char *request, char *response) {
 
     readed = 0;
 
-    snprintf(response, DCON_MAX_BUF, "\r");
+    snprintf(response, DCON_MAX_RESPONSE_SIZE, "\r");
 }
 
 static void get_7017_sync_data(const char *request, char *response) {
     UNUSED(request);
-    int intpart;
-    int floatpart;
-    char *pos = response;
     
-    snprintf(response, DCON_MAX_BUF, ">%02x%d+%02d.%d",
+    snprintf(response, DCON_MAX_RESPONSE_SIZE, ">%02x%d+%02d.%d",
              MODULE_7017_ADDR, readed, sync_val_int,
              sync_val_float);
     readed = 1;
@@ -96,7 +93,7 @@ static void get_7017_adc_data(const char *request, char *response) {
     UNUSED(request);
 
     for (size_t i = 0; i < CHANNEL_COUNT; i++) {
-        max_size = DCON_MAX_BUF - 2 - (pos - response);
+        max_size = DCON_MAX_RESPONSE_SIZE - 2 - (pos - response);
         if (max_size < 0)
             break;
         get_voltage(i, &intpart, &floatpart);
@@ -110,7 +107,7 @@ static void get_7017_adc_channel_data(const char *request, char *response) {
     int intpart, floatpart;
 
     get_voltage(request[3] - '0', &intpart, &floatpart);
-    snprintf(response, DCON_MAX_BUF, ">+%01d.%d\r", intpart, floatpart);
+    snprintf(response, DCON_MAX_RESPONSE_SIZE, ">+%01d.%d\r", intpart, floatpart);
 }
 
 void Task7017Function(void *pvParameters){
@@ -130,7 +127,7 @@ void Task7017Function(void *pvParameters){
         if (result != -1) {
             cmds[result].handler(msg.request, msg.response);
         } else {
-            snprintf(msg.response, DCON_MAX_BUF, "?%02x\r", dev_7017.addr);
+            snprintf(msg.response, DCON_MAX_RESPONSE_SIZE, "?%02x\r", dev_7017.addr);
         }
 
         dcon_dev_send(&dev_7017, &msg);

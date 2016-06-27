@@ -2,6 +2,7 @@
 #include "coap/resource.h"
 
 #include "dcon/dcon_data.h"
+#include "common.h"
 
 #define INDEX "Virtual ICP-DAS I-7000 modules series\n"
 #define DCON_NAME_RES "\"DCON virtual modules\""
@@ -10,8 +11,8 @@
 
 #define RES_MEM_SIZE 15
 
-#ifndef min
-#define min(a,b) ((a) < (b) ? (a) : (b))
+#ifndef MIN
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
 #endif
 
 static void add_module(int addr, int type, coap_context_t *ctx);
@@ -23,6 +24,12 @@ static void hnd_get_index(coap_context_t *ctx ,
                           coap_pdu_t *request,
                           str *token,
                           coap_pdu_t *response) {
+	UNUSED(ctx);
+	UNUSED(resource);
+	UNUSED(local_interface);
+	UNUSED(peer);
+	UNUSED(request);
+	UNUSED(token);
     unsigned buf[3];
     
     response->hdr->code = COAP_RESPONSE_CODE(205);
@@ -44,11 +51,12 @@ hnd_get_module_data(coap_context_t  *ctx,
                     coap_pdu_t *request,
                     str *token,
                     coap_pdu_t *response) {
+	UNUSED(local_interface);
+
     size_t request_len;
     unsigned char *request_buf;
-    unsigned char buf[DCON_MAX_BUF];
+    unsigned char buf[DCON_MAX_RESPONSE_SIZE];
     size_t len;
-    int result;
 
     response->hdr->code = COAP_RESPONSE_CODE(205);
 
@@ -71,7 +79,7 @@ hnd_get_module_data(coap_context_t  *ctx,
         dcon_data_send(request_buf, buf);
 
         len = snprintf((char *)buf,
-                       min(sizeof(buf),response->max_size - response->length), buf);
+                       MIN(sizeof(buf),response->max_size - response->length), buf);
         coap_add_data(response, len, buf);
     }
 }

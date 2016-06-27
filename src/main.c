@@ -49,7 +49,7 @@ int main(void) {
 }
 /*-----------------------------------------------------------*/
 
-void setup_hardware(void) {
+static void setup_hardware(void) {
         
     /* If running on Rev A2 silicon, turn the LDO voltage up to 2.75V.  This is
     a workaround to allow the PLL to operate reliably. */

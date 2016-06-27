@@ -6,7 +6,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 
-extern const int DCON_MAX_BUF;
+#include "dcon_types.h"
 
 struct msg {
     const char *request;

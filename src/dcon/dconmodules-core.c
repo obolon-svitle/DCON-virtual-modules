@@ -14,8 +14,6 @@
 #include "devices/7017/7017.h"
 #include "devices/7024/7024.h"
 
-const int DCON_MAX_BUF = 100;
-
 static xSemaphoreHandle dcon_root_mutex;
 static struct dcon_dev* dcon_root = NULL;
 

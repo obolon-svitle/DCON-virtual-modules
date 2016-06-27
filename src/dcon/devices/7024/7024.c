@@ -47,7 +47,7 @@ static inline void set_7024_config(const char *request, char *response) {
 
     dev_7024.addr = hex_to_int(char_addr);
     
-    snprintf(response, DCON_MAX_BUF, "!\r");
+    snprintf(response, DCON_MAX_RESPONSE_SIZE, "!\r");
 }
 
 static inline long parse_out_voltage(const char *request) {
@@ -75,9 +75,9 @@ static inline void set_7024_analog_output(const char *request, char *response) {
         memcpy(current_value, request + 4,
                sizeof(current_value) - 1);
         current_value[5] = '\0';
-        snprintf(response, DCON_MAX_BUF, ">\r");
+        snprintf(response, DCON_MAX_RESPONSE_SIZE, ">\r");
     } else {
-        snprintf(response, DCON_MAX_BUF, "?\r");
+        snprintf(response, DCON_MAX_RESPONSE_SIZE, "?\r");
     }
 
     return;
@@ -85,19 +85,19 @@ static inline void set_7024_analog_output(const char *request, char *response) {
 
 static void get_7024_analog_output(const char *request, char *response) {
     UNUSED(request);
-    snprintf(response, DCON_MAX_BUF, "!%02x%s\r", dev_7024.addr,
+    snprintf(response, DCON_MAX_RESPONSE_SIZE, "!%02x%s\r", dev_7024.addr,
              current_value);
 }
 
 static inline void get_7024_name(const char *request, char *response) {
     UNUSED(request);
-    snprintf(response, DCON_MAX_BUF, "!%02x%s\r", dev_7024.addr,
+    snprintf(response, DCON_MAX_RESPONSE_SIZE, "!%02x%s\r", dev_7024.addr,
              MODULE_7024_NAME);
 }
 
 static inline void get_7024_config(const char *request, char *response) {
     UNUSED(request);
-    snprintf(response, DCON_MAX_BUF, "!%02x%02d0000\r", dev_7024.addr,
+    snprintf(response, DCON_MAX_RESPONSE_SIZE, "!%02x%02d0000\r", dev_7024.addr,
              dev_7024.type);
 }
 
@@ -118,7 +118,7 @@ void Task7024Function(void *pvParameters) {
         if (result != -1) {
             cmds[result].handler(msg.request, msg.response);
         } else {
-            snprintf(msg.response, DCON_MAX_BUF, "?%02x\r",
+            snprintf(msg.response, DCON_MAX_RESPONSE_SIZE, "?%02x\r",
                  dev_7024.addr);
         }
         

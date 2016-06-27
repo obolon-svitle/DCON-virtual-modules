@@ -3,24 +3,24 @@ NAME := dcon-virt-mod
 CC      ?= arm-none-eabi-gcc
 OBJCOPY ?= arm-none-eabi-objcopy
 
-RTOS_SOURCE_DIR      := third_party/freertos/
-STELLARIS_DRIVER_DIR := third_party/stellaris/
-LWIP_SOURCE_DIR      := third_party/lwip/
-COAP_SOURCE_DIR      := third_party/coap/
+RTOS_SOURCE_DIR      = third_party/freertos/
+STELLARIS_DRIVER_DIR = third_party/stellaris/
+LWIP_SOURCE_DIR      = third_party/lwip/
+COAP_SOURCE_DIR      = third_party/coap/
 
 BUILD_DIR = bin/
 
-BIN_PATH := $(BUILD_DIR)/$(NAME)
+BIN_PATH = $(BUILD_DIR)/$(NAME)
 
 LDSCRIPT = src/standalone.ld
 
 LDFLAGS = -nostartfiles -Xlinker -Map=$(BIN_PATH).map -Xlinker --no-gc-sections -T $(LDSCRIPT)
 
-DEBUG := -g3
-OPTIM := -O0 -pipe
+DEBUG = -g3
+OPTIM = -O0 -pipe
 
-INCLUDE := -I src/include -I$(RTOS_SOURCE_DIR)/include -I$(COAP_SOURCE_DIR)/include/coap -I$(COAP_SOURCE_DIR)/include \
-          -I$(STELLARIS_DRIVER_DIR)/include -I$(LWIP_SOURCE_DIR)/include
+INCLUDE = -I src/include -I$(RTOS_SOURCE_DIR)/include -I$(COAP_SOURCE_DIR)/include/coap \
+          -I$(COAP_SOURCE_DIR)/include -I$(STELLARIS_DRIVER_DIR)/include -I$(LWIP_SOURCE_DIR)/include
 
 CFLAGS += $(DEBUG) $(OPTIM) $(INCLUDE)
 CFLAGS += -std=c99 -pedantic -Wall -Wextra -Wfatal-errors 
@@ -35,7 +35,7 @@ else
 CFLAGS += -D GCC_ARMCM3_LM3S9B95 -DPART_LM3S9B95
 endif
 
-SOURCE := \
+SOURCE = \
 	src/main.c \
 	src/timers.c \
 	src/dcon/dconmodules-core.c \
@@ -112,24 +112,24 @@ POSTCOMPILE = mkdir -p $(DEPDIR)/$(dir $*.d) && mv -f $(BUILD_DIR)/$*.d $(DEPDIR
 
 .PHONY: clean
 
-all : $(BIN_PATH).bin Makefile
-
+all : $(BIN_PATH).bin
+	
 $(BIN_PATH).bin : $(BIN_PATH).axf
 	@mkdir -p $(dir $@)
 	$(OBJCOPY) $< -O binary $@
 
-$(BIN_PATH).axf : $(OBJS) src/startup.o
+$(BIN_PATH).axf : $(OBJS) $(BUILD_DIR)/src/startup.o
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $^ $(LIBS) $(LDFLAGS) -o $@
+	
+$(BUILD_DIR)/src/startup.o : $(BUILD_DIR)/%.o : %.c $(DEPDIR)/%.d
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(DEPFLAGS) -O1 -c $< -o $@
+	$(POSTCOMPILE)
 
 $(OBJS) : $(BUILD_DIR)/%.o : %.c $(DEPDIR)/%.d
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
-	$(POSTCOMPILE)
-
-$(BUILD_DIR)/src/startup.o : $(BUILD_DIR)/%.o : %.c $(DEPDIR)/%.d
-	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $(DEPFLAGS) -O1 -c $< -o $@
 	$(POSTCOMPILE)
 
 $(DEPDIR)/%.d: ;
@@ -137,4 +137,5 @@ $(DEPDIR)/%.d: ;
 -include $(patsubst %,$(DEPDIR)/%.d,$(basename $(SOURCE)))
 
 clean :
-	rm -rf $(DEPDIR) $(BUILD_DIR) $(OBJS) $(PROJ_PATH).bin $(PROJ_PATH).map $(PROJ_PATH).axf startup.o
+	rm -rf $(DEPDIR) $(BUILD_DIR) $(OBJS) $(PROJ_PATH).bin $(PROJ_PATH).map \
+		   $(PROJ_PATH).axf $(BUILD_DIR)/startup.o
