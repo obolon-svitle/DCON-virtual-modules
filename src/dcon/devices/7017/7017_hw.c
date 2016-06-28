@@ -27,12 +27,16 @@
 	GPIOPinTypeADC(GPIO_PORTD_BASE, GPIO_PIN_6 | GPIO_PIN_7); } while (0)
 
 static unsigned long adc_vals[CHANNEL_COUNT];
-static SemaphoreHandle_t adc_mutex;
+static xSemaphoreHandle adc_mutex;
 
 void ADCIntHandler(void) {
     while(!ADCIntStatus(MODULE_ADC_BASE, MODULE_ADC_SEQUENCE_NUM, false));
     ADCIntClear(MODULE_ADC_BASE, MODULE_ADC_SEQUENCE_NUM);
+
+    xSemaphoreTakeFromISR(adc_mutex, pdFALSE);
     ADCSequenceDataGet(MODULE_ADC_BASE, MODULE_ADC_SEQUENCE_NUM, adc_vals);
+    xSemaphoreGiveFromISR(adc_mutex, pdTRUE);
+
     ADCProcessorTrigger(MODULE_ADC_BASE, MODULE_ADC_SEQUENCE_NUM);
 }
 

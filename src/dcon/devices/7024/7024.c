@@ -102,26 +102,11 @@ static inline void get_7024_config(const char *request, char *response) {
 }
 
 void Task7024Function(void *pvParameters) {
-    struct msg msg;
-    int result;
-
     UNUSED(pvParameters);
 
     init_7024();
     
     dcon_dev_register(&dev_7024);
 
-    for (;;) {
-        dcon_dev_recv(&dev_7024, &msg);
-
-        result = parse_command(msg.request, cmds, ARRAY_SIZE(cmds));
-        if (result != -1) {
-            cmds[result].handler(msg.request, msg.response);
-        } else {
-            snprintf(msg.response, DCON_MAX_RESPONSE_SIZE, "?%02x\r",
-                 dev_7024.addr);
-        }
-        
-        dcon_dev_send(&dev_7024, &msg);
-    }
+    dcon_run_device(&dev_7024, cmds, ARRAY_SIZE(cmds));
 }

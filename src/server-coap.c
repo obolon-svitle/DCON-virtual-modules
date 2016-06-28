@@ -1,3 +1,8 @@
+#include "lwip/lwiplib.h"
+
+#include <stellaris/hw_types.h>
+#include <stellaris/driverlib/flash.h>
+
 #include "coap/coap.h"
 #include "coap/resource.h"
 
@@ -14,6 +19,8 @@
 #ifndef MIN
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 #endif
+
+static unsigned char pucMACArray[8];
 
 static void add_module(int addr, int type, coap_context_t *ctx);
 
@@ -130,30 +137,66 @@ static coap_context_t*  server_coap_init(void) {
     listenaddress.port = COAP_DEFAULT_PORT;
     newcontext = coap_new_context(&listenaddress);
 
-    LWIP_ASSERT("Failed to initialize context", newcontext != NULL);
-
     return newcontext;
 }
 
-void server_coap_serve(void) {
+static void server_coap_serve(void) {
     coap_context_t *ctx;
     coap_tick_t now;
     coap_queue_t *nextpdu;
 
     ctx = server_coap_init();
-    
-    coap_set_log_level(LOG_WARNING);
-    
-    init_resources(ctx);
-    
-    for (;;) {
-        nextpdu = coap_peek_next(ctx);
+    if (ctx)
+    {
+    	coap_set_log_level(LOG_WARNING);
 
-        coap_ticks(&now);
-        while (nextpdu && nextpdu->t <= now - ctx->sendqueue_basetime) {
-            coap_retransmit( ctx, coap_pop_next( ctx ) );
-            nextpdu = coap_peek_next( ctx );            
-        }
-        coap_check_notify(ctx);
+    	init_resources(ctx);
+
+    	DVM_LOG_I("coap server started");
+
+    	for (;;) {
+    		nextpdu = coap_peek_next(ctx);
+
+    		coap_ticks(&now);
+    		while (nextpdu && nextpdu->t <= now - ctx->sendqueue_basetime) {
+    			coap_retransmit( ctx, coap_pop_next( ctx ) );
+    			nextpdu = coap_peek_next( ctx );
+    		}
+    		coap_check_notify(ctx);
+    	}
+    }
+    else
+    {
+        DVM_LOG_E("coap ctx init err");
     }
 }
+
+void TaskCoAPServerFunction(void *pvParameters) {
+#ifndef PART_LM3S6965
+    unsigned long ulUser0, ulUser1;
+
+    FlashUserGet(&ulUser0, &ulUser1);
+
+    ulUser0 = 0x00123456;
+    ulUser1 = 0x00987654;
+
+    if ((ulUser0 == 0xffffffff) || (ulUser1 == 0xffffffff)) {
+        while(1);
+    }
+
+    pucMACArray[0] = ((ulUser0 >>  0) & 0xff);
+    pucMACArray[1] = ((ulUser0 >>  8) & 0xff);
+    pucMACArray[2] = ((ulUser0 >> 16) & 0xff);
+    pucMACArray[3] = ((ulUser1 >>  0) & 0xff);
+    pucMACArray[4] = ((ulUser1 >>  8) & 0xff);
+    pucMACArray[5] = ((ulUser1 >> 16) & 0xff);
+
+#else
+    lwIPLocalMACGet(pucMACArray);
+#endif
+
+    lwIPInit(pucMACArray, 0, 0, 0, IPADDR_USE_DHCP);
+
+    server_coap_serve();
+}
+

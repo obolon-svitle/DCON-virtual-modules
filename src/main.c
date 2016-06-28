@@ -13,7 +13,6 @@
 #include "stellaris/driverlib/gpio.h"
 #include "stellaris/driverlib/systick.h"
 #include "stellaris/driverlib/interrupt.h"
-#include "stellaris/utils/uartstdio.h"
 
 #ifdef DPART_LM3S9B95
 #include "stellaris/EVB_9B95/drivers/set_pinout.h"
@@ -24,7 +23,7 @@
 #include "coap/coap_task.h"
 #include "dcon/dcon_init.h"
 
-#define COAP_STACK_SIZE 200
+#define COAP_STACK_SIZE 1024
 #define COAP_TASK_PRIORITY 1
 
 static void setup_hardware(void);
@@ -34,6 +33,8 @@ int main(void) {
     setup_hardware();
     setup_timers();
 
+	DVM_LOG_I("Peripherals initialized");
+
     dcon_init();
 
     if (SysCtlPeripheralPresent(SYSCTL_PERIPH_ETH)) {
@@ -42,9 +43,6 @@ int main(void) {
     }
 
     vTaskStartScheduler();
-    
-    for (; ;)
-        ;
     
     return 0;
 }
@@ -78,7 +76,7 @@ static void setup_hardware(void) {
 
 void vApplicationStackOverflowHook(TaskHandle_t *pxTask, signed char *pcTaskName) {
     (void) pxTask;
-    UARTprintf("Stack overflow in %s task\n", pcTaskName);
+    DVM_LOG_E("Stack overflow in %s task", pcTaskName);
 
     for( ;; )
         ;

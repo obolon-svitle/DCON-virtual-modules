@@ -127,9 +127,6 @@ static inline void get_7050_temperature(const char *request,
 }
 
 void Task7050Function(void *pvParameters) {
-    struct msg msg;
-    int result;
-
     UNUSED(pvParameters);
 
 	sync_mutex = xSemaphoreCreateMutex();
@@ -140,17 +137,5 @@ void Task7050Function(void *pvParameters) {
     
     dcon_dev_register(&dev_7050);
 
-    for (;;) {
-        dcon_dev_recv(&dev_7050, &msg);
-
-        result = parse_command(msg.request, cmds, ARRAY_SIZE(cmds));
-        if (result != -1) {
-            cmds[result].handler(msg.request, msg.response);
-        } else {
-            snprintf(msg.response, DCON_MAX_RESPONSE_SIZE, "?%02x\r",
-                 dev_7050.addr);
-        }
-        
-        dcon_dev_send(&dev_7050, &msg);
-    }
+    dcon_run_device(&dev_7050, cmds, ARRAY_SIZE(cmds));
 }

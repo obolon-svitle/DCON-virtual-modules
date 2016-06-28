@@ -111,25 +111,12 @@ static void get_7017_adc_channel_data(const char *request, char *response) {
 }
 
 void Task7017Function(void *pvParameters){
-    struct msg msg;
-    int result;
-
     UNUSED(pvParameters);
 
     init_7017();
 
     dcon_dev_register(&dev_7017);
 
-    for (;;) {
-        dcon_dev_recv(&dev_7017, &msg);
+    dcon_run_device(&dev_7017, cmds, ARRAY_SIZE(cmds));
 
-        result = parse_command(msg.request, cmds, ARRAY_SIZE(cmds));
-        if (result != -1) {
-            cmds[result].handler(msg.request, msg.response);
-        } else {
-            snprintf(msg.response, DCON_MAX_RESPONSE_SIZE, "?%02x\r", dev_7017.addr);
-        }
-
-        dcon_dev_send(&dev_7017, &msg);
-    }
 }

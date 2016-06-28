@@ -23,12 +23,16 @@ INCLUDE = -I src/include -I$(RTOS_SOURCE_DIR)/include -I$(COAP_SOURCE_DIR)/inclu
           -I$(COAP_SOURCE_DIR)/include -I$(STELLARIS_DRIVER_DIR)/include -I$(LWIP_SOURCE_DIR)/include
 
 CFLAGS += $(DEBUG) $(OPTIM) $(INCLUDE)
-CFLAGS += -std=c99 -pedantic -Wall -Wextra -Wfatal-errors 
+CFLAGS += -std=gnu99 -pedantic -Wall -Wextra -Wfatal-errors 
 CFLAGS += -mcpu=cortex-m3 -mthumb 
 CFLAGS += -Dgcc -DRTOS_FREERTOS -DIPv4 -DWITH_LWIP
 CFLAGS += -DUART_BUFFERED -Dsrand=usrand -Duipprintf=UARTprintf -Dprintf=uipprintf -Dsprintf=usprintf -Dsnprintf=usnprintf
 #CFLAGS +=-ffunction-sections -fdata-sections
-	
+
+ifdef DEBUG_LOG
+CFLAGS += -DDEBUG_LOG
+endif
+
 ifdef QEMU_BUILD
 CFLAGS += -DPART_LM3S6965
 else
@@ -47,8 +51,7 @@ SOURCE = \
 	src/dcon/devices/7017/7017_hw.c \
 	src/dcon/devices/7024/7024.c \
 	src/dcon/devices/7024/7024_hw.c \
-	src/coapserver/server-coap.c \
-	src/coapserver/coap_task.c \
+	src/server-coap.c \
 	$(STELLARIS_DRIVER_DIR)/utils/uartstdio.c \
 	$(wildcard $(STELLARIS_DRIVER_DIR)/driverlib/*.c) \
 	$(STELLARIS_DRIVER_DIR)/utils/ustdlib.c \
